@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="bgColors">
+        <item>Východ slunce</item>
+        <item>Západ slunce</item>
+        <item>Noc</item>
+    </string-array>
+    <string-array name="bgColors_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array> <!-- Keep it same with bgColors -->
+
+    <string-array name="sounds">
+        <item>Dřívka</item>
+        <item>Hrubé</item>
+        <item>Měkké</item>
+    </string-array>
+    <string-array name="sounds_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+
+</resources>

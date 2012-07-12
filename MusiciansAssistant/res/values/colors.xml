@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="morning">#003366</color>
+    <color name="sunset">#330000</color>
+    <color name="night">#050505</color>
+</resources>
