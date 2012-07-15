@@ -35,6 +35,7 @@ public class MainActivity extends Activity implements ActionBar.OnNavigationList
                                 getString(R.string.title_section_metronome),
                                 getString(R.string.title_section_tone),
                                 getString(R.string.title_section_tuner),
+								getString(R.string.title_section_recorder)
                         }),
                 this);
     }
@@ -80,6 +81,9 @@ public class MainActivity extends Activity implements ActionBar.OnNavigationList
         case 2:
             fragment = new TunerFragment();
             break;
+		case 3:
+		    fragment = new RecorderFragment();
+			break;
         default:
             break;
         }

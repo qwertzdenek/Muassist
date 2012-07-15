@@ -1,0 +1,95 @@
+/*
+Metronom for Android
+    Copyright (C) 2012  Zdeněk Janeček <jan.zdenek@gmail.com>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package kiv.janecekz.ma.metronome;
+
+import java.util.Observable;
+import java.util.Observer;
+
+import android.os.PowerManager;
+
+/**
+ * This class controls {@code Peeper}.
+ * 
+ * @author Zdeněk Janeček
+ */
+public class Operator extends Thread implements Observer {
+    private int bpm = Tempomat.MIN_BPM;
+    private Peeper peeper;
+    private PowerManager.WakeLock wl;
+    private boolean loop;
+    private boolean play = false;
+
+    // TODO: don't control the WakeLock
+    public Operator(Peeper peeper, PowerManager.WakeLock wl) {
+        super();
+
+        this.peeper = peeper;
+        this.wl = wl;
+    }
+
+    @Override
+    public void run() {
+        while (loop) {
+            try {
+                pauseLoop();
+                Thread.sleep(60000 / bpm);
+            } catch (InterruptedException e) {
+                loop = false;
+                break;
+            }
+            peeper.run();
+        }
+    }
+
+    private synchronized void pauseLoop() throws InterruptedException {
+        if (!play) {
+            wait();
+        }
+    }
+
+    @Override
+    public void start() {
+        loop = true;
+        peeper.reset();
+        super.start();
+    }
+
+    @Override
+    public void interrupt() {
+        loop = false;
+        super.interrupt();
+    }
+
+    public synchronized void setPlay(boolean play) {
+        this.play = play;
+        if (!wl.isHeld()) {
+            wl.acquire();
+        } else {
+            wl.release();
+        }
+        if (play)
+            notify();
+
+    }
+
+    public void update(Observable observable, Object data) {
+        Tempomat t = (Tempomat) observable;
+        bpm = t.getBPM();
+    }
+}
