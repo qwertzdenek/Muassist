@@ -21,14 +21,17 @@ package kiv.janecekz.ma;
 import kiv.janecekz.ma.prefs.Setup;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 
 public class MainActivity extends Activity implements
         ActionBar.OnNavigationListener {
@@ -36,6 +39,7 @@ public class MainActivity extends Activity implements
     public static final String TAG = "MA";
 
     private TouchControl touchCon;
+    private AlertDialog helpDialog;
     private Fragment[] fragments = new Fragment[4];
 
     @Override
@@ -63,6 +67,13 @@ public class MainActivity extends Activity implements
                                 getString(R.string.title_section_tuner),
                                 getString(R.string.title_section_recorder) }),
                 this);
+        
+        // Help dialog
+        AlertDialog.Builder help = new AlertDialog.Builder(this);
+        help.setTitle(R.string.help);
+        help.setMessage(R.string.helpText);
+        help.setIcon(android.R.drawable.ic_menu_info_details);
+        helpDialog = help.create();
     }
 
     @Override
@@ -90,6 +101,24 @@ public class MainActivity extends Activity implements
 
         menu.findItem(R.id.menu_settings).setIntent(prefsIntent);
         return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+        case R.id.menu_help:
+            helpDialog.show();
+            ((TextView) helpDialog.findViewById(android.R.id.message))
+                    .setMovementMethod(LinkMovementMethod.getInstance());
+            return true;
+
+        case R.id.menu_settings:
+            startActivity(item.getIntent());
+            return true;
+
+        default:
+            return super.onOptionsItemSelected(item);
+        }
     }
 
     @Override
