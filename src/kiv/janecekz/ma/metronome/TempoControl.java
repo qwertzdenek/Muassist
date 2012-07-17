@@ -16,7 +16,7 @@ Metronom for Android
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package kiv.janecekz.ma.control;
+package kiv.janecekz.ma.metronome;
 
 import java.util.Observable;
 
@@ -25,7 +25,7 @@ import java.util.Observable;
  * 
  * @author Zdeněk Janeček
  */
-public class Tempomat extends Observable {
+public class TempoControl extends Observable {
     public static final int MAX_BPM = 220;
     public static final int MIN_BPM = 30;
 
@@ -33,7 +33,6 @@ public class Tempomat extends Observable {
 
     public void setBPM(int bpm) {
         if ((bpm >= MIN_BPM) && (bpm <= MAX_BPM)) {
-//            SharedPref.setBPM(context, bpm);
             this.bpm = bpm;
             setChanged();
             notifyObservers();
@@ -41,7 +40,6 @@ public class Tempomat extends Observable {
     }
 
     public int getBPM() {
-//        return SharedPref.getBPM(context);
         return bpm;
     }
 

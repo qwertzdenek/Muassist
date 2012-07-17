@@ -21,26 +21,21 @@ package kiv.janecekz.ma.metronome;
 import java.util.Observable;
 import java.util.Observer;
 
-import android.os.PowerManager;
-
 /**
  * This class controls {@code Peeper}.
  * 
  * @author Zdeněk Janeček
  */
 public class Operator extends Thread implements Observer {
-    private int bpm = Tempomat.MIN_BPM;
+    private int bpm = TempoControl.MIN_BPM;
     private Peeper peeper;
-    private PowerManager.WakeLock wl;
     private boolean loop;
     private boolean play = false;
 
-    // TODO: don't control the WakeLock
-    public Operator(Peeper peeper, PowerManager.WakeLock wl) {
+    public Operator(Peeper peeper) {
         super();
-
+        
         this.peeper = peeper;
-        this.wl = wl;
     }
 
     @Override
@@ -78,18 +73,13 @@ public class Operator extends Thread implements Observer {
 
     public synchronized void setPlay(boolean play) {
         this.play = play;
-        if (!wl.isHeld()) {
-            wl.acquire();
-        } else {
-            wl.release();
-        }
+        // FIXME WakeLock has to be controlled out of this.
         if (play)
             notify();
-
     }
 
     public void update(Observable observable, Object data) {
-        Tempomat t = (Tempomat) observable;
+        TempoControl t = (TempoControl) observable;
         bpm = t.getBPM();
     }
 }

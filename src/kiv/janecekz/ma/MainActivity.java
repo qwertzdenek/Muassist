@@ -5,20 +5,30 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 
-public class MainActivity extends Activity implements ActionBar.OnNavigationListener {
+public class MainActivity extends Activity implements
+        ActionBar.OnNavigationListener {
     private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
+    public static final String TAG = "MA";
+
+    private TouchControl touchCon;
+    private Fragment[] fragments = new Fragment[4];
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        touchCon = TouchControl.getInstance();
         
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
         // Set up the action bar.
         final ActionBar actionBar = getActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
@@ -27,16 +37,13 @@ public class MainActivity extends Activity implements ActionBar.OnNavigationList
         // Set up the dropdown list navigation in the action bar.
         actionBar.setListNavigationCallbacks(
                 // Specify a SpinnerAdapter to populate the dropdown list.
-                new ArrayAdapter<String>(
-                        actionBar.getThemedContext(),
+                new ArrayAdapter<String>(actionBar.getThemedContext(),
                         android.R.layout.simple_list_item_1,
-                        android.R.id.text1,
-                        new String[]{
+                        android.R.id.text1, new String[] {
                                 getString(R.string.title_section_metronome),
                                 getString(R.string.title_section_tone),
                                 getString(R.string.title_section_tuner),
-								getString(R.string.title_section_recorder)
-                        }),
+                                getString(R.string.title_section_recorder) }),
                 this);
     }
 
@@ -50,16 +57,16 @@ public class MainActivity extends Activity implements ActionBar.OnNavigationList
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putInt(STATE_SELECTED_NAVIGATION_ITEM,
-                getActionBar().getSelectedNavigationIndex());
+        outState.putInt(STATE_SELECTED_NAVIGATION_ITEM, getActionBar()
+                .getSelectedNavigationIndex());
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.activity_main, menu);
-        menu.findItem(R.id.menu_settings)
-                .setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
+        menu.findItem(R.id.menu_settings).setShowAsAction(
+                MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
         Intent prefsIntent = new Intent(getApplicationContext(), Setup.class);
 
@@ -69,28 +76,34 @@ public class MainActivity extends Activity implements ActionBar.OnNavigationList
 
     @Override
     public boolean onNavigationItemSelected(int position, long id) {
-        // When the given tab is selected, show the tab contents in the container
+        // When the given tab is selected, show the tab contents in the
+        // container
         Fragment fragment = null;
-        switch (position) {
-        case 0:
-            fragment = new MetronomeFragment();
-            break;
-        case 1:
-            fragment = new ToneFragment();
-            break;
-        case 2:
-            fragment = new TunerFragment();
-            break;
-		case 3:
-		    fragment = new RecorderFragment();
-			break;
-        default:
-            break;
-        }
         
+        if (fragments[position] == null) {
+            switch (position) {
+            case 0:
+                fragment = new MetronomeFragment();
+                break;
+            case 1:
+                fragment = new ToneFragment();
+                break;
+            case 2:
+                fragment = new TunerFragment();
+                break;
+            case 3:
+                fragment = new RecorderFragment();
+                break;
+            default:
+                break;
+            }
+        } else {
+            fragment = fragments[position];
+        }
+
         getFragmentManager().beginTransaction()
-                .replace(R.id.container, fragment)
-                .commit();
+                .replace(R.id.container, fragment).commit();
+        touchCon.registerOnMyEvent((OnMyEvent) fragment);
         return true;
     }
 }

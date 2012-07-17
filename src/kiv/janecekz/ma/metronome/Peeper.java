@@ -16,12 +16,11 @@ Metronom for Android
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package kiv.janecekz.ma.control;
+package kiv.janecekz.ma.metronome;
 
-import kiv.janecekz.metronome.R;
-import kiv.janecekz.metronome.prefs.SharedPref;
+import kiv.janecekz.ma.R;
+import kiv.janecekz.ma.prefs.SharedPref;
 import android.animation.ObjectAnimator;
-import android.content.Context;
 import android.media.MediaPlayer;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
@@ -30,7 +29,7 @@ import android.widget.ImageView;
  * This class plays peeps. Lenght of measure is hidden in the {@code time}
  * variable.
  * 
- * @author nox
+ * @author Zdeněk Janeček
  * 
  */
 public class Peeper {
@@ -42,7 +41,6 @@ public class Peeper {
             { PEEP, POP, POP }, { PEEP, POP, POP, POP } };
     private final MediaPlayer[] peepPlayers = new MediaPlayer[SOUNDS_COUNT];
     private final MediaPlayer[] popPlayers = new MediaPlayer[SOUNDS_COUNT];;
-    private Context context;
 
     private final ObjectAnimator[] fadeAnim;
     private final ImageView sun;
@@ -54,45 +52,41 @@ public class Peeper {
     private int phase;
     private int state;
 
-    public Peeper(Context context, ImageView sun) {
-        peepPlayers[0] = MediaPlayer.create(context, R.raw.peep1);
-        peepPlayers[1] = MediaPlayer.create(context, R.raw.peep2);
-        peepPlayers[2] = MediaPlayer.create(context, R.raw.peep3);
-        popPlayers[0] = MediaPlayer.create(context, R.raw.pop1);
-        popPlayers[1] = MediaPlayer.create(context, R.raw.pop2);
-        popPlayers[2] = MediaPlayer.create(context, R.raw.pop3);
+    public Peeper(ImageView sun) {
+        peepPlayers[0] = MediaPlayer.create(sun.getContext(), R.raw.peep1);
+        peepPlayers[1] = MediaPlayer.create(sun.getContext(), R.raw.peep2);
+        peepPlayers[2] = MediaPlayer.create(sun.getContext(), R.raw.peep3);
+        popPlayers[0] = MediaPlayer.create(sun.getContext(), R.raw.pop1);
+        popPlayers[1] = MediaPlayer.create(sun.getContext(), R.raw.pop2);
+        popPlayers[2] = MediaPlayer.create(sun.getContext(), R.raw.pop3);
 
         this.sun = sun;
 
         fadeAnim = new ObjectAnimator[2];
         fadeAnim[PEEP] = ObjectAnimator.ofFloat(this.sun, "alpha", 0f, 1f,
                 0.3f, 0f);
-        fadeAnim[PEEP].setDuration(100);
+        fadeAnim[PEEP].setDuration(200);
         fadeAnim[PEEP].setInterpolator(new LinearInterpolator());
 
         fadeAnim[POP] = ObjectAnimator.ofFloat(this.sun, "alpha", 0f, 0.5f,
                 0.2f, 0f);
-        fadeAnim[POP].setDuration(100);
+        fadeAnim[POP].setDuration(200);
         fadeAnim[POP].setInterpolator(new LinearInterpolator());
 
         sounds = new MediaPlayer[2];
         setSound(choosenSound);
 
         phase = 0;
-
-        this.context = context;
-        setTime(SharedPref.getTime(this.context));
     }
 
     public void run() {
         state = paternTable[time][phase];
+        sounds[state].start();
         sun.post(new Runnable() {
-
             public void run() {
                 fadeAnim[state].start();
             }
         });
-        sounds[state].start();
         phase = (phase + 1) % paternTable[time].length;
     }
 
@@ -104,7 +98,7 @@ public class Peeper {
      */
     public void setTime(int time) {
         if ((time >= 1) && (time <= paternTable.length)) {
-            SharedPref.setTime(context, time);
+            SharedPref.setTime(sun.getContext(), time);
             this.time = time - 1;
             phase = 0;
         }
