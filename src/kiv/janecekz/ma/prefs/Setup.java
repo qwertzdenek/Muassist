@@ -1,5 +1,5 @@
 /*
-Metronom for Android
+Musicians Assistant
     Copyright (C) 2012  Zdeněk Janeček <jan.zdenek@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
