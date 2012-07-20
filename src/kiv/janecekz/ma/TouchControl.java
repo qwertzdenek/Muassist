@@ -18,6 +18,8 @@ Musicians Assistant
 
 package kiv.janecekz.ma;
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -59,6 +61,34 @@ public class TouchControl implements OnTouchListener {
     private long startTime;
     private long stopTime;
     private boolean stopping = false;
+
+    public static AnimatorSet getInAnim(View v) {
+        ObjectAnimator circleInAnim1 = ObjectAnimator.ofFloat(v,
+                "alpha", 0f, 1f);
+        ObjectAnimator circleInAnim2 = ObjectAnimator.ofFloat(v,
+                "scaleY", 0f, 1f);
+        circleInAnim1.setDuration(400);
+        circleInAnim2.setDuration(400);
+
+        AnimatorSet inAnim = new AnimatorSet();
+        inAnim.play(circleInAnim1).with(circleInAnim2);
+        
+        return inAnim;
+    }
+
+    public static AnimatorSet getOutAnim(View v) {
+        ObjectAnimator circleOutAnim1 = ObjectAnimator.ofFloat(v,
+                "alpha", 1f, 0f);
+        ObjectAnimator circleOutAnim2 = ObjectAnimator.ofFloat(v,
+                "scaleY", 1f, 0f);
+        circleOutAnim2.setDuration(1000);
+        circleOutAnim2.setDuration(1000);
+        
+        AnimatorSet outAnim = new AnimatorSet();
+        outAnim.play(circleOutAnim1).with(circleOutAnim2);
+        
+        return outAnim;
+    }
 
     @Override
     public boolean onTouch(View arg0, MotionEvent event) {

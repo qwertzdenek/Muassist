@@ -18,37 +18,94 @@ Musicians Assistant
 
 package kiv.janecekz.ma;
 
+import kiv.janecekz.ma.tone.Player;
+import android.animation.AnimatorSet;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 public class ToneFragment extends Fragment implements OnMyEvent {
+    private Player pl;
+    private ImageView circle;
+    private AnimatorSet inAnim;
+    private AnimatorSet outAnim;
+
+    private TextView toneValue;
+    private int freq = 440;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+
+        View v = inflater.inflate(R.layout.tone, container, false);
+        v.setOnTouchListener(TouchControl.getInstance());
+
+        circle = (ImageView) v.findViewById(R.id.circle);
         
-        return inflater.inflate(R.layout.tone, container, false);
+        inAnim = TouchControl.getInAnim(circle);
+        outAnim = TouchControl.getOutAnim(circle);
+        
+        toneValue = (TextView) v.findViewById(R.id.tone_value);
+        // FIXME: Get value from the shared prefereces.
+        toneValue.setText(Integer.toString(freq));
+
+        return v;
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+        
+        pl.interrupt();
+    }
+
+    @Override
+    public void onResume() {
+        pl = new Player();
+        pl.setFreq(freq);
+        pl.start();
+        
+        pl.setPlay();
+        
+        super.onResume();
+    }
+
     public void onValueChange(TouchControl t, float val) {
-        // TODO Auto-generated method stub
+        // TODO: editable speed
+        freq = freq + (int) (val / 50);
         
+        toneValue.setText(Integer.toString(freq));
+        pl.setFreq(freq);
     }
 
-    @Override
     public void onToggle(TouchControl t, int state) {
-        // TODO Auto-generated method stub
-        
+        switch (state) {
+        case TouchControl.STATE_BEGIN:
+            inAnim.start();
+            break;
+        case TouchControl.STATE_STOP:
+            // TODO: Shared preferences
+//            SharedPref.setPlay(getActivity(),
+//                    !SharedPref.getPlay(getActivity()));
+            pl.setPlay();
+            break;
+        case TouchControl.STATE_OUT:
+            if (inAnim.isRunning())
+                inAnim.cancel();
+            outAnim.start();
+            break;
+        default:
+            break;
+        }
     }
 
-    @Override
     public void onPositionChange(TouchControl t, float x, float y) {
-        // TODO Auto-generated method stub
-        
+        circle.setX(x - circle.getWidth() / 2);
+        circle.setY(y - circle.getHeight() / 2);
     }
 
 }

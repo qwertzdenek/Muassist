@@ -45,19 +45,16 @@ public class RecorderFragment extends Fragment implements OnMyEvent {
         super.onResume();
     }
 
-    @Override
     public void onValueChange(TouchControl t, float val) {
         // TODO Auto-generated method stub
 
     }
 
-    @Override
     public void onToggle(TouchControl t, int state) {
         // TODO Auto-generated method stub
 
     }
 
-    @Override
     public void onPositionChange(TouchControl t, float x, float y) {
         // TODO Auto-generated method stub
 

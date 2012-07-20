@@ -33,19 +33,16 @@ public class TunerFragment extends Fragment implements OnMyEvent {
         return inflater.inflate(R.layout.tuner, container, false);
     }
 
-    @Override
     public void onValueChange(TouchControl t, float val) {
         // TODO Auto-generated method stub
         
     }
 
-    @Override
     public void onToggle(TouchControl t, int state) {
         // TODO Auto-generated method stub
         
     }
 
-    @Override
     public void onPositionChange(TouchControl t, float x, float y) {
         // TODO Auto-generated method stub
         

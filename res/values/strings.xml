@@ -36,6 +36,9 @@
     <string name="pref_sound_title">Tick-tack sound</string>
     <string name="pref_sound">Choose from the predefined sounds</string>
     
+    <!-- Tone Generator -->
+    <string name="tone_value">440</string>
+    
     <!-- Configuration keys -->
     <string name="pref_key_bg">background_update_flag</string>
     <string name="pref_key_sound">sound_update_flag</string>

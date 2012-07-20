@@ -26,7 +26,6 @@ import kiv.janecekz.ma.metronome.Peeper;
 import kiv.janecekz.ma.metronome.TempoControl;
 import kiv.janecekz.ma.prefs.SharedPref;
 import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -78,25 +77,8 @@ public class MetronomeFragment extends Fragment implements OnMyEvent,
 
         circle = (ImageView) v.findViewById(R.id.circle);
 
-        ObjectAnimator circleInAnim1 = ObjectAnimator.ofFloat(this.circle,
-                "alpha", 0f, 1f);
-        ObjectAnimator circleInAnim2 = ObjectAnimator.ofFloat(this.circle,
-                "scaleY", 0f, 1f);
-        circleInAnim1.setDuration(400);
-        circleInAnim2.setDuration(400);
-
-        ObjectAnimator circleOutAnim1 = ObjectAnimator.ofFloat(this.circle,
-                "alpha", 1f, 0f);
-        ObjectAnimator circleOutAnim2 = ObjectAnimator.ofFloat(this.circle,
-                "scaleY", 1f, 0f);
-        circleOutAnim2.setDuration(1000);
-        circleOutAnim2.setDuration(1000);
-
-        inAnim = new AnimatorSet();
-        outAnim = new AnimatorSet();
-
-        inAnim.play(circleInAnim1).with(circleInAnim2);
-        outAnim.play(circleOutAnim1).with(circleOutAnim2);
+        inAnim = TouchControl.getInAnim(circle);
+        outAnim = TouchControl.getOutAnim(circle);
         
         return v;
     }
@@ -128,13 +110,11 @@ public class MetronomeFragment extends Fragment implements OnMyEvent,
         super.onResume();
     }
 
-    @Override
     public void onValueChange(TouchControl t, float val) {
 //        Log.d(MainActivity.TAG, "get val: "+val);
         tc.setBPM((int) (tc.getBPM() + val / 100));
     }
 
-    @Override
     public void onToggle(TouchControl t, int state) {
         switch (state) {
         case TouchControl.STATE_BEGIN:
@@ -155,7 +135,6 @@ public class MetronomeFragment extends Fragment implements OnMyEvent,
         }
     }
 
-    @Override
     public void onPositionChange(TouchControl t, float x, float y) {
         circle.setX(x - circle.getWidth() / 2);
         circle.setY(y - circle.getHeight() / 2);
