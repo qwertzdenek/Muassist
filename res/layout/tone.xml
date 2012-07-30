@@ -14,6 +14,7 @@
         android:visibility="visible" />
 
     <TextView
+        android:id="@+id/tone_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
@@ -22,14 +23,85 @@
         android:text="@string/title_section_tone"
         android:textSize="16dp" />
 
-    <TextView
-        android:id="@+id/tone_value"
+    <HorizontalScrollView
+        android:id="@+id/tone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/circle"
+        android:layout_below="@id/tone_text"
         android:layout_centerHorizontal="true"
-        android:text="@string/tone_value"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:textColor="@android:color/holo_blue_bright" />
+        android:paddingTop="20dp"
+        android:scrollbars="none" >
+
+        <LinearLayout
+            android:id="@+id/tone_list"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/toneC"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="@string/C"
+                android:textSize="40dp"
+                android:textColor="@android:color/holo_blue_light" />
+
+            <TextView
+                android:id="@+id/toneD"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="@string/D"
+                android:textSize="40dp"
+                android:textColor="@android:color/holo_blue_light" />
+
+            <TextView
+                android:id="@+id/toneE"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="@string/E"
+                android:textSize="40dp"
+                android:textColor="@android:color/holo_blue_light" />
+
+            <TextView
+                android:id="@+id/toneF"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="@string/F"
+                android:textSize="40dp"
+                android:textColor="@android:color/holo_blue_light" />
+
+            <TextView
+                android:id="@+id/toneG"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="@string/G"
+                android:textSize="40dp"
+                android:textColor="@android:color/holo_blue_light" />
+
+            <TextView
+                android:id="@+id/toneA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="@string/A"
+                android:textSize="40dp"
+                android:textColor="@android:color/holo_blue_light" />
+
+            <TextView
+                android:id="@+id/toneB"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="@string/B"
+                android:textSize="40dp"
+                android:textColor="@android:color/holo_blue_light" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
 
 </RelativeLayout>

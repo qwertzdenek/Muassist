@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
 
     <!-- Main strings -->
@@ -21,15 +22,16 @@
     <string name="setup_global">Global setup</string>
     
     <string name="setup_color_title">Choose gradient</string>
+    <string name="setup_speed_title">Value change speed</string>
     <string name="pref_color_title">Background</string>
-    <string name="pref_color">set up background</string>
-    
-    <string name="pref_notify_title">Notifications</string>
-    <string name="pref_notify">Enable notifications</string>
+    <string name="pref_color">Set up background</string>
     
     <string name="pref_orientation_title">Lock rotation</string>
     <string name="pref_orientation">Enable to lock the portraite mode</string>
 
+    <string name="pref_speed_title">Value change speed</string>
+    <string name="pref_speed">Set up coeficient of value change on touch control.</string>
+    
     <!-- Metronome -->
     <string name="setup_metronome">Metronome setup</string>
     <string name="setup_sound_title">Choose sound</string>
@@ -37,11 +39,17 @@
     <string name="pref_sound">Choose from the predefined sounds</string>
     
     <!-- Tone Generator -->
-    <string name="tone_value">440</string>
+    <string name="C">C</string>
+    <string name="D">D</string>
+    <string name="E">E</string>
+    <string name="F">F</string>
+    <string name="G">G</string>
+    <string name="A">A</string>
+    <string name="B">B</string>
     
     <!-- Configuration keys -->
     <string name="pref_key_bg">background_update_flag</string>
     <string name="pref_key_sound">sound_update_flag</string>
     <string name="pref_key_orientation">orientation_update_flag</string>
-    <string name="pref_key_notify">notify_update_flag</string>
+    <string name="pref_key_speed">speed_update_flag</string>
 </resources>

@@ -19,84 +19,69 @@ Musicians Assistant
 package kiv.janecekz.ma;
 
 import kiv.janecekz.ma.tone.Player;
-import android.animation.AnimatorSet;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.TextView;
 
-public class ToneFragment extends Fragment implements OnMyEvent {
+public class ToneFragment extends Fragment implements IControlable {
     private Player pl;
     private ImageView circle;
-    private AnimatorSet inAnim;
-    private AnimatorSet outAnim;
-
-    private TextView toneValue;
-    private int freq = 440;
+    private Animation inAnim;
+    private Animation outAnim;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        View v = inflater.inflate(R.layout.tone, container, false);
-        v.setOnTouchListener(TouchControl.getInstance());
+        View root = inflater.inflate(R.layout.tone, container, false);
+        root.setOnTouchListener(TouchControl.getInstance());
 
-        circle = (ImageView) v.findViewById(R.id.circle);
-        
-        inAnim = TouchControl.getInAnim(circle);
-        outAnim = TouchControl.getOutAnim(circle);
-        
-        toneValue = (TextView) v.findViewById(R.id.tone_value);
-        // FIXME: Get value from the shared prefereces.
-        toneValue.setText(Integer.toString(freq));
+        circle = (ImageView) root.findViewById(R.id.circle);
 
-        return v;
+        inAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.nav_in);
+        outAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.nav_out);
+
+        return root;
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        
+
         pl.interrupt();
     }
 
     @Override
     public void onResume() {
-        pl = new Player();
-        pl.setFreq(freq);
-        pl.start();
-        
-        pl.setPlay();
-        
         super.onResume();
+        pl = new Player((ViewGroup) getView().findViewById(R.id.tone_list));
+
+        pl.start();
+
+        getView().setBackgroundResource(((MainActivity) getActivity()).getBgRes());
     }
 
-    public void onValueChange(TouchControl t, float val) {
-        // TODO: editable speed
-        freq = freq + (int) (val / 50);
-        
-        toneValue.setText(Integer.toString(freq));
-        pl.setFreq(freq);
+    public void onValueChange(TouchControl t, int val) {
+        // nothing to do
     }
 
     public void onToggle(TouchControl t, int state) {
         switch (state) {
         case TouchControl.STATE_BEGIN:
-            inAnim.start();
+            circle.startAnimation(inAnim);
             break;
         case TouchControl.STATE_STOP:
-            // TODO: Shared preferences
-//            SharedPref.setPlay(getActivity(),
-//                    !SharedPref.getPlay(getActivity()));
-            pl.setPlay();
+            pl.togglePlay();
             break;
         case TouchControl.STATE_OUT:
-            if (inAnim.isRunning())
+            if (!inAnim.hasEnded())
                 inAnim.cancel();
-            outAnim.start();
+            circle.startAnimation(outAnim);
             break;
         default:
             break;

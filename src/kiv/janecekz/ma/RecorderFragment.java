@@ -23,40 +23,66 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 
-public class RecorderFragment extends Fragment implements OnMyEvent {
+public class RecorderFragment extends Fragment implements IControlable {
+    private ImageView circle;
+    private AnimationSet inAnim;
+    private AnimationSet outAnim;
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         
-        return inflater.inflate(R.layout.recorder, container, false);
+        View v = inflater.inflate(R.layout.recorder, container, false);
+        v.setOnTouchListener(TouchControl.getInstance());
+        
+        circle = (ImageView) v.findViewById(R.id.circle);
+        
+        inAnim = (AnimationSet) AnimationUtils.loadAnimation(getActivity(), R.anim.nav_in);
+        outAnim = (AnimationSet) AnimationUtils.loadAnimation(getActivity(), R.anim.nav_out);
+        
+        return v;
     }
 
     @Override
     public void onPause() {
-        // TODO Auto-generated method stub
         super.onPause();
     }
 
     @Override
     public void onResume() {
-        // TODO Auto-generated method stub
         super.onResume();
+
+        getView().setBackgroundResource(((MainActivity) getActivity()).getBgRes());
     }
 
-    public void onValueChange(TouchControl t, float val) {
-        // TODO Auto-generated method stub
-
+    public void onValueChange(TouchControl t, int val) {
+        // Not used
     }
 
     public void onToggle(TouchControl t, int state) {
-        // TODO Auto-generated method stub
-
+        switch (state) {
+        case TouchControl.STATE_BEGIN:
+            circle.startAnimation(inAnim);
+            break;
+        case TouchControl.STATE_STOP:
+            // TODO control here
+            break;
+        case TouchControl.STATE_OUT:
+            if (!inAnim.hasEnded())
+                inAnim.cancel();
+            circle.startAnimation(outAnim);
+            break;
+        default:
+            break;
+        }
     }
 
     public void onPositionChange(TouchControl t, float x, float y) {
-        // TODO Auto-generated method stub
-
+        circle.setX(x - circle.getWidth() / 2);
+        circle.setY(y - circle.getHeight() / 2);
     }
 }

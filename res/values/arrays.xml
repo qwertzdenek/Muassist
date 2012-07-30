@@ -2,9 +2,9 @@
 <resources>
 
     <string-array name="bgColors">
-        <item>Východ slunce</item>
-        <item>Západ slunce</item>
-        <item>Noc</item>
+        <item>Sunrise</item>
+        <item>Sunset</item>
+        <item>Night</item>
     </string-array>
     <string-array name="bgColors_values">
         <item>0</item>
@@ -13,14 +13,25 @@
     </string-array> <!-- Keep it same with bgColors -->
 
     <string-array name="sounds">
-        <item>Dřívka</item>
-        <item>Hrubé</item>
-        <item>Měkké</item>
+        <item>Woods</item>
+        <item>Rush</item>
+        <item>Soft</item>
     </string-array>
     <string-array name="sounds_values">
         <item>0</item>
         <item>1</item>
         <item>2</item>
+    </string-array>
+    
+    <string-array name="touchSp">
+        <item>Slow</item>
+        <item>Decent</item>
+        <item>Fast</item>
+    </string-array>
+    <string-array name="touchSp_values">
+        <item>100</item>
+        <item>70</item>
+        <item>50</item>
     </string-array>
 
 </resources>

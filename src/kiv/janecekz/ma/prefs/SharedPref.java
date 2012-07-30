@@ -25,19 +25,19 @@ import android.content.SharedPreferences;
 public class SharedPref {
     public final static String PREFS_NAME = "prefs";
 
-    /**
-     * If is metronome started, this variable will be true. Controlled by the
-     * Preference Activity.
-     * 
-     * @param context
-     *            Application Context
-     * @return saved value from the Shared Preferences.
-     */
-    public static boolean getNotify(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        return prefs.getBoolean(context.getString(R.string.pref_key_notify),
-                true);
-    }
+    // /**
+    // * If is metronome started, this variable will be true. Controlled by the
+    // * Preference Activity.
+    // *
+    // * @param context
+    // * Application Context
+    // * @return saved value from the Shared Preferences.
+    // */
+    // public static boolean getNotify(Context context) {
+    // SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+    // return prefs.getBoolean(context.getString(R.string.pref_key_notify),
+    // true);
+    // }
 
     /**
      * If is screen locked in the portrait mode, this variable will be true.
@@ -64,7 +64,7 @@ public class SharedPref {
     public static int getTheme(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
         return Integer.parseInt(prefs.getString(
-                context.getString(R.string.pref_key_bg), "2"));
+                context.getString(R.string.pref_key_bg), "0"));
     }
 
     /**
@@ -82,7 +82,20 @@ public class SharedPref {
     }
 
     /**
-     * Metronome tempo. Set by user, and freely modifiable.
+     * Value change speed coeficient. Higher means slower speed.
+     * 
+     * @param context
+     *            Application Context
+     * @return saved value from the Shared Preferences.
+     */
+    public static int getSpeed(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        return Integer.parseInt(prefs.getString(
+                context.getString(R.string.pref_key_speed), "70"));
+    }
+
+    /**
+     * Metronome tempo. Setted by user, and freely modifiable.
      * 
      * @param context
      *            Application Context
@@ -94,7 +107,7 @@ public class SharedPref {
     }
 
     /**
-     * Metronome tempo setter. Set by user, and freely modifiable.
+     * Metronome tempo setter. Setted by user, and freely modifiable.
      * 
      * @param context
      *            Application Context
@@ -107,9 +120,8 @@ public class SharedPref {
         edit.commit();
     }
 
-    // TODO: Documentation
     /**
-     * 
+     * Metronom time meter getter. Setted by user and freely modifiable.
      * 
      * @param context
      *            Application Context
@@ -121,7 +133,7 @@ public class SharedPref {
     }
 
     /**
-     * 
+     * Metronom time meter setter. Setted by user and freely modifiable.
      * 
      * @param context
      *            Application Context
@@ -134,28 +146,55 @@ public class SharedPref {
         edit.commit();
     }
 
-    /**
-     * 
-     * @param context
-     *            Application Context
-     * @return saved value from the Shared Preferences.
-     */
-    public static boolean getPlay(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        return prefs.getBoolean("play", false);
-    }
+    // /**
+    // * Tone generator frequency. Setted by user and freely modifiable.
+    // *
+    // * @param context
+    // * Application Context
+    // * @return saved value from the Shared Preferences.
+    // */
+    // public static int getFreq(Context context) {
+    // SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+    // return prefs.getInt("freq", 440);
+    // }
+    //
+    // /**
+    // * Tone generator frequency. Setted by user and freely modifiable.
+    // *
+    // * @param context
+    // * Application Context
+    // * @return saved value from the Shared Preferences.
+    // */
+    // public static void setFreq(Context context, int value) {
+    // SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+    // SharedPreferences.Editor edit = prefs.edit();
+    // edit.putInt("freq", value);
+    // edit.commit();
+    // }
 
-    /**
-     * 
-     * 
-     * @param context
-     *            Application Context
-     * @return saved value from the Shared Preferences.
-     */
-    public static void setPlay(Context context, boolean value) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        SharedPreferences.Editor edit = prefs.edit();
-        edit.putBoolean("play", value);
-        edit.commit();
-    }
+    // /**
+    // * Indicates running metronome. Setted by the Metronome fragment.
+    // *
+    // * @param context
+    // * Application Context
+    // * @return saved value from the Shared Preferences.
+    // */
+    // public static boolean getPlay(Context context) {
+    // SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+    // return prefs.getBoolean("play", false);
+    // }
+    //
+    // /**
+    // * Indicates running metronome. Setted by the Metronome fragment.
+    // *
+    // * @param context
+    // * Application Context
+    // * @return saved value from the Shared Preferences.
+    // */
+    // public static void setPlay(Context context, boolean value) {
+    // SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+    // SharedPreferences.Editor edit = prefs.edit();
+    // edit.putBoolean("play", value);
+    // edit.commit();
+    // }
 }

@@ -30,6 +30,14 @@ public class AudioDevice {
             buffer[i] = (short) (samples[i] * Short.MAX_VALUE);
     }
     
+    public void pause() {
+        track.stop();
+    }
+    
+    public void resume() {
+        track.play();
+    }
+    
     public void cleanUp() {
         track.stop();
         track.flush();

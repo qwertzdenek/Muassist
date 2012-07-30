@@ -18,8 +18,6 @@ Musicians Assistant
 
 package kiv.janecekz.ma;
 
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -27,7 +25,8 @@ import android.view.View.OnTouchListener;
 
 /**
  * I use this class to collect onTouch events and get final decision what to do
- * from that.
+ * from that. It is necessary to obtain instance using the {@link getInstance()}
+ * method. This class has to be singleton.
  * 
  * @author Zdeněk Janeček
  */
@@ -50,47 +49,18 @@ public class TouchControl implements OnTouchListener {
     }
 
     private VelocityTracker vt;
-    private OnMyEvent target;
+    private IControlable target;
 
     /*
      * Touch control
      */
     // TODO: This should be editable.
     private final int DOUBLE_CLICK_DELAY = 500;
-    private float biggestSpeed;
+    private int biggestSpeed;
     private long startTime;
     private long stopTime;
     private boolean stopping = false;
 
-    public static AnimatorSet getInAnim(View v) {
-        ObjectAnimator circleInAnim1 = ObjectAnimator.ofFloat(v,
-                "alpha", 0f, 1f);
-        ObjectAnimator circleInAnim2 = ObjectAnimator.ofFloat(v,
-                "scaleY", 0f, 1f);
-        circleInAnim1.setDuration(400);
-        circleInAnim2.setDuration(400);
-
-        AnimatorSet inAnim = new AnimatorSet();
-        inAnim.play(circleInAnim1).with(circleInAnim2);
-        
-        return inAnim;
-    }
-
-    public static AnimatorSet getOutAnim(View v) {
-        ObjectAnimator circleOutAnim1 = ObjectAnimator.ofFloat(v,
-                "alpha", 1f, 0f);
-        ObjectAnimator circleOutAnim2 = ObjectAnimator.ofFloat(v,
-                "scaleY", 1f, 0f);
-        circleOutAnim2.setDuration(1000);
-        circleOutAnim2.setDuration(1000);
-        
-        AnimatorSet outAnim = new AnimatorSet();
-        outAnim.play(circleOutAnim1).with(circleOutAnim2);
-        
-        return outAnim;
-    }
-
-    @Override
     public boolean onTouch(View arg0, MotionEvent event) {
         if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
             if (stopping
@@ -111,7 +81,7 @@ public class TouchControl implements OnTouchListener {
             vt.addMovement(event);
             vt.computeCurrentVelocity(1000);
 
-            float speed = vt.getXVelocity();
+            int speed = (int) vt.getXVelocity();
             if (biggestSpeed < speed)
                 biggestSpeed = speed;
 
@@ -135,7 +105,7 @@ public class TouchControl implements OnTouchListener {
         return true;
     }
 
-    public void registerOnMyEvent(OnMyEvent target) {
+    public void registerOnMyEvent(IControlable target) {
         this.target = target;
     }
 }

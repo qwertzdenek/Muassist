@@ -19,8 +19,8 @@ Musicians Assistant
 package kiv.janecekz.ma.metronome;
 
 import kiv.janecekz.ma.R;
-import kiv.janecekz.ma.prefs.SharedPref;
 import android.animation.ObjectAnimator;
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
@@ -42,8 +42,8 @@ public class Peeper {
     private final MediaPlayer[] peepPlayers = new MediaPlayer[SOUNDS_COUNT];
     private final MediaPlayer[] popPlayers = new MediaPlayer[SOUNDS_COUNT];;
 
-    private final ObjectAnimator[] fadeAnim;
-    private final ImageView sun;
+    private ObjectAnimator[] fadeAnim;
+    private ImageView sun;
 
     private MediaPlayer[] sounds;
     private byte choosenSound = 0;
@@ -52,27 +52,7 @@ public class Peeper {
     private int phase;
     private int state;
 
-    public Peeper(ImageView sun) {
-        peepPlayers[0] = MediaPlayer.create(sun.getContext(), R.raw.peep1);
-        peepPlayers[1] = MediaPlayer.create(sun.getContext(), R.raw.peep2);
-        peepPlayers[2] = MediaPlayer.create(sun.getContext(), R.raw.peep3);
-        popPlayers[0] = MediaPlayer.create(sun.getContext(), R.raw.pop1);
-        popPlayers[1] = MediaPlayer.create(sun.getContext(), R.raw.pop2);
-        popPlayers[2] = MediaPlayer.create(sun.getContext(), R.raw.pop3);
-
-        this.sun = sun;
-
-        fadeAnim = new ObjectAnimator[2];
-        fadeAnim[PEEP] = ObjectAnimator.ofFloat(this.sun, "alpha", 0f, 1f,
-                0.3f, 0f);
-        fadeAnim[PEEP].setDuration(200);
-        fadeAnim[PEEP].setInterpolator(new LinearInterpolator());
-
-        fadeAnim[POP] = ObjectAnimator.ofFloat(this.sun, "alpha", 0f, 0.5f,
-                0.2f, 0f);
-        fadeAnim[POP].setDuration(200);
-        fadeAnim[POP].setInterpolator(new LinearInterpolator());
-
+    public Peeper() {
         sounds = new MediaPlayer[2];
         setSound(choosenSound);
 
@@ -98,10 +78,18 @@ public class Peeper {
      */
     public void setTime(int time) {
         if ((time >= 1) && (time <= paternTable.length)) {
-            SharedPref.setTime(sun.getContext(), time);
             this.time = time - 1;
             phase = 0;
         }
+    }
+    
+    /**
+     * Time measure getter
+     * 
+     * @return Count of peeps per measure.
+     */
+    public int getTime() {
+        return time + 1;
     }
 
     public void reset() {
@@ -120,5 +108,31 @@ public class Peeper {
             sounds[PEEP] = peepPlayers[choosenSound];
             sounds[POP] = popPlayers[choosenSound];
         }
+    }
+    
+    public Context getContext() {
+        return sun.getContext();
+    }
+
+    public void setSun(ImageView sun) {
+        peepPlayers[0] = MediaPlayer.create(sun.getContext(), R.raw.peep1);
+        peepPlayers[1] = MediaPlayer.create(sun.getContext(), R.raw.peep2);
+        peepPlayers[2] = MediaPlayer.create(sun.getContext(), R.raw.peep3);
+        popPlayers[0] = MediaPlayer.create(sun.getContext(), R.raw.pop1);
+        popPlayers[1] = MediaPlayer.create(sun.getContext(), R.raw.pop2);
+        popPlayers[2] = MediaPlayer.create(sun.getContext(), R.raw.pop3);
+
+        this.sun = sun;
+
+        fadeAnim = new ObjectAnimator[2];
+        fadeAnim[PEEP] = ObjectAnimator.ofFloat(this.sun, "alpha", 0f, 1f,
+                0.3f, 0f);
+        fadeAnim[PEEP].setDuration(200);
+        fadeAnim[PEEP].setInterpolator(new LinearInterpolator());
+
+        fadeAnim[POP] = ObjectAnimator.ofFloat(this.sun, "alpha", 0f, 0.5f,
+                0.2f, 0f);
+        fadeAnim[POP].setDuration(200);
+        fadeAnim[POP].setInterpolator(new LinearInterpolator());
     }
 }

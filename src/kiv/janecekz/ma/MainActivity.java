@@ -19,13 +19,20 @@ Musicians Assistant
 package kiv.janecekz.ma;
 
 import kiv.janecekz.ma.prefs.Setup;
+import kiv.janecekz.ma.prefs.SharedPref;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,21 +41,24 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 public class MainActivity extends Activity implements
-        ActionBar.OnNavigationListener {
+        ActionBar.OnNavigationListener, OnSharedPreferenceChangeListener {
     private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
     public static final String TAG = "MA";
 
     private TouchControl touchCon;
     private AlertDialog helpDialog;
     private Fragment[] fragments = new Fragment[4];
+    private WakeLock wl;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        getSharedPreferences(SharedPref.PREFS_NAME, MODE_PRIVATE)
+                .registerOnSharedPreferenceChangeListener(this);
 
         touchCon = TouchControl.getInstance();
-        
+
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         // Set up the action bar.
@@ -67,7 +77,10 @@ public class MainActivity extends Activity implements
                                 getString(R.string.title_section_tuner),
                                 getString(R.string.title_section_recorder) }),
                 this);
-        
+
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "metronome");
+
         // Help dialog
         AlertDialog.Builder help = new AlertDialog.Builder(this);
         help.setTitle(R.string.help);
@@ -102,7 +115,7 @@ public class MainActivity extends Activity implements
         menu.findItem(R.id.menu_settings).setIntent(prefsIntent);
         return true;
     }
-    
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -121,12 +134,11 @@ public class MainActivity extends Activity implements
         }
     }
 
-    @Override
     public boolean onNavigationItemSelected(int position, long id) {
         // When the given tab is selected, show the tab contents in the
         // container
         Fragment fragment = null;
-        
+
         if (fragments[position] == null) {
             switch (position) {
             case 0:
@@ -150,7 +162,49 @@ public class MainActivity extends Activity implements
 
         getFragmentManager().beginTransaction()
                 .replace(R.id.container, fragment).commit();
-        touchCon.registerOnMyEvent((OnMyEvent) fragment);
+        touchCon.registerOnMyEvent((IControlable) fragment);
         return true;
+    }
+
+    /**
+     * Utility method to get current choosed background resource.
+     * 
+     * @return Resource ID.
+     */
+    public int getBgRes() {
+        int result;
+        int s = SharedPref.getTheme(this);
+        switch (s) {
+        case 0:
+            result = R.drawable.bg_morning;
+            break;
+        case 1:
+            result = R.drawable.bg_sunset;
+            break;
+        case 2:
+            result = R.drawable.bg_night;
+            break;
+
+        default:
+            result = -1;
+            break;
+        }
+        return result;
+    }
+    
+    public WakeLock getWakeLock() {
+        return wl;
+    }
+
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+            String key) {
+        if (key.equals(getResources().getString(R.string.pref_key_orientation))) {
+            if (SharedPref.getOrient(this)) {
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            } else {
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+            }
+        }
+
     }
 }

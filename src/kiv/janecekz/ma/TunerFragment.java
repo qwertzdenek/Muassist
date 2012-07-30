@@ -24,7 +24,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class TunerFragment extends Fragment implements OnMyEvent {
+public class TunerFragment extends Fragment implements IControlable {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -33,7 +33,24 @@ public class TunerFragment extends Fragment implements OnMyEvent {
         return inflater.inflate(R.layout.tuner, container, false);
     }
 
-    public void onValueChange(TouchControl t, float val) {
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        
+        getView().setBackgroundResource(((MainActivity) getActivity()).getBgRes());
+    }
+
+    public void onValueChange(TouchControl t, int val) {
         // TODO Auto-generated method stub
         
     }

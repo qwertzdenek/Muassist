@@ -25,17 +25,19 @@ import kiv.janecekz.ma.metronome.Operator;
 import kiv.janecekz.ma.metronome.Peeper;
 import kiv.janecekz.ma.metronome.TempoControl;
 import kiv.janecekz.ma.prefs.SharedPref;
-import android.animation.AnimatorSet;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.NumberPicker;
 import android.widget.NumberPicker.OnValueChangeListener;
 
-public class MetronomeFragment extends Fragment implements OnMyEvent,
+public class MetronomeFragment extends Fragment implements IControlable,
         OnValueChangeListener, Observer {
 
     private NumberPicker beatPicker;
@@ -46,8 +48,8 @@ public class MetronomeFragment extends Fragment implements OnMyEvent,
     private Peeper peeper;
 
     private ImageView circle;
-    private AnimatorSet inAnim;
-    private AnimatorSet outAnim;
+    private Animation inAnim;
+    private Animation outAnim;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,15 +57,18 @@ public class MetronomeFragment extends Fragment implements OnMyEvent,
 
         tc = new TempoControl();
         tc.addObserver(this);
+
+        peeper = new Peeper();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
+        Log.d(MainActivity.TAG, "Metronome onCreateView");
         View v = inflater.inflate(R.layout.metronome, container, false);
         v.setOnTouchListener(TouchControl.getInstance());
 
-        peeper = new Peeper((ImageView) v.findViewById(R.id.sun));
+        peeper.setSun((ImageView) v.findViewById(R.id.sun));
 
         beatPicker = (NumberPicker) v.findViewById(R.id.beatCount);
         beatPicker.setMinValue(1);
@@ -77,58 +82,69 @@ public class MetronomeFragment extends Fragment implements OnMyEvent,
 
         circle = (ImageView) v.findViewById(R.id.circle);
 
-        inAnim = TouchControl.getInAnim(circle);
-        outAnim = TouchControl.getOutAnim(circle);
-        
+        inAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.nav_in);
+        outAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.nav_out);
+
         return v;
     }
 
     @Override
     public void onPause() {
-        SharedPref.setBPM(getActivity(), tc.getBPM());
-
-        op.interrupt();
-        tc.deleteObserver(op);
         super.onPause();
+
+        SharedPref.setBPM(getActivity(), tc.getBPM());
+        SharedPref.setTime(getActivity(), peeper.getTime());
+        
+        MainActivity a = (MainActivity) getActivity();
+        if (!a.getWakeLock().isHeld()) {
+            op.interrupt();
+            tc.deleteObserver(op);
+        }
     }
 
+    // FIXME: resuming of peeper
     @Override
     public void onResume() {
+        super.onResume();
         peeper.setSound((byte) SharedPref.getSound(getActivity()));
         peeper.setTime(SharedPref.getTime(getActivity()));
-        
-        op = new Operator(peeper);
-        tc.addObserver(op);
+        beatPicker.setValue(SharedPref.getTime(getActivity()));
 
-        tc.setBPM(SharedPref.getBPM(getActivity()));
-        tc.refreshObservers();
+        MainActivity a = (MainActivity) getActivity();
 
-        op.start();
-        if (SharedPref.getPlay(getActivity())) {
-            op.setPlay(true);
+        if (!a.getWakeLock().isHeld()) {
+            op = new Operator(peeper, a.getWakeLock());
+            tc.addObserver(op);
+
+            tc.setBPM(SharedPref.getBPM(getActivity()));
+            tc.refreshObservers();
+
+            op.start();
         }
-        super.onResume();
+
+        getView().setBackgroundResource(
+                ((MainActivity) getActivity()).getBgRes());
     }
 
-    public void onValueChange(TouchControl t, float val) {
-//        Log.d(MainActivity.TAG, "get val: "+val);
-        tc.setBPM((int) (tc.getBPM() + val / 100));
+    public void onValueChange(TouchControl t, int val) {
+        // Log.d(MainActivity.TAG, "get val: "+val);
+        int speed = 2 * SharedPref.getSpeed(getActivity());
+
+        tc.setBPM(tc.getBPM() + val / speed);
     }
 
     public void onToggle(TouchControl t, int state) {
         switch (state) {
         case TouchControl.STATE_BEGIN:
-            inAnim.start();
+            circle.startAnimation(inAnim);
             break;
         case TouchControl.STATE_STOP:
-            SharedPref.setPlay(getActivity(),
-                    !SharedPref.getPlay(getActivity()));
-            op.setPlay(SharedPref.getPlay(getActivity()));
+            op.togglePlay();
             break;
         case TouchControl.STATE_OUT:
-            if (inAnim.isRunning())
+            if (!inAnim.hasEnded())
                 inAnim.cancel();
-            outAnim.start();
+            circle.startAnimation(outAnim);
             break;
         default:
             break;
@@ -140,7 +156,6 @@ public class MetronomeFragment extends Fragment implements OnMyEvent,
         circle.setY(y - circle.getHeight() / 2);
     }
 
-    @Override
     public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
         if (picker.equals(beatPicker)) {
             peeper.setTime(newVal);
@@ -150,13 +165,7 @@ public class MetronomeFragment extends Fragment implements OnMyEvent,
         }
     }
 
-    @Override
     public void update(Observable arg0, Object arg1) {
         bpmPicker.setValue(((TempoControl) arg0).getBPM());
     }
 }
-// metoda OnToggle()
-// if (!wl.isHeld()) {
-// wl.acquire();
-// } else {
-// wl.release();

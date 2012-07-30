@@ -21,6 +21,8 @@ package kiv.janecekz.ma.metronome;
 import java.util.Observable;
 import java.util.Observer;
 
+import android.os.PowerManager.WakeLock;
+
 /**
  * This class controls {@code Peeper}.
  * 
@@ -31,11 +33,13 @@ public class Operator extends Thread implements Observer {
     private Peeper peeper;
     private boolean loop;
     private boolean play = false;
+    private WakeLock wl;
 
-    public Operator(Peeper peeper) {
+    public Operator(Peeper peeper, WakeLock wl) {
         super();
-        
+
         this.peeper = peeper;
+        this.wl = wl;
     }
 
     @Override
@@ -68,14 +72,20 @@ public class Operator extends Thread implements Observer {
     @Override
     public void interrupt() {
         loop = false;
+        if (wl.isHeld())
+            wl.release();
         super.interrupt();
     }
 
-    public synchronized void setPlay(boolean play) {
-        this.play = play;
-        // FIXME WakeLock has to be controlled out of this.
-        if (play)
+    public synchronized void togglePlay() {
+        this.play = !play;
+        
+        if (play) {
+            wl.acquire();
             notify();
+        } else
+            wl.release();
+            
     }
 
     public void update(Observable observable, Object data) {
