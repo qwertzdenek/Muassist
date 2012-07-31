@@ -47,7 +47,6 @@ public class MainActivity extends Activity implements
 
     private TouchControl touchCon;
     private AlertDialog helpDialog;
-    private Fragment[] fragments = new Fragment[4];
     private WakeLock wl;
 
     @Override
@@ -139,25 +138,21 @@ public class MainActivity extends Activity implements
         // container
         Fragment fragment = null;
 
-        if (fragments[position] == null) {
-            switch (position) {
-            case 0:
-                fragment = new MetronomeFragment();
-                break;
-            case 1:
-                fragment = new ToneFragment();
-                break;
-            case 2:
-                fragment = new TunerFragment();
-                break;
-            case 3:
-                fragment = new RecorderFragment();
-                break;
-            default:
-                break;
-            }
-        } else {
-            fragment = fragments[position];
+        switch (position) {
+        case 0:
+            fragment = new MetronomeFragment();
+            break;
+        case 1:
+            fragment = new ToneFragment();
+            break;
+        case 2:
+            fragment = new TunerFragment();
+            break;
+        case 3:
+            fragment = new RecorderFragment();
+            break;
+        default:
+            break;
         }
 
         getFragmentManager().beginTransaction()
@@ -191,7 +186,7 @@ public class MainActivity extends Activity implements
         }
         return result;
     }
-    
+
     public WakeLock getWakeLock() {
         return wl;
     }

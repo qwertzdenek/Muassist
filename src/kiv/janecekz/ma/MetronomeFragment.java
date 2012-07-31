@@ -59,6 +59,8 @@ public class MetronomeFragment extends Fragment implements IControlable,
         tc.addObserver(this);
 
         peeper = new Peeper();
+
+        Log.d(MainActivity.TAG, "Starting " + System.currentTimeMillis());
     }
 
     @Override
@@ -69,11 +71,14 @@ public class MetronomeFragment extends Fragment implements IControlable,
         v.setOnTouchListener(TouchControl.getInstance());
 
         peeper.setSun((ImageView) v.findViewById(R.id.sun));
+        peeper.setSound((byte) SharedPref.getSound(getActivity()));
+        peeper.setTime(SharedPref.getTime(getActivity()));
 
         beatPicker = (NumberPicker) v.findViewById(R.id.beatCount);
         beatPicker.setMinValue(1);
         beatPicker.setMaxValue(4);
         beatPicker.setOnValueChangedListener(this);
+        beatPicker.setValue(SharedPref.getTime(getActivity()));
 
         bpmPicker = (NumberPicker) v.findViewById(R.id.bpmCount);
         bpmPicker.setMinValue(30);
@@ -85,34 +90,9 @@ public class MetronomeFragment extends Fragment implements IControlable,
         inAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.nav_in);
         outAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.nav_out);
 
-        return v;
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        SharedPref.setBPM(getActivity(), tc.getBPM());
-        SharedPref.setTime(getActivity(), peeper.getTime());
-        
-        MainActivity a = (MainActivity) getActivity();
-        if (!a.getWakeLock().isHeld()) {
-            op.interrupt();
-            tc.deleteObserver(op);
-        }
-    }
-
-    // FIXME: resuming of peeper
-    @Override
-    public void onResume() {
-        super.onResume();
-        peeper.setSound((byte) SharedPref.getSound(getActivity()));
-        peeper.setTime(SharedPref.getTime(getActivity()));
-        beatPicker.setValue(SharedPref.getTime(getActivity()));
-
         MainActivity a = (MainActivity) getActivity();
 
-        if (!a.getWakeLock().isHeld()) {
+        if (isAdded()) {
             op = new Operator(peeper, a.getWakeLock());
             tc.addObserver(op);
 
@@ -122,8 +102,28 @@ public class MetronomeFragment extends Fragment implements IControlable,
             op.start();
         }
 
+        return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
         getView().setBackgroundResource(
                 ((MainActivity) getActivity()).getBgRes());
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        SharedPref.setBPM(getActivity(), tc.getBPM());
+        SharedPref.setTime(getActivity(), peeper.getTime());
+
+        if (isRemoving()) {
+            op.interrupt();
+            tc.deleteObserver(op);
+        }
     }
 
     public void onValueChange(TouchControl t, int val) {
