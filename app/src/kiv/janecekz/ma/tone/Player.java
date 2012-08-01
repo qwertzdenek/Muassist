@@ -18,59 +18,51 @@ Musicians Assistant
 
 package kiv.janecekz.ma.tone;
 
-import kiv.janecekz.ma.R;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.view.animation.AnimationSet;
-import android.view.animation.AnimationUtils;
-import android.widget.TextView;
+import kiv.janecekz.ma.MainActivity;
+import android.util.Log;
 
-public class Player extends Thread implements OnClickListener {
+public class Player extends Thread {
     private boolean loop;
     private boolean play = false;
 
-    final static double PI2 = 2 * Math.PI;
-    final static int SAMPLE_FREQ = 11025;
+    public static final double PI2 = 2 * Math.PI;
+    public static final int SAMPLE_FREQ = 11025;
+    public static final double MIN_FREQ = 10f;
+    public static final double MAX_FREQ = 4000f;
 
-    static double piDivSampleFreq;
-
-    double[] audioData;
-    double angleMain = 0;
-    double angleHarmonic = 0;
-    float freq;
-    boolean updatedFreq;
-    int sampleLength;
-    AudioDevice ad;
-    TextView act;
+    private float freq;
+    private double[] audioData;
+    private double angleMain = 0;
+    private double angleHarmonic = 0;
+    private boolean updatedFreq;
+    private int sampleLength;
+    private AudioDevice ad;
 
     /**
      * Constructor for the tone generator. To start use start() and the
      * togglePlay() to start/stop.
-     * 
-     * @param v
-     *            LinearLayout for tone choose.
      */
-    public Player(ViewGroup l) {
+    public Player() {
         ad = new AudioDevice(SAMPLE_FREQ);
-        piDivSampleFreq = PI2 / SAMPLE_FREQ;
-
-        for (int i = 0; i < l.getChildCount(); i++) {
-            TextView v = (TextView) l.getChildAt(i);
-            v.setOnClickListener(this);
-        }
-
-        // Defaulting to the 440 Hz.
-        act = ((TextView) l.findViewById(R.id.toneA));
-        act.setTextColor(act.getResources().getColor(
-                android.R.color.holo_red_light));
-        freq = 440f;
-        updatedFreq = true;
     }
 
+    /**
+     * Toggle actual play.
+     */
     public synchronized void togglePlay() {
         this.play = !play;
         if (play) {
+            ad.resume();
+            notify();
+        }
+    }
+
+    /**
+     * Starts the play if isn't play already.
+     */
+    public synchronized void play() {
+        if (!play) {
+            play = true;
             ad.resume();
             notify();
         }
@@ -88,8 +80,8 @@ public class Player extends Thread implements OnClickListener {
 
             if (updatedFreq) {
                 sampleLength = (int) (SAMPLE_FREQ / freq);
-                double incMain = piDivSampleFreq * freq;
-                double incHarm = piDivSampleFreq * 2 * freq;
+                double incMain = (PI2 * freq) / SAMPLE_FREQ;
+                double incHarm = (PI2 * freq * 2) / SAMPLE_FREQ;
 
                 double[] samples = new double[sampleLength];
                 for (int i = 0; i < samples.length; i++) {
@@ -131,58 +123,21 @@ public class Player extends Thread implements OnClickListener {
 
     @Override
     public synchronized void start() {
-        loop = true;
         super.start();
+        loop = true;
     }
 
-    public synchronized void onClick(View arg0) {
-        TextView v = (TextView) arg0;
-        act.setTextColor(act.getResources().getColor(
-                android.R.color.holo_blue_light));
+    public synchronized boolean setFreq(float value) {
+        if ((value < MAX_FREQ) && (value > MIN_FREQ)) {
+            Log.d(MainActivity.TAG, "setFreq: " + value);
+            this.freq = value;
+            updatedFreq = true;
+            return true;
+        } else
+            return false;
+    }
 
-        float freq = 0;
-        switch (v.getId()) {
-        case R.id.toneC:
-            freq = 261.63f;
-            break;
-        case R.id.toneD:
-            freq = 293.66f;
-            break;
-        case R.id.toneE:
-            freq = 329.23f;
-            break;
-        case R.id.toneF:
-            freq = 349.23f;
-            break;
-        case R.id.toneG:
-            freq = 392f;
-            break;
-        case R.id.toneA:
-            freq = 440f;
-            break;
-        case R.id.toneB:
-            freq = 493.88f;
-            break;
-
-        default:
-            break;
-        }
-
-        v.setTextColor(v.getResources()
-                .getColor(android.R.color.holo_red_light));
-        AnimationSet push = (AnimationSet) AnimationUtils.loadAnimation(v.getContext(),
-                R.anim.push);
-        v.startAnimation(push);
-
-        act = v;
-        this.freq = freq;
-
-        // starting when selected
-        if (!play) {
-            play = true;
-            ad.resume();
-            notify();
-        }
-        updatedFreq = true;
+    public float getFreq() {
+        return freq;
     }
 }

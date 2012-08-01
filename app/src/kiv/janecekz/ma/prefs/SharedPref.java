@@ -95,6 +95,19 @@ public class SharedPref {
     }
 
     /**
+     * Base frequency for A tone.
+     * 
+     * @param context
+     *            Application Context
+     * @return saved value from the Shared Preferences.
+     */
+    public static int getBaseFreq(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        return Integer.parseInt(prefs.getString(
+                context.getString(R.string.pref_key_tone), "440"));
+    }
+    
+    /**
      * Metronome tempo. Setted by user, and freely modifiable.
      * 
      * @param context

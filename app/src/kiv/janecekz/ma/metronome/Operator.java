@@ -92,4 +92,8 @@ public class Operator extends Thread implements Observer {
         TempoControl t = (TempoControl) observable;
         bpm = t.getBPM();
     }
+    
+    public int getBPM() {
+        return bpm;
+    }
 }

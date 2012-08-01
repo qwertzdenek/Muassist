@@ -27,9 +27,8 @@
         android:id="@+id/tone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/tone_text"
         android:layout_centerHorizontal="true"
-        android:paddingTop="20dp"
+        android:layout_below="@+id/tone_text"
         android:scrollbars="none" >
 
         <LinearLayout
@@ -103,5 +102,16 @@
 
         </LinearLayout>
     </HorizontalScrollView>
+
+    <EditText
+        android:id="@+id/tone_value_edit"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/tone"
+        android:inputType="numberDecimal" >
+
+        <requestFocus />
+    </EditText>
 
 </RelativeLayout>

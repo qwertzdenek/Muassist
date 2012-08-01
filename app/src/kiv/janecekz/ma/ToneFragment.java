@@ -18,21 +18,36 @@ Musicians Assistant
 
 package kiv.janecekz.ma;
 
+import kiv.janecekz.ma.prefs.SharedPref;
 import kiv.janecekz.ma.tone.Player;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.text.SpannableStringBuilder;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.EditorInfo;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.TextView.OnEditorActionListener;
 
-public class ToneFragment extends Fragment implements IControlable {
+public class ToneFragment extends Fragment implements IControlable,
+        OnEditorActionListener, OnClickListener {
+    private static final float[] freqCoefs = new float[] { 0.594613636f,
+            0.667409091f, 0.74825f, 0.793704545f, 0.890909091f, 1f, 1.122454545f };
+
     private Player pl;
     private ImageView circle;
     private Animation inAnim;
     private Animation outAnim;
+    private EditText input;
+    private TextView actualFreqView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,6 +61,14 @@ public class ToneFragment extends Fragment implements IControlable {
         inAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.nav_in);
         outAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.nav_out);
 
+        input = (EditText) root.findViewById(R.id.tone_value_edit);
+        input.setOnEditorActionListener(this);
+
+        ViewGroup defList = (ViewGroup) root.findViewById(R.id.tone_list);
+        for (int i = 0; i < defList.getChildCount(); i++) {
+            TextView v = (TextView) defList.getChildAt(i);
+            v.setOnClickListener(this);
+        }
         return root;
     }
 
@@ -59,11 +82,25 @@ public class ToneFragment extends Fragment implements IControlable {
     @Override
     public void onResume() {
         super.onResume();
-        pl = new Player((ViewGroup) getView().findViewById(R.id.tone_list));
 
+        if (actualFreqView != null) {
+            actualFreqView.setTextColor(actualFreqView.getResources().getColor(
+                    android.R.color.holo_blue_light));
+        }
+        // Defaulting to the 440 Hz.
+        actualFreqView = ((TextView) getView().findViewById(R.id.toneA));
+        actualFreqView.setTextColor(actualFreqView.getResources().getColor(
+                android.R.color.holo_red_light));
+
+        pl = new Player();
+
+        pl.setFreq(SharedPref.getBaseFreq(getActivity()));
         pl.start();
 
-        getView().setBackgroundResource(((MainActivity) getActivity()).getBgRes());
+        input.setText(Integer.toString(SharedPref.getBaseFreq(getActivity())));
+
+        getView().setBackgroundResource(
+                ((MainActivity) getActivity()).getBgRes());
     }
 
     public void onValueChange(TouchControl t, int val) {
@@ -91,6 +128,78 @@ public class ToneFragment extends Fragment implements IControlable {
     public void onPositionChange(TouchControl t, float x, float y) {
         circle.setX(x - circle.getWidth() / 2);
         circle.setY(y - circle.getHeight() / 2);
+    }
+
+    public boolean onEditorAction(TextView arg0, int arg1, KeyEvent arg2) {
+        if (arg0.equals(input) && (arg1 == EditorInfo.IME_ACTION_DONE)) {
+            boolean b = pl.setFreq(Float
+                    .parseFloat(((SpannableStringBuilder) arg0.getText())
+                            .toString()));
+            if (!b) {
+                arg0.setText(Float.toString(pl.getFreq()));
+            } else {
+                pl.play();
+                // FIXME: What if only push the enter?
+                if (actualFreqView != null) {
+                    actualFreqView.setTextColor(actualFreqView.getResources()
+                            .getColor(android.R.color.holo_blue_light));
+                    actualFreqView = null;
+                }
+            }
+        }
+        return true;
+    }
+
+    public void onClick(View arg0) {
+        TextView v = (TextView) arg0;
+
+        if (actualFreqView != null) {
+            actualFreqView.setTextColor(actualFreqView.getResources().getColor(
+                    android.R.color.holo_blue_light));
+        }
+
+        actualFreqView = v;
+
+        int freqCoefPosition = 5;
+        switch (v.getId()) {
+        case R.id.toneC:
+            freqCoefPosition = 0;
+            break;
+        case R.id.toneD:
+            freqCoefPosition = 1;
+            break;
+        case R.id.toneE:
+            freqCoefPosition = 2;
+            break;
+        case R.id.toneF:
+            freqCoefPosition = 3;
+            break;
+        case R.id.toneG:
+            freqCoefPosition = 4;
+            break;
+        case R.id.toneA:
+            freqCoefPosition = 5;
+            break;
+        case R.id.toneB:
+            freqCoefPosition = 6;
+            break;
+
+        default:
+            break;
+        }
+        
+        int baseFreq = SharedPref.getBaseFreq(getActivity());
+        float freq = baseFreq * freqCoefs[freqCoefPosition];
+
+        v.setTextColor(v.getResources()
+                .getColor(android.R.color.holo_red_light));
+        AnimationSet push = (AnimationSet) AnimationUtils.loadAnimation(
+                v.getContext(), R.anim.push);
+        v.startAnimation(push);
+
+        input.setText(Float.toString(freq));
+        pl.setFreq(freq);
+        pl.play();
     }
 
 }

@@ -27,7 +27,6 @@ import kiv.janecekz.ma.metronome.TempoControl;
 import kiv.janecekz.ma.prefs.SharedPref;
 import android.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,19 +58,15 @@ public class MetronomeFragment extends Fragment implements IControlable,
         tc.addObserver(this);
 
         peeper = new Peeper();
-
-        Log.d(MainActivity.TAG, "Starting " + System.currentTimeMillis());
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        Log.d(MainActivity.TAG, "Metronome onCreateView");
         View v = inflater.inflate(R.layout.metronome, container, false);
         v.setOnTouchListener(TouchControl.getInstance());
 
         peeper.setSun((ImageView) v.findViewById(R.id.sun));
-        peeper.setSound((byte) SharedPref.getSound(getActivity()));
         peeper.setTime(SharedPref.getTime(getActivity()));
 
         beatPicker = (NumberPicker) v.findViewById(R.id.beatCount);
@@ -97,10 +92,11 @@ public class MetronomeFragment extends Fragment implements IControlable,
             tc.addObserver(op);
 
             tc.setBPM(SharedPref.getBPM(getActivity()));
-            tc.refreshObservers();
+            
 
             op.start();
         }
+        tc.refreshObservers();
 
         return v;
     }
@@ -111,6 +107,7 @@ public class MetronomeFragment extends Fragment implements IControlable,
 
         getView().setBackgroundResource(
                 ((MainActivity) getActivity()).getBgRes());
+        peeper.setSound((byte) SharedPref.getSound(getActivity()));
     }
 
     @Override

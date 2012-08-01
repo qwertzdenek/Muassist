@@ -37,5 +37,15 @@
             android:summary="@string/pref_sound"
             android:title="@string/pref_sound_title" />
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/setup_tone">
+        <ListPreference
+            android:defaultValue="440"
+            android:dialogTitle="@string/setup_tone_title"
+            android:entries="@array/afreq"
+            android:entryValues="@array/afreq"
+            android:key="@string/pref_key_tone"
+            android:summary="@string/pref_tone"
+            android:title="@string/pref_tone_title" />
+    </PreferenceCategory>
 
 </PreferenceScreen>
