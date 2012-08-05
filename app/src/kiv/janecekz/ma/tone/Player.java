@@ -18,9 +18,6 @@ Musicians Assistant
 
 package kiv.janecekz.ma.tone;
 
-import kiv.janecekz.ma.MainActivity;
-import android.util.Log;
-
 public class Player extends Thread {
     private boolean loop;
     private boolean play = false;
@@ -31,11 +28,9 @@ public class Player extends Thread {
     public static final double MAX_FREQ = 4000f;
 
     private float freq;
-    private double[] audioData;
-    private double angleMain = 0;
-    private double angleHarmonic = 0;
-    private boolean updatedFreq;
-    private int sampleLength;
+    private double deltaHarmStart = 0;
+    private double deltaMainStart = 0;
+    private int per = 10;
     private AudioDevice ad;
 
     /**
@@ -78,32 +73,23 @@ public class Player extends Thread {
                 break;
             }
 
-            if (updatedFreq) {
-                sampleLength = (int) (SAMPLE_FREQ / freq);
-                double incMain = (PI2 * freq) / SAMPLE_FREQ;
-                double incHarm = (PI2 * freq * 2) / SAMPLE_FREQ;
+            double sampleLength = SAMPLE_FREQ / freq;
+            double incMain = (PI2 * freq) / SAMPLE_FREQ;
+            double incHarm = (PI2 * freq * 2) / SAMPLE_FREQ;
 
-                double[] samples = new double[sampleLength];
-                for (int i = 0; i < samples.length; i++) {
-                    samples[i] = (Math.sin(angleMain) - 0.5 * Math
-                            .sin(angleHarmonic)) / 2;
-                    angleMain += incMain;
-                    angleHarmonic += incHarm;
-                }
+            double angleMain = deltaMainStart;
+            double angleHarmonic = deltaHarmStart;
 
-                audioData = new double[10 * samples.length];
-
-                int index = 0;
-                for (int i = 0; i < 10; i++) {
-                    for (int j = 0; j < samples.length; j++) {
-                        audioData[index++] = samples[j];
-                    }
-                }
-
-                updatedFreq = false;
+            double[] samples = new double[(int) (per * sampleLength)];
+            for (int i = 0; i < samples.length; i++) {
+                samples[i] = (Math.sin(angleMain) - Math.sin(angleHarmonic)) / 2;
+                angleMain += incMain;
+                angleHarmonic += incHarm;
             }
 
-            ad.writeSamples(audioData);
+            deltaMainStart = Math.ceil(sampleLength) * incMain - per * PI2;
+            deltaHarmStart = Math.ceil(sampleLength) * incHarm - per * PI2;
+            ad.writeSamples(samples);
         }
     }
 
@@ -129,9 +115,7 @@ public class Player extends Thread {
 
     public synchronized boolean setFreq(float value) {
         if ((value < MAX_FREQ) && (value > MIN_FREQ)) {
-            Log.d(MainActivity.TAG, "setFreq: " + value);
             this.freq = value;
-            updatedFreq = true;
             return true;
         } else
             return false;
