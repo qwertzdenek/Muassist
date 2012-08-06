@@ -13,6 +13,7 @@ Target Operating system is Android ICS and newer.
 
 Status
 ------
-Everything what was at old metronome, and some new base functionality.
+*  Metronome
+*  Sine tone generator
 
 Licence is GNU GPLv3.
