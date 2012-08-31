@@ -15,5 +15,6 @@ Status
 ------
 *  Metronome
 *  Sine tone generator
+*  Recording
 
 Licence is GNU GPLv3.
