@@ -11,6 +11,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import kiv.janecekz.ma.MainActivity;
+
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -118,6 +120,7 @@ public class ExtAudioRecorder {
         public void onPeriodicNotification(AudioRecord recorder) {
             audioRecorder.read(buffer, 0, buffer.length); // Fill buffer
             try {
+                Log.d(MainActivity.TAG, "Zapisuji buffer "+buffer.length);
                 randomAccessWriter.write(buffer); // Write buffer to file
                 payloadSize += buffer.length;
                 if (bSamples == 16) {
@@ -292,7 +295,6 @@ public class ExtAudioRecorder {
                     if ((audioRecorder.getState() == AudioRecord.STATE_INITIALIZED)
                             & (filePath != null)) {
                         // write file header
-
                         randomAccessWriter = new RandomAccessFile(filePath,
                                 "rw");
 
@@ -306,11 +308,9 @@ public class ExtAudioRecorder {
                                                         // known yet, write 0
                         randomAccessWriter.writeBytes("WAVE");
                         randomAccessWriter.writeBytes("fmt ");
-                        randomAccessWriter.writeInt(Integer.reverseBytes(16)); // Sub-chunk
-                                                                               // size,
-                                                                               // 16
-                                                                               // for
-                                                                               // PCM
+                        
+                        // Sub-chunk size, 16 for PCM
+                        randomAccessWriter.writeInt(Integer.reverseBytes(16));
                         randomAccessWriter.writeShort(Short
                                 .reverseBytes((short) 1)); // AudioFormat, 1 for
                                                            // PCM
@@ -420,6 +420,11 @@ public class ExtAudioRecorder {
                         channelConfig = AudioFormat.CHANNEL_IN_STEREO;
                     audioRecorder = new AudioRecord(aSource, sRate,
                             channelConfig, aFormat, bufferSize);
+                    
+                    if (audioRecorder.getState() != AudioRecord.STATE_INITIALIZED)
+                        throw new Exception("AudioRecord initialization failed");
+                    audioRecorder.setRecordPositionUpdateListener(updateListener);
+                    audioRecorder.setPositionNotificationPeriod(framePeriod);
                 } else {
                     mediaRecorder = new MediaRecorder();
                     mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);

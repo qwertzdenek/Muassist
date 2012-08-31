@@ -18,6 +18,7 @@ Musicians Assistant
 
 package kiv.janecekz.ma.tone;
 
+
 public class Player extends Thread {
     private boolean loop;
     private boolean play = false;
@@ -29,9 +30,11 @@ public class Player extends Thread {
 
     private float freq;
     private double deltaHarmStart = 0;
+    private double deltaHarm5Start = 0;
     private double deltaMainStart = 0;
     private int per = 10;
     private AudioDevice ad;
+//    private BufferedWriter buf;
 
     /**
      * Constructor for the tone generator. To start use start() and the
@@ -39,6 +42,13 @@ public class Player extends Thread {
      */
     public Player() {
         ad = new AudioDevice(SAMPLE_FREQ);
+
+//        try {
+//            buf = new BufferedWriter(new FileWriter("/sdcard/sine.csv"));
+//        } catch (IOException e) {
+//            // TODO Auto-generated catch block
+//            e.printStackTrace();
+//        }
     }
 
     /**
@@ -75,21 +85,46 @@ public class Player extends Thread {
 
             double sampleLength = SAMPLE_FREQ / freq;
             double incMain = (PI2 * freq) / SAMPLE_FREQ;
-            double incHarm = (PI2 * freq * 2) / SAMPLE_FREQ;
+            double incHarm = (PI2 * freq * 3) / SAMPLE_FREQ;
+            double incHarm5 = (PI2 * freq * 5) / SAMPLE_FREQ;
 
+            // Start at what was not finished at last sampling part.
             double angleMain = deltaMainStart;
             double angleHarmonic = deltaHarmStart;
+            double angleHarmonic5 = deltaHarm5Start;
 
             double[] samples = new double[(int) (per * sampleLength)];
             for (int i = 0; i < samples.length; i++) {
-                samples[i] = (Math.sin(angleMain) - Math.sin(angleHarmonic)) / 2;
+                samples[i] = (Math.sin(angleMain) +
+                        0.5 * Math.sin(angleHarmonic) +
+                        0.3 * Math.sin(angleHarmonic5)
+                              ) / 3;
+                
                 angleMain += incMain;
                 angleHarmonic += incHarm;
+                angleHarmonic5 += incHarm5;
             }
 
-            deltaMainStart = Math.ceil(sampleLength) * incMain - per * PI2;
-            deltaHarmStart = Math.ceil(sampleLength) * incHarm - per * PI2;
+            deltaMainStart = Math.ceil(per * sampleLength) * incMain - per
+                    * PI2;
+            deltaHarmStart = Math.ceil(per * sampleLength) * incHarm - per
+                    * PI2;
+            deltaHarm5Start = Math.ceil(per * sampleLength) * incHarm5 - per
+                    * PI2;
             ad.writeSamples(samples);
+
+//            StringBuilder sb = new StringBuilder();
+//            for (int i = 0; i < samples.length; i++) {
+//                sb.append(String.format("%1$.5f;\n", samples[i]));
+//            }
+//            Log.d(MainActivity.TAG, samples.length+"");
+//
+//            try {
+//                buf.write(sb.toString());
+//            } catch (IOException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
         }
     }
 
