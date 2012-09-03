@@ -24,20 +24,41 @@ import kiv.janecekz.ma.rec.ExtAudioRecorder;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
-public class RecorderFragment extends Fragment implements IControlable {
+public class RecorderFragment extends Fragment implements IControlable,
+        IAplitudeShowListener {
+    private final String[] dots = { " .", " . .", " . . ." };
+
     private ImageView circle;
     private AnimationSet inAnim;
     private AnimationSet outAnim;
     private ExtAudioRecorder ear;
+    private TextView recTitleText;
+    private TextView recStatusText;
+    private AmplView spectr;
+    private String lastRecorded = "N/A";
+    private Handler mHandler = new Handler();
+    private int dotCount = 0;
+
+    private Runnable mUpdateTimeTask = new Runnable() {
+        public void run() {
+            String dot = dots[dotCount];
+
+            recStatusText.setText(getResources().getText(R.string.recording)
+                    + dot);
+            dotCount = (dotCount + 1) % dots.length;
+            mHandler.postDelayed(this, 1000);
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -52,6 +73,11 @@ public class RecorderFragment extends Fragment implements IControlable {
                 R.anim.nav_in);
         outAnim = (AnimationSet) AnimationUtils.loadAnimation(getActivity(),
                 R.anim.nav_out);
+
+        recTitleText = (TextView) v.findViewById(R.id.rec_title);
+        recStatusText = (TextView) v.findViewById(R.id.rec_status);
+
+        spectr = (AmplView) v.findViewById(R.id.amplView);
 
         return v;
     }
@@ -70,8 +96,10 @@ public class RecorderFragment extends Fragment implements IControlable {
                 ((MainActivity) getActivity()).getBgRes());
 
         ear = ExtAudioRecorder.getInstance(false);
-        ear.setOutputFile(getNextFile().getAbsolutePath());
+        lastRecorded = getNextFile().getAbsolutePath();
+        ear.setOutputFile(lastRecorded);
         ear.prepare();
+        ear.setOnUpdateListener(this);
     }
 
     public void onValueChange(TouchControl t, int val) {
@@ -85,23 +113,31 @@ public class RecorderFragment extends Fragment implements IControlable {
             break;
         case TouchControl.STATE_STOP:
             ExtAudioRecorder.State status = ear.getState();
-            Log.d(MainActivity.TAG, "status: " + status);
             if (status == ExtAudioRecorder.State.RECORDING) {
-                Toast.makeText(getActivity(), "Stop", Toast.LENGTH_SHORT)
+                Toast.makeText(getActivity(), lastRecorded, Toast.LENGTH_SHORT)
                         .show();
                 ear.stop();
+                recTitleText.setVisibility(View.VISIBLE);
+                mHandler.removeCallbacks(mUpdateTimeTask);
+                recStatusText.setText(getResources()
+                        .getString(R.string.stopped));
             } else if (status == ExtAudioRecorder.State.READY) {
-                Toast.makeText(getActivity(), "Start", Toast.LENGTH_SHORT)
-                        .show();
                 ear.start();
+                recTitleText.setVisibility(View.INVISIBLE);
+                recStatusText.setText(getResources().getString(
+                        R.string.recording));
+                mHandler.postDelayed(mUpdateTimeTask, 1000);
             } else if ((status == ExtAudioRecorder.State.STOPPED)
                     || (status == ExtAudioRecorder.State.ERROR)) {
-                Toast.makeText(getActivity(), "Start again", Toast.LENGTH_SHORT)
-                        .show();
                 ear.reset();
-                ear.setOutputFile(getNextFile().getAbsolutePath());
+                lastRecorded = getNextFile().getAbsolutePath();
+                ear.setOutputFile(lastRecorded);
                 ear.prepare();
                 ear.start();
+                recTitleText.setVisibility(View.INVISIBLE);
+                recStatusText.setText(getResources().getString(
+                        R.string.recording));
+                mHandler.postDelayed(mUpdateTimeTask, 1000);
             }
 
             break;
@@ -134,4 +170,11 @@ public class RecorderFragment extends Fragment implements IControlable {
         return f;
     }
 
+    @Override
+    public void onUpdate(ExtAudioRecorder ear) {
+        short ampl = (short) ear.getMaxAmplitude();
+        short stopY = (short) ((((double) ampl) / Short.MAX_VALUE) * 300);
+        spectr.setAmpl(stopY);
+        spectr.invalidate();
+    }
 }

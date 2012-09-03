@@ -11,8 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import kiv.janecekz.ma.MainActivity;
-
+import kiv.janecekz.ma.IAplitudeShowListener;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -53,6 +52,9 @@ public class ExtAudioRecorder {
 
     public static final boolean RECORDING_UNCOMPRESSED = true;
     public static final boolean RECORDING_COMPRESSED = false;
+    
+    // Notify it that new max aplitude was calculated
+    private IAplitudeShowListener listener;
 
     // The interval in which the recorded samples are output to the file
     // Used only in uncompressed mode
@@ -69,7 +71,7 @@ public class ExtAudioRecorder {
     private MediaRecorder mediaRecorder = null;
 
     // Stores current amplitude (only in uncompressed mode)
-    private int cAmplitude = 0;
+    private short cAmplitude = 0;
 
     // Output file path
     private String filePath = null;
@@ -120,7 +122,6 @@ public class ExtAudioRecorder {
         public void onPeriodicNotification(AudioRecord recorder) {
             audioRecorder.read(buffer, 0, buffer.length); // Fill buffer
             try {
-                Log.d(MainActivity.TAG, "Zapisuji buffer "+buffer.length);
                 randomAccessWriter.write(buffer); // Write buffer to file
                 payloadSize += buffer.length;
                 if (bSamples == 16) {
@@ -139,6 +140,8 @@ public class ExtAudioRecorder {
                         }
                     }
                 }
+                
+                listener.onUpdate(ExtAudioRecorder.this);
             } catch (IOException e) {
                 Log.e(ExtAudioRecorder.class.getName(),
                         "Error occured in updateListener, recording is now aborted");
@@ -511,6 +514,10 @@ public class ExtAudioRecorder {
      */
     private short getShort(byte argB1, byte argB2) {
         return (short) (argB1 | (argB2 << 8));
+    }
+
+    public void setOnUpdateListener(IAplitudeShowListener arg0) {
+        listener = arg0;
     }
 
 }

@@ -7,6 +7,7 @@
     <string name="title_section_tone">Tone Generator</string>
     <string name="title_section_tuner">Tuner</string>
     <string name="title_section_recorder">Recorder</string>
+    <string name="tapToStart">Double tap to Start</string>
     <string name="menu_settings">Settings</string>
     <string name="menu_help">About</string>
     <string name="image">Image</string>
@@ -43,6 +44,10 @@
     <string name="setup_tone_title">Choose A base</string>
     <string name="pref_tone_title">Base tone frequency</string>
     <string name="pref_tone">Choose from the predefined frequencies</string>
+    
+    <!-- Recorder -->
+    <string name="recording">Recording</string>
+    <string name="stopped">Stopped</string>
     
     <!-- Configuration keys -->
     <string name="pref_key_bg">background_update_flag</string>

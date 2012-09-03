@@ -5,16 +5,30 @@
     android:orientation="vertical" >
 
     <TextView
+        android:id="@+id/rec_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="10dp"
-        android:text="@string/title_section_recorder"
+        android:text="@string/tapToStart"
         android:textSize="16dp" />
+
+    <TextView
+        android:id="@+id/rec_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textColor="#FF0000" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
+
+        <kiv.janecekz.ma.AmplView
+            android:id="@+id/amplView"
+            android:layout_width="50dp"
+            android:layout_height="300dp" />
         
         <ImageView
         android:id="@+id/circle"
@@ -25,4 +39,5 @@
 		android:contentDescription="@string/image" />
 
     </RelativeLayout>
+
 </LinearLayout>
