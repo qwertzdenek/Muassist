@@ -32,6 +32,10 @@ public class AmplView extends ImageView {
         canvas.drawLine(canvas.getWidth()/2, canvas.getHeight(), canvas.getWidth()/2, canvas.getHeight()-ampl, p);
     }
     
+    /**
+     * Sets the amplitude, that will be used on the next redraw.
+     * @param arg0
+     */
     public void setAmpl(short arg0) {
         ampl = arg0;
     }

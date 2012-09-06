@@ -56,12 +56,12 @@ public class TestMetronome extends
         tc.setBPM(SharedPref.getBPM(mActivity));
         tc.refreshObservers();
 
-        assertEquals(tc.getBPM(), op.getBPM());
+        assertEquals(tc.getBPM(), op.getBpm());
         assertEquals(tc.getBPM(), bpm.getValue());
         
         tc.setBPM(20);
         
-        assertEquals(tc.getBPM(), op.getBPM());
+        assertEquals(tc.getBPM(), op.getBpm());
         assertEquals(tc.getBPM(), bpm.getValue());
         
         getInstrumentation().callActivityOnPause(mActivity);

@@ -28,6 +28,9 @@ import android.view.View.OnTouchListener;
  * from that. It is necessary to obtain instance using the {@link getInstance()}
  * method. This class has to be singleton.
  * 
+ * Register your {@link IControlable} class with registerOnMyEvent(IControlable
+ * target).
+ * 
  * @author Zdeněk Janeček
  */
 public class TouchControl implements OnTouchListener {
@@ -41,6 +44,10 @@ public class TouchControl implements OnTouchListener {
         vt = VelocityTracker.obtain();
     }
 
+    /**
+     * Use this to obtain instance.
+     * @return Instance of TouchControl.
+     */
     public static TouchControl getInstance() {
         if (instance == null) {
             instance = new TouchControl();
@@ -105,6 +112,10 @@ public class TouchControl implements OnTouchListener {
         return true;
     }
 
+    /**
+     * Reassign controlling of touch events to new target.
+     * @param target Usually controlled by the main Activity.
+     */
     public void registerOnMyEvent(IControlable target) {
         this.target = target;
     }

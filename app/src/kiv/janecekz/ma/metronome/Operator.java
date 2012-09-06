@@ -24,7 +24,7 @@ import java.util.Observer;
 import android.os.PowerManager.WakeLock;
 
 /**
- * This class controls {@code Peeper}.
+ * This class controls {@code Peeper} and WakeLock.
  * 
  * @author Zdeněk Janeček
  */
@@ -77,6 +77,9 @@ public class Operator extends Thread implements Observer {
         super.interrupt();
     }
 
+    /**
+     * Toggles play. User should use this method.
+     */
     public synchronized void togglePlay() {
         this.play = !play;
         
@@ -92,8 +95,8 @@ public class Operator extends Thread implements Observer {
         TempoControl t = (TempoControl) observable;
         bpm = t.getBPM();
     }
-    
-    public int getBPM() {
+
+    public int getBpm() {
         return bpm;
     }
 }
