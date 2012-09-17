@@ -516,6 +516,12 @@ public class ExtAudioRecorder {
         return (short) (argB1 | (argB2 << 8));
     }
 
+    /**
+     * Register new listener. This class will notify him when is
+     * ready new {@code getMaxAmplitude()} value.
+     * 
+     * @param arg0 Class you want to have notified.
+     */
     public void setOnUpdateListener(IAplitudeShowListener arg0) {
         listener = arg0;
     }

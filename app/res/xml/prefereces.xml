@@ -27,7 +27,7 @@
             android:title="@string/pref_speed_title" />
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/setup_metronome" >
+    <PreferenceCategory android:title="@string/title_section_metronome" >
         <ListPreference
             android:defaultValue="0"
             android:dialogTitle="@string/setup_sound_title"
@@ -37,7 +37,7 @@
             android:summary="@string/pref_sound"
             android:title="@string/pref_sound_title" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/setup_tone">
+    <PreferenceCategory android:title="@string/title_section_tone">
         <ListPreference
             android:defaultValue="440"
             android:dialogTitle="@string/setup_tone_title"
@@ -46,6 +46,9 @@
             android:key="@string/pref_key_tone"
             android:summary="@string/pref_tone"
             android:title="@string/pref_tone_title" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/title_section_recorder">
+        <SwitchPreference android:summaryOn="@string/pref_comp_on" android:summaryOff="@string/pref_comp_off" android:key="@string/pref_key_comp" android:title="@string/pref_comp_title"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

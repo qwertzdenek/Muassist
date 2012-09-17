@@ -20,6 +20,7 @@ package kiv.janecekz.ma;
 
 import java.io.File;
 
+import kiv.janecekz.ma.prefs.SharedPref;
 import kiv.janecekz.ma.rec.ExtAudioRecorder;
 import android.app.Fragment;
 import android.os.Bundle;
@@ -60,6 +61,13 @@ public class RecorderFragment extends Fragment implements IControlable,
         }
     };
 
+    private Runnable mUpdateAmplTask = new Runnable() {
+        public void run() {
+            onUpdate(ear);
+            mHandler.postDelayed(this, 100);
+        }
+    };
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -95,7 +103,8 @@ public class RecorderFragment extends Fragment implements IControlable,
         getView().setBackgroundResource(
                 ((MainActivity) getActivity()).getBgRes());
 
-        ear = ExtAudioRecorder.getInstance(false);
+        boolean comp = SharedPref.getComp(getActivity());
+        ear = ExtAudioRecorder.getInstance(comp);
         lastRecorded = getNextFile().getAbsolutePath();
         ear.setOutputFile(lastRecorded);
         ear.prepare();
@@ -127,9 +136,13 @@ public class RecorderFragment extends Fragment implements IControlable,
                 recStatusText.setText(getResources().getString(
                         R.string.recording));
                 mHandler.postDelayed(mUpdateTimeTask, 1000);
+                if (SharedPref.getComp(getActivity()))
+                    mHandler.postDelayed(mUpdateAmplTask, 100);
             } else if ((status == ExtAudioRecorder.State.STOPPED)
                     || (status == ExtAudioRecorder.State.ERROR)) {
-                ear.reset();
+                ear.release();
+                boolean comp = SharedPref.getComp(getActivity());
+                ear = ExtAudioRecorder.getInstance(comp);
                 lastRecorded = getNextFile().getAbsolutePath();
                 ear.setOutputFile(lastRecorded);
                 ear.prepare();
@@ -157,13 +170,18 @@ public class RecorderFragment extends Fragment implements IControlable,
     }
 
     private File getNextFile() {
+        String extension = null;
+        if (SharedPref.getComp(getActivity()))
+            extension = ".amr";
+        else
+            extension = ".wav";
         File f = new File(Environment.getExternalStorageDirectory().getPath()
-                + "/rec1.wav");
+                + "/rec1" + extension);
         int i = 1;
         while (true) {
             if (f.exists()) {
                 f = new File(Environment.getExternalStorageDirectory()
-                        .getPath() + "/rec" + (++i) + ".wav");
+                        .getPath() + "/rec" + (++i) + extension);
             } else
                 break;
         }

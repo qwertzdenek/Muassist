@@ -27,7 +27,6 @@
     <string name="pref_speed">Set up coeficient of value change on touch control.</string>
 
     <!-- Metronome -->
-    <string name="setup_metronome">Metronome</string>
     <string name="setup_sound_title">Choose sound</string>
     <string name="pref_sound_title">Tick-tack sound</string>
     <string name="pref_sound">Choose from the predefined sounds</string>
@@ -40,7 +39,6 @@
     <string name="G">G</string>
     <string name="A">A</string>
     <string name="B">B</string>
-    <string name="setup_tone">Tone Generator</string>
     <string name="setup_tone_title">Choose A base</string>
     <string name="pref_tone_title">Base tone frequency</string>
     <string name="pref_tone">Choose from the predefined frequencies</string>
@@ -48,6 +46,9 @@
     <!-- Recorder -->
     <string name="recording">Recording</string>
     <string name="stopped">Stopped</string>
+    <string name="pref_comp_off">Uncompressed WAV</string>
+    <string name="pref_comp_on">Compressed AMR</string>
+    <string name="pref_comp_title">Toggle compression</string>
     
     <!-- Configuration keys -->
     <string name="pref_key_bg">background_update_flag</string>
@@ -55,6 +56,7 @@
     <string name="pref_key_orientation">orientation_update_flag</string>
     <string name="pref_key_speed">speed_update_flag</string>
     <string name="pref_key_tone">tone_update_flag</string>
+    <string name="pref_key_comp">comp_update_flag</string>
     
 
 </resources>

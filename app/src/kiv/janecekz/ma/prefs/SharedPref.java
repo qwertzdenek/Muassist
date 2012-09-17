@@ -106,7 +106,20 @@ public class SharedPref {
         return Integer.parseInt(prefs.getString(
                 context.getString(R.string.pref_key_tone), "440"));
     }
-    
+
+    /**
+     * 
+     * 
+     * @param context
+     *            Application Context
+     * @return saved value from the Shared Preferences.
+     */
+    public static boolean getComp(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        return prefs.getBoolean(context.getString(R.string.pref_key_comp),
+                false);
+    }
+
     /**
      * Metronome tempo. Setted by user, and freely modifiable.
      * 
