@@ -1,5 +1,7 @@
 package kiv.janecekz.ma.tone;
 
+import java.util.Arrays;
+
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -14,9 +16,12 @@ public class AudioDevice {
         track = new AudioTrack(AudioManager.STREAM_MUSIC, sampleFreq,
                 AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
                 minSize, AudioTrack.MODE_STREAM);
-        track.play();
     }
 
+    /**
+     * Use this to write sample data. They must be in range of <0;1>.
+     * @param samples Sample data.
+     */
     public void writeSamples(double[] samples) {
         fillBuffer(samples);
         track.write(buffer, 0, samples.length);
@@ -30,12 +35,26 @@ public class AudioDevice {
             buffer[i] = (short) (samples[i] * Short.MAX_VALUE);
     }
     
+    /**
+     * Pause data pushing.
+     */
     public void pause() {
         track.stop();
     }
     
+    /**
+     * Starts pushing data to the PCM device.
+     */
     public void resume() {
         track.play();
+    }
+    
+    /**
+     * Call when changing frequency to avoid collision.
+     */
+    public void flushData() {
+        Arrays.fill(buffer, (short) 0);
+        track.flush();
     }
     
     public void cleanUp() {

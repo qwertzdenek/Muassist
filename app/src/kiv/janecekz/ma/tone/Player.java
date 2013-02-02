@@ -18,21 +18,30 @@ Musicians Assistant
 
 package kiv.janecekz.ma.tone;
 
+import java.util.Arrays;
+
 
 public class Player extends Thread {
     private boolean loop;
     private boolean play = false;
 
     public static final double PI2 = 2 * Math.PI;
-    public static final int SAMPLE_FREQ = 11025;
-    public static final double MIN_FREQ = 10f;
-    public static final double MAX_FREQ = 4000f;
+    public static final int SAMPLE_FREQ = 22050;
+    public static final int MIN_FREQ = 50;
+    public static final int MAX_FREQ = 11000;
+    
+    /*
+     * Count of harmonic frequencies.
+     */
+    private final int HARMONY = 3;
 
     private float freq;
-    private double deltaHarmStart = 0;
-    private double deltaHarm5Start = 0;
-    private double deltaMainStart = 0;
-    private int per = 10;
+    private double freqenc[] = new double[HARMONY];
+    private double freqinc[] = new double[HARMONY];
+    private double angle = 0;
+    private double strength;
+    private double strengthDelta = 1 / HARMONY;
+    private double[] samples;
     private AudioDevice ad;
 //    private BufferedWriter buf;
 
@@ -43,10 +52,11 @@ public class Player extends Thread {
     public Player() {
         ad = new AudioDevice(SAMPLE_FREQ);
 
+        samples = new double[(int) (1024)];
+        
 //        try {
 //            buf = new BufferedWriter(new FileWriter("/sdcard/sine.csv"));
 //        } catch (IOException e) {
-//            // TODO Auto-generated catch block
 //            e.printStackTrace();
 //        }
     }
@@ -57,22 +67,16 @@ public class Player extends Thread {
     public synchronized void togglePlay() {
         this.play = !play;
         if (play) {
+            ad.flushData();
             ad.resume();
             notify();
         }
     }
 
-    /**
-     * Starts the play if isn't play already.
-     */
-    public synchronized void play() {
-        if (!play) {
-            play = true;
-            ad.resume();
-            notify();
-        }
+    public boolean isPlay() {
+        return play;
     }
-
+    
     @Override
     public void run() {
         while (loop) {
@@ -82,35 +86,25 @@ public class Player extends Thread {
                 loop = false;
                 break;
             }
-
-            double sampleLength = SAMPLE_FREQ / freq;
-            double incMain = (PI2 * freq) / SAMPLE_FREQ;
-            double incHarm = (PI2 * freq * 3) / SAMPLE_FREQ;
-            double incHarm5 = (PI2 * freq * 5) / SAMPLE_FREQ;
-
-            // Start at what was not finished at last sampling part.
-            double angleMain = deltaMainStart;
-            double angleHarmonic = deltaHarmStart;
-            double angleHarmonic5 = deltaHarm5Start;
-
-            double[] samples = new double[(int) (per * sampleLength)];
+            
             for (int i = 0; i < samples.length; i++) {
-                samples[i] = (Math.sin(angleMain) +
-                        0.5 * Math.sin(angleHarmonic) +
-                        0.3 * Math.sin(angleHarmonic5)
-                              ) / 3;
+                strength = 1;
                 
-                angleMain += incMain;
-                angleHarmonic += incHarm;
-                angleHarmonic5 += incHarm5;
+                for (int j = 0; j < freqenc.length; j++) {
+                    samples[i] += strength * Math.sin(freqenc[j]);
+                    
+                    strength -= strengthDelta;
+                    angle = freqenc[j] + freqinc[j];
+                    if (angle > PI2) {
+                        angle -= PI2;
+                    }
+                    
+                    freqenc[j] = angle;
+                }
+                
+                samples[i] /= freqenc.length;
             }
 
-            deltaMainStart = Math.ceil(per * sampleLength) * incMain - per
-                    * PI2;
-            deltaHarmStart = Math.ceil(per * sampleLength) * incHarm - per
-                    * PI2;
-            deltaHarm5Start = Math.ceil(per * sampleLength) * incHarm5 - per
-                    * PI2;
             ad.writeSamples(samples);
 
 //            StringBuilder sb = new StringBuilder();
@@ -122,7 +116,6 @@ public class Player extends Thread {
 //            try {
 //                buf.write(sb.toString());
 //            } catch (IOException e) {
-//                // TODO Auto-generated catch block
 //                e.printStackTrace();
 //            }
         }
@@ -149,8 +142,18 @@ public class Player extends Thread {
     }
 
     public synchronized boolean setFreq(float value) {
-        if ((value < MAX_FREQ) && (value > MIN_FREQ)) {
+        if ((value < (MAX_FREQ / (2*HARMONY - 1))) && (value > MIN_FREQ)) {
             this.freq = value;
+            
+            double speed = 1;
+            for (int i = 0; i < freqinc.length; i++) {
+                freqinc[i] = (PI2 * this.freq * speed) / SAMPLE_FREQ;
+                speed += 2;
+            }
+            
+            Arrays.fill(freqenc, 0);
+            
+            ad.flushData();
             return true;
         } else
             return false;

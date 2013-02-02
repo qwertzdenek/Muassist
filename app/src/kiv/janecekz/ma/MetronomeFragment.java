@@ -82,8 +82,8 @@ public class MetronomeFragment extends Fragment implements IControlable,
 
         circle = (ImageView) v.findViewById(R.id.circle);
 
-        inAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.nav_in);
-        outAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.nav_out);
+        inAnim = AnimationUtils.loadAnimation(v.getContext(), android.R.anim.fade_in);
+        outAnim = AnimationUtils.loadAnimation(v.getContext(), android.R.anim.fade_in);
 
         MainActivity a = (MainActivity) getActivity();
 
@@ -92,7 +92,6 @@ public class MetronomeFragment extends Fragment implements IControlable,
             tc.addObserver(op);
 
             tc.setBPM(SharedPref.getBPM(getActivity()));
-            
 
             op.start();
         }

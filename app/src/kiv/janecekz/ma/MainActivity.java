@@ -24,6 +24,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -155,8 +156,16 @@ public class MainActivity extends Activity implements
             break;
         }
 
-        getFragmentManager().beginTransaction()
-                .replace(R.id.container, fragment).commit();
+        Fragment f = this.getFragmentManager().findFragmentByTag("metronome");
+        if (f == null) {
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.container, fragment).commit();
+        } else {
+            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            ft.setCustomAnimations(android.R.anim.fade_out, android.R.anim.fade_in);
+            ft.replace(R.id.container, fragment).commit();
+        }
+        
         touchCon.registerOnMyEvent((IControlable) fragment);
         return true;
     }
@@ -200,6 +209,5 @@ public class MainActivity extends Activity implements
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
             }
         }
-
     }
 }

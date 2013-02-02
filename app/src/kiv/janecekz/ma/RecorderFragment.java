@@ -78,9 +78,9 @@ public class RecorderFragment extends Fragment implements IControlable,
         circle = (ImageView) v.findViewById(R.id.circle);
 
         inAnim = (AnimationSet) AnimationUtils.loadAnimation(getActivity(),
-                R.anim.nav_in);
+                android.R.anim.fade_in);
         outAnim = (AnimationSet) AnimationUtils.loadAnimation(getActivity(),
-                R.anim.nav_out);
+                android.R.anim.fade_out);
 
         recTitleText = (TextView) v.findViewById(R.id.rec_title);
         recStatusText = (TextView) v.findViewById(R.id.rec_status);

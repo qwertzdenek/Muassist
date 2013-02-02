@@ -35,8 +35,7 @@
             android:layout_height="wrap_content"
             android:alpha="0"
             android:contentDescription="@string/image"
-            android:src="@drawable/circle"
-            android:visibility="visible" />
+            android:src="@drawable/circle" />
 
         <NumberPicker
             android:id="@+id/beatCount"

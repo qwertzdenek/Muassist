@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="kiv.janecekz.ma"
-    android:versionCode="3"
+    android:versionCode="4"
     android:versionName="0.4" >
 
     <uses-sdk

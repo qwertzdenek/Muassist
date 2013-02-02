@@ -58,8 +58,8 @@ public class ToneFragment extends Fragment implements IControlable,
 
         circle = (ImageView) root.findViewById(R.id.circle);
 
-        inAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.nav_in);
-        outAnim = AnimationUtils.loadAnimation(getActivity(), R.anim.nav_out);
+        inAnim = AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in);
+        outAnim = AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out);
 
         input = (EditText) root.findViewById(R.id.tone_value_edit);
         input.setOnEditorActionListener(this);
@@ -138,7 +138,7 @@ public class ToneFragment extends Fragment implements IControlable,
             if (!b) {
                 arg0.setText(Float.toString(pl.getFreq()));
             } else {
-                pl.play();
+                pl.togglePlay();
                 // FIXME: What if only push the enter?
                 if (actualFreqView != null) {
                     actualFreqView.setTextColor(actualFreqView.getResources()
@@ -199,7 +199,8 @@ public class ToneFragment extends Fragment implements IControlable,
 
         input.setText(Float.toString(freq));
         pl.setFreq(freq);
-        pl.play();
+        if (!pl.isPlay()) {
+            pl.togglePlay();
+        }
     }
-
 }
