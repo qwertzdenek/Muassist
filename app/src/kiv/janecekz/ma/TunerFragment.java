@@ -18,18 +18,22 @@ Musicians Assistant
 
 package kiv.janecekz.ma;
 
+import kiv.janecekz.ma.tuner.Analyzer;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
-public class TunerFragment extends Fragment implements IControlable {
+public class TunerFragment extends Fragment implements IControlable, Informable {
+    private TextView tuner_out;
+    private Analyzer anl;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        
+
         return inflater.inflate(R.layout.tuner, container, false);
     }
 
@@ -46,23 +50,32 @@ public class TunerFragment extends Fragment implements IControlable {
     @Override
     public void onResume() {
         super.onResume();
-        
-        getView().setBackgroundResource(((MainActivity) getActivity()).getBgRes());
+
+        getView().setBackgroundResource(
+                ((MainActivity) getActivity()).getBgRes());
+        tuner_out = (TextView) getView().findViewById(R.id.tuner_out);
+
+        anl = new Analyzer();
+        anl.setOnMessageListener(this);
     }
 
     public void onValueChange(TouchControl t, int val) {
         // TODO Auto-generated method stub
-        
+
     }
 
     public void onToggle(TouchControl t, int state) {
         // TODO Auto-generated method stub
-        
+
     }
 
     public void onPositionChange(TouchControl t, float x, float y) {
         // TODO Auto-generated method stub
-        
+
     }
 
+    @Override
+    public void onMessage(String msg) {
+        tuner_out.setText(msg);
+    }
 }

@@ -29,7 +29,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AnimationSet;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -40,8 +40,8 @@ public class RecorderFragment extends Fragment implements IControlable,
     private final String[] dots = { " .", " . .", " . . ." };
 
     private ImageView circle;
-    private AnimationSet inAnim;
-    private AnimationSet outAnim;
+    private Animation inAnim;
+    private Animation outAnim;
     private ExtAudioRecorder ear;
     private TextView recTitleText;
     private TextView recStatusText;
@@ -77,9 +77,9 @@ public class RecorderFragment extends Fragment implements IControlable,
 
         circle = (ImageView) v.findViewById(R.id.circle);
 
-        inAnim = (AnimationSet) AnimationUtils.loadAnimation(getActivity(),
+        inAnim = (Animation) AnimationUtils.loadAnimation(getActivity(),
                 android.R.anim.fade_in);
-        outAnim = (AnimationSet) AnimationUtils.loadAnimation(getActivity(),
+        outAnim = (Animation) AnimationUtils.loadAnimation(getActivity(),
                 android.R.anim.fade_out);
 
         recTitleText = (TextView) v.findViewById(R.id.rec_title);
