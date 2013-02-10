@@ -10,7 +10,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="10dp"
         android:text="@string/headerMet"
-        android:textSize="16dp" />
+        android:textSize="16sp" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -33,9 +33,10 @@
             android:id="@+id/circle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:alpha="0"
+            android:alpha="1"
             android:contentDescription="@string/image"
-            android:src="@drawable/circle" />
+            android:src="@drawable/circle"
+            android:visibility="invisible" />
 
         <NumberPicker
             android:id="@+id/beatCount"

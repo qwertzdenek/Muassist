@@ -22,6 +22,7 @@ import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.animation.AlphaAnimation;
 
 /**
  * I use this class to collect onTouch events and get final decision what to do
@@ -34,9 +35,40 @@ import android.view.View.OnTouchListener;
  * @author Zdeněk Janeček
  */
 public class TouchControl implements OnTouchListener {
+    private VelocityTracker vt;
+    private IControlable target;
+
+    // TODO: This should be editable.
+    private final int DOUBLE_CLICK_DELAY = 500;
+    private int biggestSpeed;
+    private long startTime;
+    private long stopTime;
+    private boolean stopping = false;
+
+    /**
+     * Screen was touched and is time to do some initial action.
+     */
     public static final int STATE_BEGIN = 0;
+
+    /**
+     * That was start/stop event.
+     */
     public static final int STATE_STOP = 1;
+
+    /**
+     * End of touch event. Nothing interesting.
+     */
     public static final int STATE_OUT = 2;
+
+    /**
+     * In animation identifier.
+     */
+    public static final int ANIMATION_IN = 5;
+
+    /**
+     * Out animation identifier.
+     */
+    public static final int ANIMATION_OUT = 6;
 
     private static TouchControl instance;
 
@@ -46,6 +78,7 @@ public class TouchControl implements OnTouchListener {
 
     /**
      * Use this to obtain instance.
+     * 
      * @return Instance of TouchControl.
      */
     public static TouchControl getInstance() {
@@ -54,19 +87,6 @@ public class TouchControl implements OnTouchListener {
         }
         return instance;
     }
-
-    private VelocityTracker vt;
-    private IControlable target;
-
-    /*
-     * Touch control
-     */
-    // TODO: This should be editable.
-    private final int DOUBLE_CLICK_DELAY = 500;
-    private int biggestSpeed;
-    private long startTime;
-    private long stopTime;
-    private boolean stopping = false;
 
     public boolean onTouch(View arg0, MotionEvent event) {
         if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
@@ -113,8 +133,35 @@ public class TouchControl implements OnTouchListener {
     }
 
     /**
+     * Factory method for fade animation instance.
+     * 
+     * @param type
+     *            One of TouchControl.ANIMATION_IN or TouchControl.ANIMATION_OUT
+     *            constant.
+     * @return Instance of class {@link AlphaAnimation}.
+     */
+    public static AlphaAnimation getAnimation(int type) {
+        AlphaAnimation anim;
+
+        if (type == ANIMATION_IN) {
+            anim = new AlphaAnimation(0f, 1f);
+        } else if (type == ANIMATION_OUT) {
+            anim = new AlphaAnimation(1f, 0f);
+        } else {
+            return null;
+        }
+
+        anim.setDuration(300);
+        anim.setFillAfter(true);
+
+        return anim;
+    }
+
+    /**
      * Reassign controlling of touch events to new target.
-     * @param target Usually controlled by the main Activity.
+     * 
+     * @param target
+     *            Usually controlled by the main Activity.
      */
     public void registerOnMyEvent(IControlable target) {
         this.target = target;

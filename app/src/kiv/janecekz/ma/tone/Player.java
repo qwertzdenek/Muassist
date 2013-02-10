@@ -33,7 +33,8 @@ public class Player extends Thread {
     /*
      * Count of harmonic frequencies.
      */
-    private final int HARMONY = 3;
+    // TODO: Change by menu item
+    private final int HARMONY = 2;
 
     private float freq;
     private double freqenc[] = new double[HARMONY];
@@ -104,7 +105,7 @@ public class Player extends Thread {
                 
                 samples[i] /= freqenc.length;
             }
-
+            
             ad.writeSamples(samples);
 
 //            StringBuilder sb = new StringBuilder();
@@ -148,12 +149,11 @@ public class Player extends Thread {
             double speed = 1;
             for (int i = 0; i < freqinc.length; i++) {
                 freqinc[i] = (PI2 * this.freq * speed) / SAMPLE_FREQ;
-                speed += 2;
+                speed += 1;
             }
             
             Arrays.fill(freqenc, 0);
             
-            ad.flushData();
             return true;
         } else
             return false;

@@ -24,17 +24,28 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 public class TunerFragment extends Fragment implements IControlable, Informable {
     private TextView tuner_out;
     private Analyzer anl;
+    
+    private ImageView circle;
+    private AlphaAnimation inAnim;
+    private AlphaAnimation outAnim;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
 
-        return inflater.inflate(R.layout.tuner, container, false);
+        View v = inflater.inflate(R.layout.tuner, container, false);
+        v.setOnTouchListener(TouchControl.getInstance());
+        
+        circle = (ImageView) v.findViewById(R.id.circle);
+        
+        return v;
     }
 
     @Override
@@ -57,6 +68,9 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 
         anl = new Analyzer();
         anl.setOnMessageListener(this);
+        
+        inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN);
+        outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
     }
 
     public void onValueChange(TouchControl t, int val) {
@@ -65,13 +79,29 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
     }
 
     public void onToggle(TouchControl t, int state) {
-        // TODO Auto-generated method stub
-
+        switch (state) {
+        case TouchControl.STATE_BEGIN:
+            circle.setVisibility(View.VISIBLE);
+            circle.startAnimation(inAnim);
+            break;
+        case TouchControl.STATE_STOP:
+            // TODO: toggle play
+            
+            break;
+        case TouchControl.STATE_OUT:
+            if (!inAnim.hasEnded())
+                inAnim.cancel();
+            circle.startAnimation(outAnim);
+            circle.setVisibility(View.INVISIBLE);
+            break;
+        default:
+            break;
+        }
     }
 
     public void onPositionChange(TouchControl t, float x, float y) {
-        // TODO Auto-generated method stub
-
+        circle.setX(x - circle.getWidth() / 2);
+        circle.setY(y - circle.getHeight() / 2 - 80);
     }
 
     @Override

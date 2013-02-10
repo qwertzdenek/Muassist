@@ -28,7 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.AnimationSet;
 import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
@@ -42,10 +42,11 @@ public class ToneFragment extends Fragment implements IControlable,
     private static final float[] freqCoefs = new float[] { 0.594613636f,
             0.667409091f, 0.74825f, 0.793704545f, 0.890909091f, 1f, 1.122454545f };
 
-    private Player pl;
     private ImageView circle;
-    private Animation inAnim;
-    private Animation outAnim;
+    private AlphaAnimation inAnim;
+    private AlphaAnimation outAnim;
+    
+    private Player pl;
     private EditText input;
     private TextView actualFreqView;
 
@@ -58,8 +59,8 @@ public class ToneFragment extends Fragment implements IControlable,
 
         circle = (ImageView) root.findViewById(R.id.circle);
 
-        inAnim = AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_in);
-        outAnim = AnimationUtils.loadAnimation(getActivity(), android.R.anim.fade_out);
+        inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN);
+        outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
 
         input = (EditText) root.findViewById(R.id.tone_value_edit);
         input.setOnEditorActionListener(this);
@@ -110,6 +111,7 @@ public class ToneFragment extends Fragment implements IControlable,
     public void onToggle(TouchControl t, int state) {
         switch (state) {
         case TouchControl.STATE_BEGIN:
+            circle.setVisibility(View.VISIBLE);
             circle.startAnimation(inAnim);
             break;
         case TouchControl.STATE_STOP:
@@ -119,6 +121,7 @@ public class ToneFragment extends Fragment implements IControlable,
             if (!inAnim.hasEnded())
                 inAnim.cancel();
             circle.startAnimation(outAnim);
+            circle.setVisibility(View.INVISIBLE);
             break;
         default:
             break;
@@ -127,7 +130,7 @@ public class ToneFragment extends Fragment implements IControlable,
 
     public void onPositionChange(TouchControl t, float x, float y) {
         circle.setX(x - circle.getWidth() / 2);
-        circle.setY(y - circle.getHeight() / 2);
+        circle.setY(y - circle.getHeight() / 2 - 80);
     }
 
     public boolean onEditorAction(TextView arg0, int arg1, KeyEvent arg2) {

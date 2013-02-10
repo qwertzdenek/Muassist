@@ -29,8 +29,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
+import android.view.animation.AlphaAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,8 +39,8 @@ public class RecorderFragment extends Fragment implements IControlable,
     private final String[] dots = { " .", " . .", " . . ." };
 
     private ImageView circle;
-    private Animation inAnim;
-    private Animation outAnim;
+    private AlphaAnimation inAnim;
+    private AlphaAnimation outAnim;
     private ExtAudioRecorder ear;
     private TextView recTitleText;
     private TextView recStatusText;
@@ -77,10 +76,8 @@ public class RecorderFragment extends Fragment implements IControlable,
 
         circle = (ImageView) v.findViewById(R.id.circle);
 
-        inAnim = (Animation) AnimationUtils.loadAnimation(getActivity(),
-                android.R.anim.fade_in);
-        outAnim = (Animation) AnimationUtils.loadAnimation(getActivity(),
-                android.R.anim.fade_out);
+        inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN);
+        outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
 
         recTitleText = (TextView) v.findViewById(R.id.rec_title);
         recStatusText = (TextView) v.findViewById(R.id.rec_status);
@@ -118,6 +115,7 @@ public class RecorderFragment extends Fragment implements IControlable,
     public void onToggle(TouchControl t, int state) {
         switch (state) {
         case TouchControl.STATE_BEGIN:
+            circle.setVisibility(View.VISIBLE);
             circle.startAnimation(inAnim);
             break;
         case TouchControl.STATE_STOP:
@@ -158,6 +156,7 @@ public class RecorderFragment extends Fragment implements IControlable,
             if (!inAnim.hasEnded())
                 inAnim.cancel();
             circle.startAnimation(outAnim);
+            circle.setVisibility(View.INVISIBLE);
             break;
         default:
             break;
@@ -166,7 +165,7 @@ public class RecorderFragment extends Fragment implements IControlable,
 
     public void onPositionChange(TouchControl t, float x, float y) {
         circle.setX(x - circle.getWidth() / 2);
-        circle.setY(y - circle.getHeight() / 2);
+        circle.setY(y - circle.getHeight() / 2 - 80);
     }
 
     private File getNextFile() {
