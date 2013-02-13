@@ -1,7 +1,5 @@
 package kiv.janecekz.ma.tone;
 
-import java.util.Arrays;
-
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
@@ -39,7 +37,8 @@ public class AudioDevice {
      * Pause data pushing.
      */
     public void pause() {
-        track.stop();
+        track.pause();
+        track.flush();
     }
     
     /**
@@ -50,15 +49,12 @@ public class AudioDevice {
     }
     
     /**
-     * Call when changing frequency to avoid collision.
+     * Call when changing frequency to avoid collision or
+     * at end.
      */
-    public void flushData() {
-        Arrays.fill(buffer, (short) 0);
-        track.flush();
-    }
-    
     public void cleanUp() {
-        track.stop();
+        track.pause();
         track.flush();
+        track.release();
     }
 }

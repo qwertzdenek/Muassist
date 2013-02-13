@@ -39,16 +39,20 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class ToneFragment extends Fragment implements IControlable,
         OnEditorActionListener, OnClickListener {
-    private static final float[] freqCoefs = new float[] { 0.594613636f,
-            0.667409091f, 0.74825f, 0.793704545f, 0.890909091f, 1f, 1.122454545f };
+    private static final float[] freqCoefs = new float[] { 0.5946035575f,
+            0.6299605249f, 0.6674199271f, 0.7071067812f, 0.7491535384f,
+            0.793700526f, 0.8408964153f, 0.8908987181f, 0.9438743127f, 1f,
+            1.0594630944f, 1.1224620483f, 1.18920712f };
 
     private ImageView circle;
     private AlphaAnimation inAnim;
     private AlphaAnimation outAnim;
-    
+
     private Player pl;
     private EditText input;
     private TextView actualFreqView;
+
+    private boolean sharp = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -65,6 +69,9 @@ public class ToneFragment extends Fragment implements IControlable,
         input = (EditText) root.findViewById(R.id.tone_value_edit);
         input.setOnEditorActionListener(this);
 
+        TextView sharp = (TextView) root.findViewById(R.id.sharp);
+        sharp.setOnClickListener(this);
+
         ViewGroup defList = (ViewGroup) root.findViewById(R.id.tone_list);
         for (int i = 0; i < defList.getChildCount(); i++) {
             TextView v = (TextView) defList.getChildAt(i);
@@ -75,9 +82,9 @@ public class ToneFragment extends Fragment implements IControlable,
 
     @Override
     public void onPause() {
-        super.onPause();
-
         pl.interrupt();
+
+        super.onPause();
     }
 
     @Override
@@ -93,7 +100,7 @@ public class ToneFragment extends Fragment implements IControlable,
         actualFreqView.setTextColor(actualFreqView.getResources().getColor(
                 android.R.color.holo_red_light));
 
-        pl = new Player();
+        pl = new Player(getActivity().getApplicationContext());
 
         pl.setFreq(SharedPref.getBaseFreq(getActivity()));
         pl.start();
@@ -156,54 +163,96 @@ public class ToneFragment extends Fragment implements IControlable,
     public void onClick(View arg0) {
         TextView v = (TextView) arg0;
 
-        if (actualFreqView != null) {
-            actualFreqView.setTextColor(actualFreqView.getResources().getColor(
-                    android.R.color.holo_blue_light));
+        if (v.getId() == R.id.sharp) {
+            sharp = !sharp;
+            int pos = 9;
+            if (actualFreqView != null && !sharp) {
+                int act = getBasePos(actualFreqView.getId());
+                pos = act;
+                v.setTextColor(v.getResources().getColor(
+                        android.R.color.holo_blue_light));
+            } else if (actualFreqView != null && sharp) {
+                int act = getBasePos(actualFreqView.getId());
+                pos = act + 1;
+                v.setTextColor(v.getResources().getColor(
+                        android.R.color.holo_red_light));
+            } else if (actualFreqView == null && sharp) {
+                v.setTextColor(v.getResources().getColor(
+                        android.R.color.holo_red_light));
+            } else if (actualFreqView == null && !sharp) {
+                v.setTextColor(v.getResources().getColor(
+                        android.R.color.holo_blue_light));
+            }
+            
+            int baseFreq = SharedPref.getBaseFreq(getActivity());
+            float freq = baseFreq * freqCoefs[pos];
+            input.setText(String.format("%.2f", freq));
+            
+            pl.setFreq(freq);
+        } else {
+            if (actualFreqView != null) {
+                actualFreqView.setTextColor(actualFreqView.getResources()
+                        .getColor(android.R.color.holo_blue_light));
+            }
+
+            actualFreqView = v;
+
+            // Set frequency coefficient accordingly.
+            int freqCoefPosition = getBasePos(v.getId());
+            freqCoefPosition = sharp ? freqCoefPosition + 1 : freqCoefPosition;
+
+            int baseFreq = SharedPref.getBaseFreq(getActivity());
+            float freq = baseFreq * freqCoefs[freqCoefPosition];
+
+            input.setText(String.format("%.2f", freq));
+            pl.setFreq(freq);
+            if (!pl.isPlay()) {
+                pl.togglePlay();
+            }
+            
+            v.setTextColor(v.getResources()
+                    .getColor(android.R.color.holo_red_light));
         }
+        
+        AnimationSet push = (AnimationSet) AnimationUtils.loadAnimation(
+                v.getContext(), R.anim.push);
+        v.startAnimation(push);
+    }
 
-        actualFreqView = v;
-
-        int freqCoefPosition = 5;
-        switch (v.getId()) {
+    /**
+     * Method returns index to the array {@code freqCoefs} of basic tones.
+     * @param id View id
+     * @return index value
+     */
+    private int getBasePos(int id) {
+        int pos = 9;
+        switch (id) {
         case R.id.toneC:
-            freqCoefPosition = 0;
+            pos = 0;
             break;
         case R.id.toneD:
-            freqCoefPosition = 1;
+            pos = 2;
             break;
         case R.id.toneE:
-            freqCoefPosition = 2;
+            pos = 4;
             break;
         case R.id.toneF:
-            freqCoefPosition = 3;
+            pos = 5;
             break;
         case R.id.toneG:
-            freqCoefPosition = 4;
+            pos = 7;
             break;
         case R.id.toneA:
-            freqCoefPosition = 5;
+            pos = 9;
             break;
         case R.id.toneB:
-            freqCoefPosition = 6;
+            pos = 11;
             break;
 
         default:
             break;
         }
-        
-        int baseFreq = SharedPref.getBaseFreq(getActivity());
-        float freq = baseFreq * freqCoefs[freqCoefPosition];
 
-        v.setTextColor(v.getResources()
-                .getColor(android.R.color.holo_red_light));
-        AnimationSet push = (AnimationSet) AnimationUtils.loadAnimation(
-                v.getContext(), R.anim.push);
-        v.startAnimation(push);
-
-        input.setText(Float.toString(freq));
-        pl.setFreq(freq);
-        if (!pl.isPlay()) {
-            pl.togglePlay();
-        }
+        return pos;
     }
 }

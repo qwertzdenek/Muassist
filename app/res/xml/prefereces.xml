@@ -46,6 +46,14 @@
             android:key="@string/pref_key_tone"
             android:summary="@string/pref_tone"
             android:title="@string/pref_tone_title" />
+        <ListPreference
+            android:defaultValue="9"
+            android:dialogTitle="@string/setup_harm_title"
+            android:entries="@array/aharm"
+            android:entryValues="@array/aharm"
+            android:key="@string/pref_key_harm"
+            android:summary="@string/pref_harm"
+            android:title="@string/pref_harm_title" />
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/title_section_recorder">
         <SwitchPreference android:summaryOn="@string/pref_comp_on" android:summaryOff="@string/pref_comp_off" android:key="@string/pref_key_comp" android:title="@string/pref_comp_title"/>

@@ -8,14 +8,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="10sp"
         android:text="@string/title_section_tone"
         android:textSize="16sp" />
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="fill_parent"
-        android:layout_marginTop="10dp" >
+        android:layout_marginTop="10sp" >
 
         <ImageView
             android:id="@+id/circle"
@@ -30,7 +30,6 @@
             android:id="@+id/tone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/tone_text"
             android:layout_centerHorizontal="true"
             android:scrollbars="none" >
 
@@ -44,77 +43,87 @@
                     android:id="@+id/toneC"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
+                    android:padding="10sp"
                     android:text="@string/C"
                     android:textColor="@android:color/holo_blue_light"
-                    android:textSize="40dp" />
+                    android:textSize="40sp" />
 
                 <TextView
                     android:id="@+id/toneD"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
+                    android:padding="10sp"
                     android:text="@string/D"
                     android:textColor="@android:color/holo_blue_light"
-                    android:textSize="40dp" />
+                    android:textSize="40sp" />
 
                 <TextView
                     android:id="@+id/toneE"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
+                    android:padding="10sp"
                     android:text="@string/E"
                     android:textColor="@android:color/holo_blue_light"
-                    android:textSize="40dp" />
+                    android:textSize="40sp" />
 
                 <TextView
                     android:id="@+id/toneF"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
+                    android:padding="10sp"
                     android:text="@string/F"
                     android:textColor="@android:color/holo_blue_light"
-                    android:textSize="40dp" />
+                    android:textSize="40sp" />
 
                 <TextView
                     android:id="@+id/toneG"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
+                    android:padding="10sp"
                     android:text="@string/G"
                     android:textColor="@android:color/holo_blue_light"
-                    android:textSize="40dp" />
+                    android:textSize="40sp" />
 
                 <TextView
                     android:id="@+id/toneA"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
+                    android:padding="10sp"
                     android:text="@string/A"
                     android:textColor="@android:color/holo_blue_light"
-                    android:textSize="40dp" />
+                    android:textSize="40sp" />
 
                 <TextView
                     android:id="@+id/toneB"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
+                    android:padding="10sp"
                     android:text="@string/B"
                     android:textColor="@android:color/holo_blue_light"
-                    android:textSize="40dp" />
+                    android:textSize="40sp" />
             </LinearLayout>
         </HorizontalScrollView>
 
-        <EditText
-            android:id="@+id/tone_value_edit"
-            android:layout_width="100dp"
+        <TextView
+            android:id="@+id/sharp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@+id/tone"
             android:layout_centerHorizontal="true"
-            android:inputType="numberDecimal" >
+            android:padding="10sp"
+            android:text="@string/sharp"
+            android:textColor="@android:color/holo_blue_light"
+            android:textSize="40sp" />
 
-            <requestFocus />
-        </EditText>
+        <EditText
+            android:id="@+id/tone_value_edit"
+            android:layout_width="100sp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/sharp"
+            android:layout_centerHorizontal="true"
+            android:ems="10"
+            android:inputType="numberDecimal" />
+
     </RelativeLayout>
 
 </LinearLayout>

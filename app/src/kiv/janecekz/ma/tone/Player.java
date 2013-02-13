@@ -1,6 +1,6 @@
 /*
 Musicians Assistant
-    Copyright (C) 2012  Zdeněk Janeček <jan.zdenek@gmail.com>
+    Copyright (C) 2012,2013  Zdeněk Janeček <jan.zdenek@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,6 +20,9 @@ package kiv.janecekz.ma.tone;
 
 import java.util.Arrays;
 
+import kiv.janecekz.ma.prefs.SharedPref;
+import android.content.Context;
+
 
 public class Player extends Thread {
     private boolean loop;
@@ -34,14 +37,14 @@ public class Player extends Thread {
      * Count of harmonic frequencies.
      */
     // TODO: Change by menu item
-    private final int HARMONY = 2;
-
+    private int harmony;
+    
     private float freq;
-    private double freqenc[] = new double[HARMONY];
-    private double freqinc[] = new double[HARMONY];
+    private double freqenc[];
+    private double freqinc[];
     private double angle = 0;
     private double strength;
-    private double strengthDelta = 1 / HARMONY;
+    private double strengthDelta;
     private double[] samples;
     private AudioDevice ad;
 //    private BufferedWriter buf;
@@ -50,10 +53,16 @@ public class Player extends Thread {
      * Constructor for the tone generator. To start use start() and the
      * togglePlay() to start/stop.
      */
-    public Player() {
+    public Player(Context context) {
+        harmony = SharedPref.getHarmDensity(context);
+        
+        freqenc = new double[harmony];
+        freqinc = new double[harmony];
+        strengthDelta = 1f / harmony;
+        
         ad = new AudioDevice(SAMPLE_FREQ);
-
-        samples = new double[(int) (1024)];
+        
+        samples = new double[1024];
         
 //        try {
 //            buf = new BufferedWriter(new FileWriter("/sdcard/sine.csv"));
@@ -61,14 +70,13 @@ public class Player extends Thread {
 //            e.printStackTrace();
 //        }
     }
-
+    
     /**
      * Toggle actual play.
      */
     public synchronized void togglePlay() {
         this.play = !play;
         if (play) {
-            ad.flushData();
             ad.resume();
             notify();
         }
@@ -88,6 +96,8 @@ public class Player extends Thread {
                 break;
             }
             
+            Arrays.fill(samples, 0);
+            
             for (int i = 0; i < samples.length; i++) {
                 strength = 1;
                 
@@ -105,7 +115,7 @@ public class Player extends Thread {
                 
                 samples[i] /= freqenc.length;
             }
-            
+    
             ad.writeSamples(samples);
 
 //            StringBuilder sb = new StringBuilder();
@@ -141,15 +151,16 @@ public class Player extends Thread {
         super.start();
         loop = true;
     }
-
+    
     public synchronized boolean setFreq(float value) {
-        if ((value < (MAX_FREQ / (2*HARMONY - 1))) && (value > MIN_FREQ)) {
+        if ((value < (MAX_FREQ / (2*harmony - 1))) && (value > MIN_FREQ)) {
             this.freq = value;
             
-            double speed = 1;
+//            Log.d(MainActivity.TAG, "freq="+this.freq+" harm="+harmony+" len="+freqinc.length);
+            double speed = 1 / Math.pow(2, (harmony >> 1));
             for (int i = 0; i < freqinc.length; i++) {
                 freqinc[i] = (PI2 * this.freq * speed) / SAMPLE_FREQ;
-                speed += 1;
+                speed *= 2;
             }
             
             Arrays.fill(freqenc, 0);

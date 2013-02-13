@@ -32,6 +32,7 @@
     <string name="pref_sound">Choose from the predefined sounds</string>
 
     <!-- Tone Generator -->
+    <string name="sharp">#</string>
     <string name="C">C</string>
     <string name="D">D</string>
     <string name="E">E</string>
@@ -42,6 +43,10 @@
     <string name="setup_tone_title">Choose A base</string>
     <string name="pref_tone_title">Base tone frequency</string>
     <string name="pref_tone">Choose from the predefined frequencies</string>
+    
+    <string name="setup_harm_title">Choose harmony density</string>
+    <string name="pref_harm_title">Harmony</string>
+    <string name="pref_harm">Count of harmonic frequencies</string>
     
     <!-- Recorder -->
     <string name="recording">Recording</string>
@@ -57,6 +62,6 @@
     <string name="pref_key_speed">speed_update_flag</string>
     <string name="pref_key_tone">tone_update_flag</string>
     <string name="pref_key_comp">comp_update_flag</string>
+    <string name="pref_key_harm">harm_update_flag</string>
     
-
 </resources>

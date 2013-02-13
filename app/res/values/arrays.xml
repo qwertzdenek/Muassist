@@ -41,5 +41,13 @@
         <item>443</item>
         <item>444</item>
     </string-array>
+    <string-array name="aharm">
+        <item>1</item>
+        <item>3</item>
+        <item>5</item>
+        <item>7</item>
+        <item>9</item>
+        <item>11</item>
+    </string-array>
 
 </resources>

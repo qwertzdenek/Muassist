@@ -108,6 +108,19 @@ public class SharedPref {
     }
 
     /**
+     * Harmony density. Number of octave sounds. One means clean sinusoid.
+     * 
+     * @param context
+     *            Application Context
+     * @return saved value from the Shared Preferences.
+     */
+    public static int getHarmDensity(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        return Integer.parseInt(prefs.getString(
+                context.getString(R.string.pref_key_harm), "7"));
+    }
+    
+    /**
      * 
      * 
      * @param context
