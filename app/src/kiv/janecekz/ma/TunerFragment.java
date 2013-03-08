@@ -55,6 +55,8 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 
     @Override
     public void onPause() {
+        anl.cleanUp();
+        
         super.onPause();
     }
 
@@ -74,8 +76,7 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
     }
 
     public void onValueChange(TouchControl t, int val) {
-        // TODO Auto-generated method stub
-
+        
     }
 
     public void onToggle(TouchControl t, int state) {
@@ -103,7 +104,7 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
         circle.setX(x - circle.getWidth() / 2);
         circle.setY(y - circle.getHeight() / 2 - 80);
     }
-
+    
     @Override
     public void onMessage(String msg) {
         tuner_out.setText(msg);

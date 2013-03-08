@@ -9,17 +9,32 @@ import android.media.AudioRecord.OnRecordPositionUpdateListener;
 import android.media.MediaRecorder.AudioSource;
 import android.util.Log;
 
-public class Analyzer extends Thread {
+public class Analyzer {
     private Informable listener;
     private AudioRecord audioRecorder;
-    private boolean loop = true;
 
     private short[] input;
     private short[] output;
 
     public Analyzer() {
-        int bufferSize = AudioRecord.getMinBufferSize(22050,
-                AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        int framePeriod = 22050 * 120 / 1000;
+        int bufferSize = framePeriod * 2 * 16 / 8;
+        
+        // Check to make sure buffer size is not smaller than the smaller
+        // than the mallest allowed one
+        if (bufferSize < AudioRecord.getMinBufferSize(22050,
+                AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)) {
+            bufferSize = AudioRecord.getMinBufferSize(22050,
+                    AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+            // Set frame period and timer interval accordingly
+            framePeriod = bufferSize / (2 * 16 / 8);
+            Log.w(ExtAudioRecorder.class.getName(),
+                    "Increasing buffer size to "
+                            + Integer.toString(bufferSize));
+        }
+        
+//        int bufferSize = AudioRecord.getMinBufferSize(22050,
+//                AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
 
         try {
             audioRecorder = new AudioRecord(AudioSource.MIC, 22050,
@@ -38,14 +53,15 @@ public class Analyzer extends Thread {
             }
         }
 
-        audioRecorder.setPositionNotificationPeriod(bufferSize);
+        audioRecorder.setPositionNotificationPeriod(framePeriod);
         audioRecorder
                 .setRecordPositionUpdateListener(new OnRecordPositionUpdateListener() {
                     @Override
                     public void onPeriodicNotification(AudioRecord recorder) {
+                        Log.d(MainActivity.TAG, "onPeriodicNotification");
                         recorder.read(input, 0, input.length);
 
-                        fct(input, output);
+                        fct();
 
                         int dominant = 0;
                         short domVal = output[0];
@@ -63,11 +79,15 @@ public class Analyzer extends Thread {
 
                     @Override
                     public void onMarkerReached(AudioRecord recorder) {
+                        Log.d(MainActivity.TAG, "onMarkerReached");
                     }
                 });
 
         // int markerPos = 22050 * TIMER_INTERVAL / 1000;
 
+        input = new short[bufferSize];
+        output = new short[bufferSize];
+        
         audioRecorder.startRecording();
     }
 
@@ -76,18 +96,7 @@ public class Analyzer extends Thread {
         audioRecorder.release();
     }
 
-    @Override
-    public void interrupt() {
-        loop = false;
-        super.interrupt();
-    }
-    
-    @Override
-    public void run() {
-        super.run();
-    }
-
-    private void fct(short[] input, short[] output) {
+    private void fct() {
         for (int k = 0; k < output.length; k++) {
             int sum = 0;
             for (int n = 0; n < input.length; n++) {
