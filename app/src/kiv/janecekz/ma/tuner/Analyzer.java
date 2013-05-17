@@ -1,101 +1,35 @@
 package kiv.janecekz.ma.tuner;
 
+import java.util.Arrays;
+
 import kiv.janecekz.ma.Informable;
 import kiv.janecekz.ma.MainActivity;
-import kiv.janecekz.ma.rec.ExtAudioRecorder;
-import android.media.AudioFormat;
-import android.media.AudioRecord;
-import android.media.AudioRecord.OnRecordPositionUpdateListener;
-import android.media.MediaRecorder.AudioSource;
 import android.util.Log;
 
 public class Analyzer {
     private Informable listener;
-    private AudioRecord audioRecorder;
-
-    private short[] input;
-    private short[] output;
-
+    private Recorder recorder;
+    
+    private Byte[] input;
+    private Short[] output;
+    
     public Analyzer() {
-        int framePeriod = 22050 * 120 / 1000;
-        int bufferSize = framePeriod * 2 * 16 / 8;
+        recorder = new Recorder(this);
+        recorder.execute();
+    }
+    
+    public void sendData(Byte[] data) {
+        input = data;
         
-        // Check to make sure buffer size is not smaller than the smaller
-        // than the mallest allowed one
-        if (bufferSize < AudioRecord.getMinBufferSize(22050,
-                AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)) {
-            bufferSize = AudioRecord.getMinBufferSize(22050,
-                    AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-            // Set frame period and timer interval accordingly
-            framePeriod = bufferSize / (2 * 16 / 8);
-            Log.w(ExtAudioRecorder.class.getName(),
-                    "Increasing buffer size to "
-                            + Integer.toString(bufferSize));
-        }
+        // Now we can do some computation
         
-//        int bufferSize = AudioRecord.getMinBufferSize(22050,
-//                AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-
-        try {
-            audioRecorder = new AudioRecord(AudioSource.MIC, 22050,
-                    AudioFormat.CHANNEL_IN_MONO,
-                    AudioFormat.ENCODING_PCM_16BIT, bufferSize);
-
-            if (audioRecorder.getState() != AudioRecord.STATE_INITIALIZED)
-                throw new Exception("AudioRecord initialization failed");
-
-        } catch (Exception e) {
-            if (e.getMessage() != null) {
-                Log.e(ExtAudioRecorder.class.getName(), e.getMessage());
-            } else {
-                Log.e(ExtAudioRecorder.class.getName(),
-                        "Unknown error occured while initializing recording");
-            }
-        }
-
-        audioRecorder.setPositionNotificationPeriod(framePeriod);
-        audioRecorder
-                .setRecordPositionUpdateListener(new OnRecordPositionUpdateListener() {
-                    @Override
-                    public void onPeriodicNotification(AudioRecord recorder) {
-                        Log.d(MainActivity.TAG, "onPeriodicNotification");
-                        recorder.read(input, 0, input.length);
-
-                        fct();
-
-                        int dominant = 0;
-                        short domVal = output[0];
-
-                        for (int i = 1; i < output.length; i++) {
-                            if (output[i] > domVal) {
-                                dominant = i;
-                                domVal = output[i];
-                            }
-                        }
-
-                        listener.onMessage(String.format("freq: %d\nval: %d",
-                                dominant, domVal));
-                    }
-
-                    @Override
-                    public void onMarkerReached(AudioRecord recorder) {
-                        Log.d(MainActivity.TAG, "onMarkerReached");
-                    }
-                });
-
-        // int markerPos = 22050 * TIMER_INTERVAL / 1000;
-
-        input = new short[bufferSize];
-        output = new short[bufferSize];
-        
-        audioRecorder.startRecording();
+        listener.onMessage("I got "+input.length+" bytes");
     }
 
-    public void cleanUp() {
-        audioRecorder.stop();
-        audioRecorder.release();
-    }
-
+    /**
+     * Not tested!!!
+     * @deprecated
+     */
     private void fct() {
         for (int k = 0; k < output.length; k++) {
             int sum = 0;
@@ -110,8 +44,12 @@ public class Analyzer {
             output[k] = (short) (2 * sum);
         }
     }
+    
+    public void setOnMessageListener(Informable tunerFragment) {
+        listener = tunerFragment;
+    }
 
-    public void setOnMessageListener(Informable listener) {
-        this.listener = listener;
+    public void cleanUp() {
+        recorder.end();
     }
 }
