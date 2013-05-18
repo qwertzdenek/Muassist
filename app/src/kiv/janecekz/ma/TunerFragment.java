@@ -28,7 +28,7 @@ import android.view.animation.AlphaAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class TunerFragment extends Fragment implements IControlable, Informable {
+public class TunerFragment extends Fragment implements IControlable {
     private TextView tuner_out;
     private Analyzer anl;
     
@@ -68,8 +68,7 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
                 ((MainActivity) getActivity()).getBgRes());
         tuner_out = (TextView) getView().findViewById(R.id.tuner_out);
 
-        anl = new Analyzer();
-        anl.setOnMessageListener(this);
+        anl = new Analyzer(this);
         
         inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN);
         outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
@@ -105,7 +104,6 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
         circle.setY(y - circle.getHeight() / 2 - 80);
     }
     
-    @Override
     public void onMessage(String msg) {
         tuner_out.setText(msg);
     }

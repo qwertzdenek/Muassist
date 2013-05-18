@@ -39,10 +39,6 @@ import android.widget.TextView.OnEditorActionListener;
 
 public class ToneFragment extends Fragment implements IControlable,
         OnEditorActionListener, OnClickListener {
-    private static final float[] freqCoefs = new float[] { 0.5946035575f,
-            0.6299605249f, 0.6674199271f, 0.7071067812f, 0.7491535384f,
-            0.793700526f, 0.8408964153f, 0.8908987181f, 0.9438743127f, 1f,
-            1.0594630944f, 1.1224620483f, 1.18920712f };
 
     private ImageView circle;
     private AlphaAnimation inAnim;
@@ -167,13 +163,13 @@ public class ToneFragment extends Fragment implements IControlable,
             sharp = !sharp;
             int pos = 9;
             if (actualFreqView != null && !sharp) {
-                int act = getBasePos(actualFreqView.getId());
-                pos = act;
+                pos = getTone(actualFreqView.getId()).getTonePos();
                 v.setTextColor(v.getResources().getColor(
                         android.R.color.holo_blue_light));
             } else if (actualFreqView != null && sharp) {
-                int act = getBasePos(actualFreqView.getId());
-                pos = act + 1;
+                // FIXME: Use only one method to get pos.
+                
+                pos = (getTone(actualFreqView.getId()).getTonePos() + 1) % 12;
                 v.setTextColor(v.getResources().getColor(
                         android.R.color.holo_red_light));
             } else if (actualFreqView == null && sharp) {
@@ -183,11 +179,11 @@ public class ToneFragment extends Fragment implements IControlable,
                 v.setTextColor(v.getResources().getColor(
                         android.R.color.holo_blue_light));
             }
-            
+
             int baseFreq = SharedPref.getBaseFreq(getActivity());
-            float freq = baseFreq * freqCoefs[pos];
+            float freq = baseFreq * Tones.freqCoefs[pos];
             input.setText(String.format("%.2f", freq));
-            
+
             pl.setFreq(freq);
         } else {
             if (actualFreqView != null) {
@@ -198,61 +194,56 @@ public class ToneFragment extends Fragment implements IControlable,
             actualFreqView = v;
 
             // Set frequency coefficient accordingly.
-            int freqCoefPosition = getBasePos(v.getId());
-            freqCoefPosition = sharp ? freqCoefPosition + 1 : freqCoefPosition;
+            int freqCoefPosition = getTone(v.getId()).getTonePos();
+            freqCoefPosition = sharp ? (freqCoefPosition + 1) % 12 : freqCoefPosition;
 
             int baseFreq = SharedPref.getBaseFreq(getActivity());
-            float freq = baseFreq * freqCoefs[freqCoefPosition];
+            float freq = baseFreq * Tones.freqCoefs[freqCoefPosition];
 
             input.setText(String.format("%.2f", freq));
             pl.setFreq(freq);
             if (!pl.isPlay()) {
                 pl.togglePlay();
             }
-            
-            v.setTextColor(v.getResources()
-                    .getColor(android.R.color.holo_red_light));
+
+            v.setTextColor(v.getResources().getColor(
+                    android.R.color.holo_red_light));
         }
-        
+
         AnimationSet push = (AnimationSet) AnimationUtils.loadAnimation(
                 v.getContext(), R.anim.push);
         v.startAnimation(push);
     }
 
-    /**
-     * Method returns index to the array {@code freqCoefs} of basic tones.
-     * @param id View id
-     * @return index value
-     */
-    private int getBasePos(int id) {
-        int pos = 9;
+    private Tones getTone(int id) {
+        Tones res = null;
+
         switch (id) {
         case R.id.toneC:
-            pos = 0;
+            res = Tones.C;
             break;
         case R.id.toneD:
-            pos = 2;
+            res = Tones.D;
             break;
         case R.id.toneE:
-            pos = 4;
+            res = Tones.E;
             break;
         case R.id.toneF:
-            pos = 5;
+            res = Tones.F;
             break;
         case R.id.toneG:
-            pos = 7;
+            res = Tones.G;
             break;
         case R.id.toneA:
-            pos = 9;
+            res = Tones.A;
             break;
         case R.id.toneB:
-            pos = 11;
+            res = Tones.B;
             break;
-
         default:
             break;
         }
 
-        return pos;
+        return res;
     }
 }
