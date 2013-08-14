@@ -164,6 +164,8 @@ public class TouchControl implements OnTouchListener {
      *            Usually controlled by the main Activity.
      */
     public void registerOnMyEvent(IControlable target) {
+        vt.recycle();
         this.target = target;
+        vt = VelocityTracker.obtain();
     }
 }

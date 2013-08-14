@@ -90,7 +90,14 @@ public class RecorderFragment extends Fragment implements IControlable,
     @Override
     public void onPause() {
         super.onPause();
-        ear.release();
+        ExtAudioRecorder.State status = ear.getState();
+        if (status == ExtAudioRecorder.State.RECORDING) {
+            Toast.makeText(getActivity(), lastRecorded, Toast.LENGTH_SHORT).show();
+            ear.stop();
+            recTitleText.setVisibility(View.VISIBLE);
+            mHandler.removeCallbacks(mUpdateTimeTask);
+            recStatusText.setText(getResources().getString(R.string.stopped));
+        }
     }
 
     @Override
@@ -144,6 +151,7 @@ public class RecorderFragment extends Fragment implements IControlable,
                 lastRecorded = getNextFile().getAbsolutePath();
                 ear.setOutputFile(lastRecorded);
                 ear.prepare();
+                ear.setOnUpdateListener(this);
                 ear.start();
                 recTitleText.setVisibility(View.INVISIBLE);
                 recStatusText.setText(getResources().getString(

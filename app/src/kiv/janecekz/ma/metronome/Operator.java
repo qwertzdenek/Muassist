@@ -69,12 +69,10 @@ public class Operator extends Thread implements Observer {
         super.start();
     }
 
-    @Override
-    public void interrupt() {
+    public synchronized void finish() {
         loop = false;
         if (wl.isHeld())
             wl.release();
-        super.interrupt();
     }
 
     /**
@@ -88,7 +86,6 @@ public class Operator extends Thread implements Observer {
             notify();
         } else
             wl.release();
-            
     }
 
     public void update(Observable observable, Object data) {

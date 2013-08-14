@@ -27,6 +27,7 @@ import kiv.janecekz.ma.metronome.TempoControl;
 import kiv.janecekz.ma.prefs.SharedPref;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -116,13 +117,18 @@ public class MetronomeFragment extends Fragment implements IControlable,
         SharedPref.setTime(getActivity(), peeper.getTime());
 
         if (isRemoving()) {
-            op.interrupt();
+            op.finish();
             tc.deleteObserver(op);
         }
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Log.d(MainActivity.TAG, "onSaveInstanceState()");
+        super.onSaveInstanceState(outState);
+    }
+
     public void onValueChange(TouchControl t, int val) {
-        // Log.d(MainActivity.TAG, "get val: "+val);
         int speed = 2 * SharedPref.getSpeed(getActivity());
 
         tc.setBPM(tc.getBPM() + val / speed);
