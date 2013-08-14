@@ -27,7 +27,6 @@ import kiv.janecekz.ma.metronome.TempoControl;
 import kiv.janecekz.ma.prefs.SharedPref;
 import android.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -84,18 +83,16 @@ public class MetronomeFragment extends Fragment implements IControlable,
 
         inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN);
         outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
-        
+
         MainActivity a = (MainActivity) getActivity();
 
-        if (isAdded()) {
-            op = new Operator(peeper, a.getWakeLock());
-            tc.addObserver(op);
+        op = new Operator(peeper, a.getWakeLock());
+        tc.addObserver(op);
 
-            tc.setBPM(SharedPref.getBPM(getActivity()));
-
-            op.start();
-        }
+        tc.setBPM(SharedPref.getBPM(getActivity()));
         tc.refreshObservers();
+        
+        op.start();
 
         return v;
     }
@@ -111,21 +108,19 @@ public class MetronomeFragment extends Fragment implements IControlable,
 
     @Override
     public void onPause() {
-        super.onPause();
-
         SharedPref.setBPM(getActivity(), tc.getBPM());
         SharedPref.setTime(getActivity(), peeper.getTime());
 
-        if (isRemoving()) {
-            op.finish();
-            tc.deleteObserver(op);
-        }
+        super.onPause();
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        Log.d(MainActivity.TAG, "onSaveInstanceState()");
-        super.onSaveInstanceState(outState);
+    public void onDestroy() {
+        super.onDestroy();
+
+        op.finish();
+        tc.deleteObserver(op);
+        tc.deleteObserver(this);
     }
 
     @Override
