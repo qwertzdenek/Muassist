@@ -88,6 +88,7 @@ public class TouchControl implements OnTouchListener {
         return instance;
     }
 
+    @Override
     public boolean onTouch(View arg0, MotionEvent event) {
         if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
             if (stopping

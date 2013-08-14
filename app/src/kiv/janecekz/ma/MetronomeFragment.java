@@ -128,12 +128,14 @@ public class MetronomeFragment extends Fragment implements IControlable,
         super.onSaveInstanceState(outState);
     }
 
+    @Override
     public void onValueChange(TouchControl t, int val) {
         int speed = 2 * SharedPref.getSpeed(getActivity());
 
         tc.setBPM(tc.getBPM() + val / speed);
     }
 
+    @Override
     public void onToggle(TouchControl t, int state) {
         switch (state) {
         case TouchControl.STATE_BEGIN:
@@ -154,11 +156,13 @@ public class MetronomeFragment extends Fragment implements IControlable,
         }
     }
 
+    @Override
     public void onPositionChange(TouchControl t, float x, float y) {
         circle.setX(x - circle.getWidth() / 2);
         circle.setY(y - circle.getHeight() / 2 - 80);
     }
 
+    @Override
     public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
         if (picker.equals(beatPicker)) {
             peeper.setTime(newVal);
@@ -168,6 +172,7 @@ public class MetronomeFragment extends Fragment implements IControlable,
         }
     }
 
+    @Override
     public void update(Observable arg0, Object arg1) {
         bpmPicker.setValue(((TempoControl) arg0).getBPM());
     }

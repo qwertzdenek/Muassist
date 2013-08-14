@@ -119,6 +119,7 @@ public class ExtAudioRecorder {
      * Method used for recording.
      */
     private AudioRecord.OnRecordPositionUpdateListener updateListener = new AudioRecord.OnRecordPositionUpdateListener() {
+        @Override
         public void onPeriodicNotification(AudioRecord recorder) {
             audioRecorder.read(buffer, 0, buffer.length); // Fill buffer
             try {
@@ -149,6 +150,7 @@ public class ExtAudioRecorder {
             }
         }
 
+        @Override
         public void onMarkerReached(AudioRecord recorder) {
             // NOT USED
         }

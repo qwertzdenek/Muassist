@@ -18,6 +18,7 @@ Musicians Assistant
 
 package kiv.janecekz.ma.metronome;
 
+import kiv.janecekz.ma.R;
 import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.media.MediaPlayer;
@@ -62,6 +63,7 @@ public class Peeper {
         state = paternTable[time][phase];
         sounds[state].start();
         sun.post(new Runnable() {
+            @Override
             public void run() {
                 fadeAnim[state].start();
             }

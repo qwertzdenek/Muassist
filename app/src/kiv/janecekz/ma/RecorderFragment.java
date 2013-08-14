@@ -50,6 +50,7 @@ public class RecorderFragment extends Fragment implements IControlable,
     private int dotCount = 0;
 
     private Runnable mUpdateTimeTask = new Runnable() {
+        @Override
         public void run() {
             String dot = dots[dotCount];
 
@@ -61,6 +62,7 @@ public class RecorderFragment extends Fragment implements IControlable,
     };
 
     private Runnable mUpdateAmplTask = new Runnable() {
+        @Override
         public void run() {
             onUpdate(ear);
             mHandler.postDelayed(this, 100);
@@ -115,10 +117,12 @@ public class RecorderFragment extends Fragment implements IControlable,
         ear.setOnUpdateListener(this);
     }
 
+    @Override
     public void onValueChange(TouchControl t, int val) {
         // Not used
     }
 
+    @Override
     public void onToggle(TouchControl t, int state) {
         switch (state) {
         case TouchControl.STATE_BEGIN:
@@ -171,6 +175,7 @@ public class RecorderFragment extends Fragment implements IControlable,
         }
     }
 
+    @Override
     public void onPositionChange(TouchControl t, float x, float y) {
         circle.setX(x - circle.getWidth() / 2);
         circle.setY(y - circle.getHeight() / 2 - 80);

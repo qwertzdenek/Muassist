@@ -134,6 +134,7 @@ public class MainActivity extends Activity implements
         }
     }
 
+    @Override
     public boolean onNavigationItemSelected(int position, long id) {
         // When the given tab is selected, show the tab contents in the
         // container
@@ -200,6 +201,7 @@ public class MainActivity extends Activity implements
         return wl;
     }
 
+    @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
             String key) {
         if (key.equals(getResources().getString(R.string.pref_key_orientation))) {

@@ -88,6 +88,7 @@ public class Operator extends Thread implements Observer {
             wl.release();
     }
 
+    @Override
     public void update(Observable observable, Object data) {
         TempoControl t = (TempoControl) observable;
         bpm = t.getBPM();

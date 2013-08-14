@@ -18,6 +18,7 @@ Musicians Assistant
 
 package kiv.janecekz.ma.prefs;
 
+import kiv.janecekz.ma.R;
 import android.content.Context;
 import android.content.SharedPreferences;
 

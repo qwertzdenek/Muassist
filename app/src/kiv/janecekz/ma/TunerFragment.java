@@ -74,10 +74,12 @@ public class TunerFragment extends Fragment implements IControlable {
         outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
     }
 
+    @Override
     public void onValueChange(TouchControl t, int val) {
         
     }
 
+    @Override
     public void onToggle(TouchControl t, int state) {
         switch (state) {
         case TouchControl.STATE_BEGIN:
@@ -99,6 +101,7 @@ public class TunerFragment extends Fragment implements IControlable {
         }
     }
 
+    @Override
     public void onPositionChange(TouchControl t, float x, float y) {
         circle.setX(x - circle.getWidth() / 2);
         circle.setY(y - circle.getHeight() / 2 - 80);

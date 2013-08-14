@@ -107,10 +107,12 @@ public class ToneFragment extends Fragment implements IControlable,
                 ((MainActivity) getActivity()).getBgRes());
     }
 
+    @Override
     public void onValueChange(TouchControl t, int val) {
         // nothing to do
     }
 
+    @Override
     public void onToggle(TouchControl t, int state) {
         switch (state) {
         case TouchControl.STATE_BEGIN:
@@ -131,11 +133,13 @@ public class ToneFragment extends Fragment implements IControlable,
         }
     }
 
+    @Override
     public void onPositionChange(TouchControl t, float x, float y) {
         circle.setX(x - circle.getWidth() / 2);
         circle.setY(y - circle.getHeight() / 2 - 80);
     }
 
+    @Override
     public boolean onEditorAction(TextView arg0, int arg1, KeyEvent arg2) {
         if (arg0.equals(input) && (arg1 == EditorInfo.IME_ACTION_DONE)) {
             boolean b = pl.setFreq(Float
@@ -156,6 +160,7 @@ public class ToneFragment extends Fragment implements IControlable,
         return true;
     }
 
+    @Override
     public void onClick(View arg0) {
         TextView v = (TextView) arg0;
 
