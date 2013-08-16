@@ -1,56 +1,75 @@
 package kiv.janecekz.ma.tuner;
 
-import kiv.janecekz.ma.Tones;
 import kiv.janecekz.ma.TunerFragment;
+import android.os.AsyncTask;
 
-public class Analyzer {
-    private TunerFragment listener;
-    private Recorder recorder;
+public class Analyzer extends AsyncTask<Short[], Void, Short[]> {
+    private TunerFragment t;
     
-    public Analyzer(TunerFragment f) {
-        listener = f;
-        recorder = new Recorder(this);
-        recorder.execute();
+    // that's for voice...
+    private final int ACF_START = 16;
+    private final int ACF_END = 400;
+
+    public Analyzer(TunerFragment t) {
+        this.t = t;
     }
     
-    public void sendData(Byte[] data) {
-        // Now we can do some computation
+    @Override
+    protected void onPostExecute(Short[] result) {
+        super.onPostExecute(result);
         
-        listener.onMessage("I got "+findTone(computeACF(data)));
-        
-        // TODO: when we have dominant frequency, it is time to get tone
+        // FIXME: may be from the static output buffer
+        t.postAnalyzed(result);
     }
-    
-    /**
-     * Returns played tone.
-     * @param corInput Output from computeACF().
-     * @return One of Tones enum numbers.
-     */
-    public Tones findTone(int[] corInput) {
-        return Tones.A;
-    } 
-    
-    /**
-     * Do the Autocorrelation on the input.
-     * @param input Input data.
-     * @return correlated input
-     */
-    private int[] computeACF(Byte[] input) {
-        int N = input.length;
-        int[] res = new int[N];
+
+    @Override
+    protected Short[] doInBackground(Short[]... params) {
+        Short[] input = params[0];
+        short[] resAMDF = new short[input.length];
         
-        for (int tau = 0; tau < N; tau++) {
-            for (int n = 0; n < N - tau - 1; n++) {
-                res[tau] += input[n] * input[n + tau];
+        // AMDF of the input signal
+        for (int m = 0; m < input.length; m++) {
+            for (int n = 0; n < input.length - m; n++) {
+                resAMDF[m] += Math.abs(input[n + m] - input[n]);
             }
             
-            res[tau] /= N;
+            resAMDF[m] /= input.length - m;
+        }
+
+        // find min max in ACF range
+        short max = Short.MIN_VALUE;
+        short min = Short.MAX_VALUE;
+        
+        for (int i = ACF_START; i < ACF_END; i++) {
+            if (resAMDF[i] < min)
+                min = resAMDF[i];
+            if (resAMDF[i] > max)
+                max = resAMDF[i];
         }
         
-        return res;
-    }
-    
-    public void cleanUp() {
-        recorder.end();
+        // clip values
+        short level = (short) (0.42 * (max + min));
+        boolean[] resClip = new boolean[ACF_END - ACF_START];
+
+        for (int i = ACF_START; i < ACF_END; i++) {
+            resClip[i - ACF_START] = resAMDF[i] < level ? true : false;
+        }
+        
+        // And now the ACF
+        Short[] resACF = new Short[ACF_END - ACF_START];
+        
+        for (int k = 0; k < resClip.length; k++) {
+            for (int n = 0; n < resClip.length - k; n++) {
+                 short add = (short) (resClip[n] & resClip[n + k] ? 1 : 0);
+                 if (resACF[k] == null)
+                     resACF[k] = new Short(add);
+                 else
+                     resACF[k] = (short) (resACF[k] + add);
+            }
+            resACF[k] = (short) (resACF[k] / (resClip.length - k));
+        }
+
+        // TODO: find the peaks in the resACF
+        return resACF;
     }
 }

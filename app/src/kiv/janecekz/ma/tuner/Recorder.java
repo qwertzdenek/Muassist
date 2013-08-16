@@ -1,24 +1,24 @@
 package kiv.janecekz.ma.tuner;
 
 import kiv.janecekz.ma.MainActivity;
+import kiv.janecekz.ma.TunerFragment;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.os.AsyncTask;
 import android.util.Log;
 
-public class Recorder extends AsyncTask<Void, Byte[], String> {
+public class Recorder extends Thread {
     private static final int AUDIO_SAMPLE_FREQ = 8000;
     
-    private byte[] audioBuffer;
+    private short[] audioBuffer;
     private AudioRecord recorder;
-    private Analyzer a;
+    private TunerFragment t;
     private boolean recording = true;
 
-    public Recorder(Analyzer a) {
-        this.a = a;
+    public Recorder(TunerFragment t) {
+        this.t = t;
         
-        int framePeriod = AUDIO_SAMPLE_FREQ / 4;
+        int framePeriod = AUDIO_SAMPLE_FREQ / 16;
         int bufferSize = framePeriod * 2;
 
         if (bufferSize < AudioRecord.getMinBufferSize(AUDIO_SAMPLE_FREQ,
@@ -41,41 +41,43 @@ public class Recorder extends AsyncTask<Void, Byte[], String> {
             e.printStackTrace();
         }
 
-        audioBuffer = new byte[bufferSize];
+        audioBuffer = new short[bufferSize/2];
     }
     
     public synchronized void end() {
         recording = false;
     }
-
+    
     @Override
-    protected String doInBackground(Void... params) {
+    public void run() {
         recorder.startRecording();
         
         while (recording) {
             recorder.read(audioBuffer, 0, audioBuffer.length);
-            publishProgress(prepareResults(audioBuffer));
+            t.postRec(prepareResults(audioBuffer));
         }
         
         recorder.stop();
         recorder.release();
-        return "AsyncTask finished";
-    }
-    
-    @Override
-    protected void onProgressUpdate(Byte[]... values) {
-        super.onProgressUpdate(values);
-        a.sendData(values[0]);
     }
 
-    private Byte[] prepareResults(byte[] b) {
-        Byte[] res = new Byte[b.length];
+    public static Short[] prepareResults(short[] b) {
+        Short[] f = new Short[b.length];
         
         for (int i = 0; i < b.length; i++) {
-            res[i] = new Byte(b[i]);
+            f[i] = new Short(b[i]);
         }
+
+        return f;
+    }
+    
+    public static Short[] prepareResults(boolean[] b) {
+        Short[] f = new Short[b.length];
         
-        return res;
+        for (int i = 0; i < b.length; i++) {
+            f[i] = new Short((short) (b[i] ? 2 : 0));
+        }
+
+        return f;
     }
 }
-

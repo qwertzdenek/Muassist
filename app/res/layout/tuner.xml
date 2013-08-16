@@ -4,6 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
+    <!--  
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -11,11 +12,12 @@
         android:layout_marginTop="10dp"
         android:text="@string/title_section_tuner"
         android:textSize="16sp" />
-
-    <RelativeLayout
+-->
+   <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:id="@+id/tunerl" >
 
         <ImageView
             android:id="@+id/circle"
@@ -26,14 +28,7 @@
             android:src="@drawable/circle"
             android:visibility="invisible" />
 
-        <TextView
-            android:id="@+id/tuner_out"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="30dp"
-            android:text="Výstup"
-            android:textAppearance="?android:attr/textAppearanceLarge" />
+
     </RelativeLayout>
 
 </LinearLayout>
