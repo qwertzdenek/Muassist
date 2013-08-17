@@ -3,19 +3,19 @@ package kiv.janecekz.ma.tuner;
 import kiv.janecekz.ma.TunerFragment;
 import android.os.AsyncTask;
 
-public class Analyzer extends AsyncTask<Short[], Void, Short[]> {
+public class Analyzer extends AsyncTask<Short[], Void, Double[]> {
     private TunerFragment t;
     
     // that's for voice...
     private final int ACF_START = 16;
-    private final int ACF_END = 400;
+    private final int ACF_END = 161;
 
     public Analyzer(TunerFragment t) {
         this.t = t;
     }
     
     @Override
-    protected void onPostExecute(Short[] result) {
+    protected void onPostExecute(Double[] result) {
         super.onPostExecute(result);
         
         // FIXME: may be from the static output buffer
@@ -23,22 +23,24 @@ public class Analyzer extends AsyncTask<Short[], Void, Short[]> {
     }
 
     @Override
-    protected Short[] doInBackground(Short[]... params) {
+    protected Double[] doInBackground(Short[]... params) {
         Short[] input = params[0];
-        short[] resAMDF = new short[input.length];
+        double[] resAMDF = new double[input.length];
+        int sum;
         
         // AMDF of the input signal
         for (int m = 0; m < input.length; m++) {
+            sum = 0;
             for (int n = 0; n < input.length - m; n++) {
-                resAMDF[m] += Math.abs(input[n + m] - input[n]);
+                sum += Math.abs(input[n + m] - input[n]);
             }
             
-            resAMDF[m] /= input.length - m;
+            resAMDF[m] = (double) sum / (input.length - m);
         }
 
         // find min max in ACF range
-        short max = Short.MIN_VALUE;
-        short min = Short.MAX_VALUE;
+        double max = Double.MIN_VALUE;
+        double min = Double.MAX_VALUE;
         
         for (int i = ACF_START; i < ACF_END; i++) {
             if (resAMDF[i] < min)
@@ -48,25 +50,23 @@ public class Analyzer extends AsyncTask<Short[], Void, Short[]> {
         }
         
         // clip values
-        short level = (short) (0.42 * (max + min));
+        double level = 0.42 * (max + min);
         boolean[] resClip = new boolean[ACF_END - ACF_START];
 
         for (int i = ACF_START; i < ACF_END; i++) {
-            resClip[i - ACF_START] = resAMDF[i] < level ? true : false;
+            resClip[i - ACF_START] = resAMDF[i] < level;
         }
         
         // And now the ACF
-        Short[] resACF = new Short[ACF_END - ACF_START];
+        Double[] resACF = new Double[resClip.length];
         
         for (int k = 0; k < resClip.length; k++) {
+            sum = 0;
             for (int n = 0; n < resClip.length - k; n++) {
-                 short add = (short) (resClip[n] & resClip[n + k] ? 1 : 0);
-                 if (resACF[k] == null)
-                     resACF[k] = new Short(add);
-                 else
-                     resACF[k] = (short) (resACF[k] + add);
+                 if (resClip[n] && resClip[n + k])
+                     sum++;
             }
-            resACF[k] = (short) (resACF[k] / (resClip.length - k));
+            resACF[k] = (double) sum / (resClip.length - k);
         }
 
         // TODO: find the peaks in the resACF

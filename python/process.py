@@ -1,8 +1,7 @@
 #!/usr/bin/python
 
 import wave
-import struct
-import locale
+import array
 
 def fopen(path):
     return wave.open(path, 'r')
@@ -62,44 +61,48 @@ def compute_amdf(snd):
         res[m] = 0
         while (n < N - m):
             res[m] += abs(snd[n + m] - snd[n])
+            print('m={0} n={1} sum={2}'.format(m,n,res[m]))
             n += 1
         res[m] /= N - m
     return res
-
+    
 def main():
-    f = fopen('440.wav')
-    frames = f.readframes(f.getnframes())
-    amdfed = compute_amdf(frames)
+    f = fopen('flute-8kHz-crop.wav')
+    data = array.array('h', f.readframes(f.getnframes()))
+    #~ for s in data:
+        #~ print('{0}, '.format(s),end='')
+    #~ print(f.getnframes())
+    amdfed = compute_amdf(data)
+    
+    quit()
     clipped = cl(amdfed)
     acfed = compute_acf(clipped)
     
-    print(clipped)
+    amdf = open('amdf', 'w')
+    clip = open('clip', 'w')
+    acf = open('acf', 'w')
     
-    #~ amdf = open('amdf', 'w')
-    #~ clip = open('clip', 'w')
-    #~ acf = open('acf', 'w')
-    #~ 
-    #~ x = 0
-    #~ amdf.write('# X  Y\n')
-    #~ for y in amdfed:
-        #~ amdf.write('  {0}  {1}\n'.format(x,y))
-        #~ x += 1
-#~ 
-    #~ x = 0
-    #~ clip.write('# X  Y\n')
-    #~ for y in clipped:
-        #~ clip.write('  {0}  {1}\n'.format(x,y))
-        #~ x += 1
-#~ 
-    #~ x = 0
-    #~ acf.write('# X  Y\n')
-    #~ for y in acfed:
-        #~ acf.write('  {0}  {1}\n'.format(x,y))
-        #~ x += 1
-#~ 
-    #~ amdf.close()
-    #~ clip.close()
-    #~ acf.close()
+    x = 0
+    amdf.write('# X  Y\n')
+    for y in amdfed:
+        amdf.write('  {0}  {1}\n'.format(x,y))
+        x += 1
+
+    x = 0
+    clip.write('# X  Y\n')
+    for y in clipped:
+        clip.write('  {0}  {1}\n'.format(x,y))
+        x += 1
+
+    x = 0
+    acf.write('# X  Y\n')
+    for y in acfed:
+        acf.write('  {0}  {1}\n'.format(x,y))
+        x += 1
+
+    amdf.close()
+    clip.close()
+    acf.close()
 
     #~ index = 1
     #~ i = 2
