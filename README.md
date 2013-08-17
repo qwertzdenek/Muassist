@@ -1,4 +1,4 @@
-Mussist
+Muassist
 ===================
 
 This is my long-term Android project that I have started in the spring of the 2012.
