@@ -84,9 +84,7 @@ public class MetronomeFragment extends Fragment implements IControlable,
         inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN);
         outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
 
-        MainActivity a = (MainActivity) getActivity();
-
-        op = new Operator(peeper, a.getWakeLock());
+        op = new Operator(peeper);
         tc.addObserver(op);
 
         tc.setBPM(SharedPref.getBPM(getActivity()));

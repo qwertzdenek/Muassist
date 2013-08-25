@@ -144,8 +144,8 @@ public class ExtAudioRecorder {
                 
                 listener.onUpdate(ExtAudioRecorder.this);
             } catch (IOException e) {
-                Log.e(ExtAudioRecorder.class.getName(),
-                        "Error occured in updateListener, recording is now aborted");
+//                Log.e(ExtAudioRecorder.class.getName(),
+//                        "Error occured in updateListener, recording is now aborted");
                 // stop();
             }
         }

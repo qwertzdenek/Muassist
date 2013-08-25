@@ -90,16 +90,21 @@ public class RecorderFragment extends Fragment implements IControlable,
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        ExtAudioRecorder.State status = ear.getState();
+        if (status == ExtAudioRecorder.State.RECORDING)
+            ear.stop();
+    }
+
+    @Override
     public void onPause() {
         super.onPause();
-        ExtAudioRecorder.State status = ear.getState();
-        if (status == ExtAudioRecorder.State.RECORDING) {
-            Toast.makeText(getActivity(), lastRecorded, Toast.LENGTH_SHORT).show();
-            ear.stop();
-            recTitleText.setVisibility(View.VISIBLE);
-            mHandler.removeCallbacks(mUpdateTimeTask);
-            recStatusText.setText(getResources().getString(R.string.stopped));
-        }
+        
+        mHandler.removeCallbacks(mUpdateTimeTask);
+        if (SharedPref.getComp(getActivity()))
+            mHandler.removeCallbacks(mUpdateAmplTask);
     }
 
     @Override
@@ -110,13 +115,24 @@ public class RecorderFragment extends Fragment implements IControlable,
                 ((MainActivity) getActivity()).getBgRes());
 
         boolean comp = SharedPref.getComp(getActivity());
-        ear = ExtAudioRecorder.getInstance(comp);
-        lastRecorded = getNextFile().getAbsolutePath();
-        ear.setOutputFile(lastRecorded);
-        ear.prepare();
-        ear.setOnUpdateListener(this);
-    }
 
+        if (ear == null) {
+            ear = ExtAudioRecorder.getInstance(comp);
+            lastRecorded = getNextFile().getAbsolutePath();
+            ear.setOutputFile(lastRecorded);
+            ear.prepare();
+            ear.setOnUpdateListener(this);
+        } else {
+            ExtAudioRecorder.State status = ear.getState();
+            
+            if (status == ExtAudioRecorder.State.RECORDING) {
+                mHandler.postDelayed(mUpdateTimeTask, 1000);
+                if (SharedPref.getComp(getActivity()))
+                    mHandler.postDelayed(mUpdateAmplTask, 100);
+            }
+        }
+    }
+    
     @Override
     public void onValueChange(TouchControl t, int val) {
         // Not used
@@ -136,9 +152,11 @@ public class RecorderFragment extends Fragment implements IControlable,
                         .show();
                 ear.stop();
                 recTitleText.setVisibility(View.VISIBLE);
-                mHandler.removeCallbacks(mUpdateTimeTask);
                 recStatusText.setText(getResources()
                         .getString(R.string.stopped));
+                mHandler.removeCallbacks(mUpdateTimeTask);
+                if (SharedPref.getComp(getActivity()))
+                    mHandler.removeCallbacks(mUpdateAmplTask);
             } else if (status == ExtAudioRecorder.State.READY) {
                 ear.start();
                 recTitleText.setVisibility(View.INVISIBLE);
@@ -161,6 +179,8 @@ public class RecorderFragment extends Fragment implements IControlable,
                 recStatusText.setText(getResources().getString(
                         R.string.recording));
                 mHandler.postDelayed(mUpdateTimeTask, 1000);
+                if (SharedPref.getComp(getActivity()))
+                    mHandler.postDelayed(mUpdateAmplTask, 100);
             }
 
             break;

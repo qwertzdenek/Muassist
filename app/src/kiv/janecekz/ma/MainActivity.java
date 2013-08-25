@@ -25,15 +25,12 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.os.PowerManager;
-import android.os.PowerManager.WakeLock;
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -48,7 +45,7 @@ public class MainActivity extends Activity implements
 
     private TouchControl touchCon;
     private AlertDialog helpDialog;
-    private WakeLock wl;
+//    private WakeLock wl;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,8 +75,10 @@ public class MainActivity extends Activity implements
                                 getString(R.string.title_section_recorder) }),
                 this);
 
+        /*
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "metronome");
+        */
 
         // Help dialog
         AlertDialog.Builder help = new AlertDialog.Builder(this);
@@ -197,9 +196,11 @@ public class MainActivity extends Activity implements
         return result;
     }
 
+    /*
     public WakeLock getWakeLock() {
         return wl;
     }
+    */
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
