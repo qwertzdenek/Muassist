@@ -28,7 +28,7 @@ public class TestMetronome extends
 
         MetronomeFragment mf = new MetronomeFragment();
         mActivity.getFragmentManager().beginTransaction()
-                .replace(R.id.container, mf);
+                .replace(R.id.container, mf).commit();
     }
 
     public void testRunContainer() {
@@ -47,8 +47,7 @@ public class TestMetronome extends
         Peeper peeper = new Peeper();
         peeper.setSun((ImageView) mActivity.findViewById(R.id.sun));
         peeper.setTime(SharedPref.getTime(getActivity()));
-        Operator op = new Operator(peeper,
-                ((MainActivity) mActivity).getWakeLock());
+        Operator op = new Operator(peeper);
 
         TempoControl tc = new TempoControl();
         tc.addObserver(mf);
