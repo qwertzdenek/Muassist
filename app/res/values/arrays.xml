@@ -49,5 +49,12 @@
         <item>9</item>
         <item>11</item>
     </string-array>
-
+	<string-array name="tuner_method">
+        <item>AMDF+ACF</item>
+        <item>simple ACF</item>
+    </string-array>
+    <string-array name="tuner_method_vals">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
 </resources>

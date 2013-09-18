@@ -55,12 +55,18 @@
     <string name="pref_comp_on">Compressed AMR</string>
     <string name="pref_comp_title">Toggle compression</string>
     
+    <!-- Tuner -->
+    <string name="setup_tuner_title">Choose analyze method</string>
+    <string name="pref_tuner_title">Method</string>
+    <string name="pref_tuner">Analyze algorithm</string>
+    
     <!-- Configuration keys -->
     <string name="pref_key_bg">background_update_flag</string>
     <string name="pref_key_sound">sound_update_flag</string>
     <string name="pref_key_orientation">orientation_update_flag</string>
     <string name="pref_key_speed">speed_update_flag</string>
     <string name="pref_key_tone">tone_update_flag</string>
+    <string name="pref_key_tuner">tuner_update_flag</string>
     <string name="pref_key_comp">comp_update_flag</string>
     <string name="pref_key_harm">harm_update_flag</string>
     

@@ -185,6 +185,12 @@ public class SharedPref {
         edit.commit();
     }
 
+	public static int getAnlMethod(Context context) {
+		SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        return Integer.parseInt(prefs.getString(
+                context.getString(R.string.pref_key_tuner), "0"));
+	}
+
     // /**
     // * Tone generator frequency. Setted by user and freely modifiable.
     // *

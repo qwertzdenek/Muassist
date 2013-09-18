@@ -21,7 +21,10 @@ package kiv.janecekz.ma;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutionException;
 
+import kiv.janecekz.ma.prefs.SharedPref;
 import kiv.janecekz.ma.tuner.Analyzer;
+import kiv.janecekz.ma.tuner.AnalyzerACF;
+import kiv.janecekz.ma.tuner.AnalyzerAMDF;
 import kiv.janecekz.ma.tuner.Recorder;
 
 import org.achartengine.ChartFactory;
@@ -44,6 +47,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class TunerFragment extends Fragment implements IControlable {
+	private static final int METHOD_AMDF = 0;
+	private static final int METHOD_ACF = 1;
+	
     private GraphicalView mChart;
     private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
     private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
@@ -172,7 +178,7 @@ public class TunerFragment extends Fragment implements IControlable {
         }
         mChart.repaint();
 
-        // TODO: find top
+        // Find top
         LinkedList<Integer> tops = new LinkedList<Integer>();
         int i = 0;
         while (i < val.length - 1) {
@@ -224,7 +230,7 @@ public class TunerFragment extends Fragment implements IControlable {
             if (list.size() > most.size())
                 most = list;
         }
-
+        
         int sum = 0;
         for (int d : most) {
             sum += d;
@@ -237,29 +243,34 @@ public class TunerFragment extends Fragment implements IControlable {
         else
             freq = most.size() * recorder.getSampleFreq() / sum;
         
-        /*
-        // find median
-        Arrays.sort(dists);
-        double freq;
-        if (dists.length == 0 || dists.length == 1)
-            freq = 0.0;
-        else if ((dists.length & 0x1) == 1) {
-            freq = (double) recorder.getSampleFreq() / dists[dists.length / 2];
-        } else {
-            int between = (dists[dists.length / 2] + dists[dists.length / 2 - 1]) / 2;
-            freq = (double) recorder.getSampleFreq() / between;
-        }
-        */
+//        // find median
+//        Arrays.sort(dists);
+//        double freq;
+//        if (dists.length == 0 || dists.length == 1)
+//            freq = 0.0;
+//        else if ((dists.length & 0x1) == 1) {
+//            freq = (double) recorder.getSampleFreq() / dists[dists.length / 2];
+//        } else {
+//            int between = (dists[dists.length / 2] + dists[dists.length / 2 - 1]) / 2;
+//            freq = (double) recorder.getSampleFreq() / between;
+//        }
         
         
         tunerText.setText(String.format("%.2f", freq));
     }
 
     public synchronized void postRec(Short[] recorded) {
-        System.arraycopy(recorded, 0, recs, 0, recorded.length);
+    	System.arraycopy(recorded, 0, recs, 0, recorded.length);
+    	int method = SharedPref.getAnlMethod(getActivity().getApplicationContext());
+        
         if (analyzer == null
                 || (analyzer != null && (analyzer.getStatus() != AsyncTask.Status.RUNNING))) {
-            analyzer = new Analyzer(this);
+        	
+        	if (method == METHOD_AMDF)
+        		analyzer = new AnalyzerAMDF(this);
+        	else if (method == METHOD_ACF)
+        		analyzer = new AnalyzerACF(this);
+        	
             analyzer.execute(recs);
         } else
             try {
