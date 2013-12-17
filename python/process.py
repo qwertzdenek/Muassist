@@ -2,6 +2,7 @@
 
 import wave
 import array
+import sys
 
 def fopen(path):
     return wave.open(path, 'r')
@@ -67,7 +68,7 @@ def compute_amdf(snd):
     return res
     
 def main():
-    f = fopen('flute-crop.wav')
+    f = fopen(sys.argv[1])
     data = array.array('h', f.readframes(f.getnframes()))
     #~ for s in data:
         #~ print('{0}, '.format(s),end='')
@@ -76,28 +77,37 @@ def main():
     clipped = cl(amdfed)
     acfed = compute_acf(clipped)
     
+    orig = open('orig', 'w')
     amdf = open('amdf', 'w')
     clip = open('clip', 'w')
     acf = open('acf', 'w')
     
     x = 0
-    amdf.write('{0}\n'.format(len(amdfed)))
+    orig.write('# X  Y\n')
+    for y in data:
+        orig.write('  {0}  {1}\n'.format(x,y))
+        x += 1
+    
+    x = 0
+    #amdf.write('{0}\n'.format(len(amdfed)))
+    amdf.write('# X  Y\n')
     for y in amdfed:
         amdf.write('  {0}  {1}\n'.format(x,y))
         x += 1
 
     x = 0
-    clip.write('{0}\n'.format(len(clipped)))
+    clip.write('# X  Y\n')
     for y in clipped:
         clip.write('  {0}  {1}\n'.format(x,y))
         x += 1
 
     x = 0
-    acf.write('{0}\n'.format(len(acfed)))
+    acf.write('# X  Y\n')
     for y in acfed:
         acf.write('  {0}  {1}\n'.format(x,y))
         x += 1
 
+    orig.close()
     amdf.close()
     clip.close()
     acf.close()
