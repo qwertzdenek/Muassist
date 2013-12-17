@@ -39,7 +39,7 @@ def cl(src):
     
     level = 0.43 * (ma + mi)
     
-    print('max={0} min={1} level={2}'.format(ma,mi,level))
+    # print('max={0} min={1} level={2}'.format(ma,mi,level))
     res = list(range(acf_end - acf_start))
     
     i = acf_start
@@ -61,20 +61,18 @@ def compute_amdf(snd):
         res[m] = 0
         while (n < N - m):
             res[m] += abs(snd[n + m] - snd[n])
-            print('m={0} n={1} sum={2}'.format(m,n,res[m]))
+            # print('m={0} n={1} sum={2}'.format(m,n,res[m]))
             n += 1
         res[m] /= N - m
     return res
     
 def main():
-    f = fopen('flute-8kHz-crop.wav')
+    f = fopen('flute-crop.wav')
     data = array.array('h', f.readframes(f.getnframes()))
     #~ for s in data:
         #~ print('{0}, '.format(s),end='')
     #~ print(f.getnframes())
     amdfed = compute_amdf(data)
-    
-    quit()
     clipped = cl(amdfed)
     acfed = compute_acf(clipped)
     
@@ -83,19 +81,19 @@ def main():
     acf = open('acf', 'w')
     
     x = 0
-    amdf.write('# X  Y\n')
+    amdf.write('{0}\n'.format(len(amdfed)))
     for y in amdfed:
         amdf.write('  {0}  {1}\n'.format(x,y))
         x += 1
 
     x = 0
-    clip.write('# X  Y\n')
+    clip.write('{0}\n'.format(len(clipped)))
     for y in clipped:
         clip.write('  {0}  {1}\n'.format(x,y))
         x += 1
 
     x = 0
-    acf.write('# X  Y\n')
+    acf.write('{0}\n'.format(len(acfed)))
     for y in acfed:
         acf.write('  {0}  {1}\n'.format(x,y))
         x += 1

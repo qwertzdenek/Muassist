@@ -1,5 +1,7 @@
 package kiv.janecekz.ma.tuner;
 
+import java.util.Arrays;
+
 import kiv.janecekz.ma.TunerFragment;
 
 public class AnalyzerACF extends Analyzer {
@@ -20,7 +22,7 @@ public class AnalyzerACF extends Analyzer {
 	@Override
     protected Double[] doInBackground(Short[]... params) {
     	Short[] input = params[0];
-    	double[] resACF = new double[input.length];
+    	Double[] resACF = new Double[input.length];
         double sum;
         
         double max = Double.MIN_VALUE;
@@ -32,37 +34,31 @@ public class AnalyzerACF extends Analyzer {
                 sum += w(n, input.length) * input[n] * w(n + m, input.length) * input[n + m];
             }
             
-            resACF[m] = (sum * input.length) / (input.length - m);
+            resACF[m] = Double.valueOf((sum * input.length) / (input.length - m));
             
             if (resACF[m] > max)
-            	max = resACF[m];
+            	max = resACF[m].doubleValue();
         }
         
-        max /= resACF[0];
-        
-        Double[] resACFcl = new Double[resACF.length];
+        // normalize
         for (int i = 0; i < resACF.length; i++) {
         	resACF[i] /= resACF[0];
-			resACFcl[i] = Double.valueOf(resACF[i]);
 		}
         
         // clipping
         double cl = max * 0.3;
         
-        for (int i = 0; i < resACFcl.length; i++) {
-			if (Math.abs(resACFcl[i]) < cl) {
-				resACFcl[i] = Double.valueOf(0);
-			} else if (resACFcl[i] > cl) {
-				resACFcl[i] -= cl;
+        for (int i = 0; i < resACF.length; i++) {
+			if (Math.abs(resACF[i]) < cl) {
+				resACF[i] = Double.valueOf(0);
+			} else if (resACF[i] > cl) {
+				resACF[i] -= cl;
 			} else {
-				resACFcl[i] += cl;
+				resACF[i] += cl;
 			}
 		}
         
-        Double[] res = new Double[resACF.length];
-        System.arraycopy(resACF, 0, res, 0, resACF.length);
-        
-        return res; 
+        return resACF;
     }
 
 	private double w(int n, int len) {

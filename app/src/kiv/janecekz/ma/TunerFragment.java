@@ -178,6 +178,7 @@ public class TunerFragment extends Fragment implements IControlable {
         }
         mChart.repaint();
 
+        /*
         // Find top
         LinkedList<Integer> tops = new LinkedList<Integer>();
         int i = 0;
@@ -257,6 +258,8 @@ public class TunerFragment extends Fragment implements IControlable {
         
         
         tunerText.setText(String.format("%.2f", freq));
+        
+        */
     }
 
     public synchronized void postRec(Short[] recorded) {
