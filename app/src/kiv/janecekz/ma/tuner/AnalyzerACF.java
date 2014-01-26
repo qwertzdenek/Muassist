@@ -1,18 +1,18 @@
 package kiv.janecekz.ma.tuner;
 
-import java.util.Arrays;
-
 import kiv.janecekz.ma.TunerFragment;
 
 public class AnalyzerACF extends Analyzer {
 	private TunerFragment t;
+	private int sampleFreq;
 
-	public AnalyzerACF(TunerFragment t) {
+	public AnalyzerACF(TunerFragment t, int sampleFreq) {
 		this.t = t;
+		this.sampleFreq = sampleFreq;
 	}
 
 	@Override
-	protected void onPostExecute(Double[] result) {
+	protected void onPostExecute(Double result) {
 		super.onPostExecute(result);
 
 		// FIXME: may be from the static output buffer
@@ -20,7 +20,8 @@ public class AnalyzerACF extends Analyzer {
 	}
 
 	@Override
-    protected Double[] doInBackground(Short[]... params) {
+    protected Double doInBackground(Short[]... params) {
+	    /*
     	Short[] input = params[0];
     	Double[] resACF = new Double[input.length];
         double sum;
@@ -57,8 +58,8 @@ public class AnalyzerACF extends Analyzer {
 				resACF[i] += cl;
 			}
 		}
-        
-        return resACF;
+        */
+        return Double.valueOf(440);
     }
 
 	private double w(int n, int len) {

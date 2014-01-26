@@ -18,7 +18,6 @@ Musicians Assistant
 
 package kiv.janecekz.ma;
 
-import java.util.LinkedList;
 import java.util.concurrent.ExecutionException;
 
 import kiv.janecekz.ma.prefs.SharedPref;
@@ -26,16 +25,7 @@ import kiv.janecekz.ma.tuner.Analyzer;
 import kiv.janecekz.ma.tuner.AnalyzerACF;
 import kiv.janecekz.ma.tuner.AnalyzerAMDF;
 import kiv.janecekz.ma.tuner.Recorder;
-
-import org.achartengine.ChartFactory;
-import org.achartengine.GraphicalView;
-import org.achartengine.model.XYMultipleSeriesDataset;
-import org.achartengine.model.XYSeries;
-import org.achartengine.renderer.XYMultipleSeriesRenderer;
-import org.achartengine.renderer.XYSeriesRenderer;
-
 import android.app.Fragment;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -43,18 +33,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class TunerFragment extends Fragment implements IControlable {
 	private static final int METHOD_AMDF = 0;
 	private static final int METHOD_ACF = 1;
-	
-    private GraphicalView mChart;
-    private XYMultipleSeriesDataset mDataset = new XYMultipleSeriesDataset();
-    private XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
-    private XYSeries mCurrentSeries;
-    private XYSeriesRenderer mCurrentRenderer;
 
     private Recorder recorder;
     private Analyzer analyzer;
@@ -99,25 +82,6 @@ public class TunerFragment extends Fragment implements IControlable {
         
         tunerText = (TextView) getView().findViewById(R.id.tuner_text);
 
-        RelativeLayout layout = (RelativeLayout) getView().findViewById(
-                R.id.tunerl);
-
-        if (mChart == null) {
-            initChart();
-            mCurrentSeries.add(0, 1);
-            mCurrentSeries.add(1, 3);
-            mCurrentSeries.add(2, 2);
-            mCurrentSeries.add(3, 4);
-            mChart = ChartFactory.getCubeLineChartView(getActivity(), mDataset,
-                    mRenderer, 0f);
-            RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(
-                    RelativeLayout.LayoutParams.MATCH_PARENT,
-                    RelativeLayout.LayoutParams.MATCH_PARENT);
-            layout.addView(mChart, lp);
-        } else {
-            mChart.repaint();
-        }
-
         recorder = new Recorder(this);
         recs = new Short[recorder.getFrameSize()];
         recorder.start();
@@ -125,16 +89,7 @@ public class TunerFragment extends Fragment implements IControlable {
         inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN);
         outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
     }
-
-    private void initChart() {
-        mCurrentSeries = new XYSeries("AMDF+ACF result");
-        mDataset.addSeries(mCurrentSeries);
-        mCurrentRenderer = new XYSeriesRenderer();
-        mCurrentRenderer.setColor(Color.YELLOW);
-        mRenderer.addSeriesRenderer(mCurrentRenderer);
-        // mRenderer.setYAxisMax(10.0);
-    }
-
+    
     @Override
     public void onValueChange(TouchControl t, int val) {
 
@@ -168,98 +123,10 @@ public class TunerFragment extends Fragment implements IControlable {
         circle.setY(y - circle.getHeight() / 2 - 80);
     }
 
-    public synchronized void postAnalyzed(Double[] val) {
-        this.notify();
-        // Log.d(MainActivity.TAG,
-        // "Drawing data; from "+Thread.currentThread());
-        mCurrentSeries.clear();
-        for (int i = 0; i < val.length; i++) {
-            mCurrentSeries.add(i, val[i]);
-        }
-        mChart.repaint();
-
-        /*
-        // Find top
-        LinkedList<Integer> tops = new LinkedList<Integer>();
-        int i = 0;
-        while (i < val.length - 1) {
-            // going top
-            while ((i < val.length - 1) && (val[i] < val[i + 1])) {
-                i++;
-                if (val[i] > val[i + 1]) {
-                    tops.add(i);
-                    break;
-                }
-            }
-
-            // going down
-            while ((i < val.length - 1) && (val[i] >= val[i + 1]))
-                i++;
-        }
-        
-        int[] dists = new int[tops.size()];
-        
-        i = 0;
-        int lastPeak = 0;
-        for (int peak : tops) {
-            dists[i++] = peak - lastPeak;
-            lastPeak = peak;
-        }
-        
-        LinkedList<LinkedList<Integer>> bucket = new LinkedList<LinkedList<Integer>>();
-        
-        boolean newVal = false;
-        for (Integer dist : dists) {
-            newVal = true;
-            for (LinkedList<Integer> b : bucket) {
-                if (Math.abs(b.getFirst() - dist) < 6) {
-                    b.add(dist);
-                    newVal = false;
-                    break;
-                }
-            }
-            
-            if (newVal) {
-                LinkedList<Integer> newList = new LinkedList<Integer>();
-                newList.add(dist);
-                bucket.add(newList);
-            }
-        }
-        
-        LinkedList<Integer> most = new LinkedList<Integer>();
-        for (LinkedList<Integer> list : bucket) {
-            if (list.size() > most.size())
-                most = list;
-        }
-        
-        int sum = 0;
-        for (int d : most) {
-            sum += d;
-        }
-        
-        double freq;
-        
-        if (sum < 10)
-            freq = 0.0;
-        else
-            freq = most.size() * recorder.getSampleFreq() / sum;
-        
-//        // find median
-//        Arrays.sort(dists);
-//        double freq;
-//        if (dists.length == 0 || dists.length == 1)
-//            freq = 0.0;
-//        else if ((dists.length & 0x1) == 1) {
-//            freq = (double) recorder.getSampleFreq() / dists[dists.length / 2];
-//        } else {
-//            int between = (dists[dists.length / 2] + dists[dists.length / 2 - 1]) / 2;
-//            freq = (double) recorder.getSampleFreq() / between;
-//        }
-        
+    public synchronized void postAnalyzed(Double freq) {
+        //this.notify();
         
         tunerText.setText(String.format("%.2f", freq));
-        
-        */
     }
 
     public synchronized void postRec(Short[] recorded) {
@@ -269,10 +136,12 @@ public class TunerFragment extends Fragment implements IControlable {
         if (analyzer == null
                 || (analyzer != null && (analyzer.getStatus() != AsyncTask.Status.RUNNING))) {
         	
+            // TODO: do it parralel
+            
         	if (method == METHOD_AMDF)
-        		analyzer = new AnalyzerAMDF(this);
+        		analyzer = new AnalyzerAMDF(this, recorder.getSampleFreq());
         	else if (method == METHOD_ACF)
-        		analyzer = new AnalyzerACF(this);
+        		analyzer = new AnalyzerACF(this, recorder.getSampleFreq());
         	
             analyzer.execute(recs);
         } else

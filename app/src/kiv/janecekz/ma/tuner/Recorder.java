@@ -62,8 +62,16 @@ public class Recorder extends Thread {
     public void run() {
         recorder.startRecording();
         
+        int readed = 0;
+        
         while (recording) {
-            recorder.read(audioBuffer, 0, audioBuffer.length);
+            readed += recorder.read(audioBuffer, readed, audioBuffer.length - readed);
+            
+            if (readed < audioBuffer.length)
+                continue;
+            
+            readed = 0;
+            
             prepareResults(audioBuffer, recordedSamples);
             t.postRec(recordedSamples);
         }
