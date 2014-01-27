@@ -1,11 +1,27 @@
+/*
+Musicians Assistant
+    Copyright (C) 2014  Zdeněk Janeček <jan.zdenek@gmail.com>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package kiv.janecekz.ma.tuner;
 
-import kiv.janecekz.ma.MainActivity;
 import kiv.janecekz.ma.TunerFragment;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
-import android.util.Log;
 
 public class Recorder extends Thread {
     private static final int AUDIO_SAMPLE_FREQ = 8000;
@@ -19,19 +35,8 @@ public class Recorder extends Thread {
     public Recorder(TunerFragment t) {
         this.t = t;
         
-        int framePeriod = AUDIO_SAMPLE_FREQ / 8;
-        int bufferSize = framePeriod * 2;
-
-        if (bufferSize < AudioRecord.getMinBufferSize(AUDIO_SAMPLE_FREQ,
-                AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT)) {
-            bufferSize = AudioRecord.getMinBufferSize(AUDIO_SAMPLE_FREQ,
+        int bufferSize = AudioRecord.getMinBufferSize(AUDIO_SAMPLE_FREQ,
                     AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-            // Set frame period and timer interval accordingly
-            framePeriod = bufferSize / 2;
-            Log.w(MainActivity.TAG,
-                    "Increasing buffer size to "
-                            + Integer.toString(bufferSize));
-        }
         
         try {
             // init recorder
@@ -42,7 +47,7 @@ public class Recorder extends Thread {
             e.printStackTrace();
         }
 
-        audioBuffer = new byte[bufferSize / 2];
+        audioBuffer = new byte[2048];
         recordedSamples = new Short[audioBuffer.length / 2];
     }
     
@@ -52,6 +57,10 @@ public class Recorder extends Thread {
     
     public int getSampleFreq() {
         return AUDIO_SAMPLE_FREQ;
+    }
+    
+    public Short[] getBuffer() {
+        return recordedSamples;
     }
     
     public synchronized void end() {
@@ -64,16 +73,24 @@ public class Recorder extends Thread {
         
         int readed = 0;
         
-        while (recording) {
-            readed += recorder.read(audioBuffer, readed, audioBuffer.length - readed);
-            
-            if (readed < audioBuffer.length)
-                continue;
-            
-            readed = 0;
-            
-            prepareResults(audioBuffer, recordedSamples);
-            t.postRec(recordedSamples);
+        try {
+            while (recording) {
+                t.free.acquire();
+                readed += recorder.read(audioBuffer, readed, audioBuffer.length - readed);
+                
+                if (readed < audioBuffer.length)
+                    continue;
+                
+                readed = 0;
+                
+                t.data.acquire();
+                prepareResults(audioBuffer, recordedSamples);
+                t.data.release();
+                t.full.release();
+            }
+        } catch (InterruptedException e) {
+            t.data.release();
+            t.full.release();
         }
         
         recorder.stop();
@@ -85,26 +102,4 @@ public class Recorder extends Thread {
             recs[j] = (short) ((b[i] << 8) | b[i+1]);
         }
     }
-    
-    /*
-    public static Double[] prepareResults(boolean[] b) {
-        Double[] f = new Double[b.length];
-        
-        for (int i = 0; i < b.length; i++) {
-            f[i] = (double) (b[i] ? 1f : 0f);
-        }
-
-        return f;
-    }
-    
-    public static Double[] prepareResults(double[] b) {
-        Double[] f = new Double[b.length];
-        
-        for (int i = 0; i < b.length; i++) {
-            f[i] = Double.valueOf(b[i]);
-        }
-
-        return f;
-    }
-    */
 }

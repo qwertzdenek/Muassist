@@ -18,7 +18,7 @@ Musicians Assistant
 
 package kiv.janecekz.ma;
 
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Semaphore;
 
 import kiv.janecekz.ma.prefs.SharedPref;
 import kiv.janecekz.ma.tuner.Analyzer;
@@ -26,7 +26,6 @@ import kiv.janecekz.ma.tuner.AnalyzerACF;
 import kiv.janecekz.ma.tuner.AnalyzerAMDF;
 import kiv.janecekz.ma.tuner.Recorder;
 import android.app.Fragment;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,13 +41,15 @@ public class TunerFragment extends Fragment implements IControlable {
     private Recorder recorder;
     private Analyzer analyzer;
 
-    private Short[] recs;
-
     private ImageView circle;
     private TextView tunerText;
     private AlphaAnimation inAnim;
     private AlphaAnimation outAnim;
-
+    
+    public Semaphore full = new Semaphore(0);
+    public Semaphore free = new Semaphore(1);
+    public Semaphore data = new Semaphore(1);
+    
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
@@ -67,6 +68,7 @@ public class TunerFragment extends Fragment implements IControlable {
     @Override
     public void onPause() {
         recorder.end();
+        analyzer.cancel(false);
 
         super.onPause();
     }
@@ -83,9 +85,17 @@ public class TunerFragment extends Fragment implements IControlable {
         tunerText = (TextView) getView().findViewById(R.id.tuner_text);
 
         recorder = new Recorder(this);
-        recs = new Short[recorder.getFrameSize()];
         recorder.start();
 
+        int method = SharedPref.getAnlMethod(getActivity().getApplicationContext());
+        
+        if (method == METHOD_AMDF)
+            analyzer = new AnalyzerAMDF(this, recorder.getSampleFreq(), recorder.getBuffer());
+        else if (method == METHOD_ACF)
+            analyzer = new AnalyzerACF(this, recorder.getSampleFreq(), recorder.getBuffer());
+        
+        analyzer.execute();
+        
         inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN);
         outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
     }
@@ -103,7 +113,7 @@ public class TunerFragment extends Fragment implements IControlable {
             circle.startAnimation(inAnim);
             break;
         case TouchControl.STATE_STOP:
-            // TODO: toggle play
+            // not used
 
             break;
         case TouchControl.STATE_OUT:
@@ -123,38 +133,11 @@ public class TunerFragment extends Fragment implements IControlable {
         circle.setY(y - circle.getHeight() / 2 - 80);
     }
 
-    public synchronized void postAnalyzed(Double freq) {
-        //this.notify();
-        
+    /**
+     * Updates screen with the new analyzed frequency.
+     * @param freq new frequency
+     */
+    public void postAnalyzed(Double freq) {
         tunerText.setText(String.format("%.2f", freq));
-    }
-
-    public synchronized void postRec(Short[] recorded) {
-    	System.arraycopy(recorded, 0, recs, 0, recorded.length);
-    	int method = SharedPref.getAnlMethod(getActivity().getApplicationContext());
-        
-        if (analyzer == null
-                || (analyzer != null && (analyzer.getStatus() != AsyncTask.Status.RUNNING))) {
-        	
-            // TODO: do it parralel
-            
-        	if (method == METHOD_AMDF)
-        		analyzer = new AnalyzerAMDF(this, recorder.getSampleFreq());
-        	else if (method == METHOD_ACF)
-        		analyzer = new AnalyzerACF(this, recorder.getSampleFreq());
-        	
-            analyzer.execute(recs);
-        } else
-            try {
-                // Log.d(MainActivity.TAG,
-                // "Waiting to finish analyze; from "+Thread.currentThread());
-                analyzer.get();
-            } catch (InterruptedException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (ExecutionException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
     }
 }

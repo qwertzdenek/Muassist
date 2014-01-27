@@ -5,22 +5,25 @@ import kiv.janecekz.ma.TunerFragment;
 public class AnalyzerACF extends Analyzer {
 	private TunerFragment t;
 	private int sampleFreq;
+	private Short[] input;
 
-	public AnalyzerACF(TunerFragment t, int sampleFreq) {
+	public AnalyzerACF(TunerFragment t, int sampleFreq, Short[] window) {
 		this.t = t;
 		this.sampleFreq = sampleFreq;
+		this.input = window;
 	}
 
-	@Override
-	protected void onPostExecute(Double result) {
-		super.onPostExecute(result);
+    @Override
+    protected void onProgressUpdate(Double... result) {
+        super.onProgressUpdate(result);
+        
+        t.postAnalyzed(result[0]);
+    }
 
-		// FIXME: may be from the static output buffer
-		t.postAnalyzed(result);
-	}
-
 	@Override
-    protected Double doInBackground(Short[]... params) {
+    protected Void doInBackground(Void... params) {
+	    // TODO: semaphore control
+	    
 	    /*
     	Short[] input = params[0];
     	Double[] resACF = new Double[input.length];
@@ -59,7 +62,7 @@ public class AnalyzerACF extends Analyzer {
 			}
 		}
         */
-        return Double.valueOf(440);
+        return null;
     }
 
 	private double w(int n, int len) {
