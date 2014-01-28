@@ -25,7 +25,7 @@ def compute_acf(src):
 
 def cl(src):
     acf_start = 16
-    acf_end = 161
+    acf_end = 400
     mi = 40000
     ma = -40000
     

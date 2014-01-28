@@ -31,7 +31,7 @@ public class AnalyzerAMDF extends Analyzer {
 
     // that's for voice and 8000 sampling frequency...
     private final int ACF_START = 16;
-    private final int ACF_END = 161; // TODO: check it
+    private final int ACF_END = 400;
 
     public AnalyzerAMDF(TunerFragment t, int sampleFreq, Short[] window) {
         this.t = t;
