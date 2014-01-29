@@ -24,6 +24,8 @@ import kiv.janecekz.ma.prefs.SharedPref;
 import kiv.janecekz.ma.tuner.Analyzer;
 import kiv.janecekz.ma.tuner.AnalyzerACF;
 import kiv.janecekz.ma.tuner.AnalyzerAMDF;
+import kiv.janecekz.ma.tuner.Classificator;
+import kiv.janecekz.ma.tuner.Classificator.Result;
 import kiv.janecekz.ma.tuner.Recorder;
 import android.app.Fragment;
 import android.os.Bundle;
@@ -32,6 +34,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class TunerFragment extends Fragment implements IControlable {
@@ -40,9 +43,12 @@ public class TunerFragment extends Fragment implements IControlable {
 
     private Recorder recorder;
     private Analyzer analyzer;
+    private Classificator classify;
 
     private ImageView circle;
     private TextView tunerText;
+    private ProgressBar leftBar;
+    private ProgressBar rightBar;
     private AlphaAnimation inAnim;
     private AlphaAnimation outAnim;
     
@@ -98,6 +104,11 @@ public class TunerFragment extends Fragment implements IControlable {
         
         inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN);
         outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
+        
+        classify = new Classificator(440);
+        
+        leftBar = (ProgressBar) getView().findViewById(R.id.progressBarLeft);
+        rightBar = (ProgressBar) getView().findViewById(R.id.progressBarRight);
     }
     
     @Override
@@ -138,6 +149,19 @@ public class TunerFragment extends Fragment implements IControlable {
      * @param freq new frequency
      */
     public void postAnalyzed(Double freq) {
-        tunerText.setText(String.format("%.2f", freq));
+        if (freq == 0.0f)
+            return;
+        
+        Result res = classify.findTone(freq);
+        
+        tunerText.setText(String.format("%s - %f", res.getTone(), freq));
+        
+        if (res.getError() > 0) {
+            leftBar.setProgress(0);
+            rightBar.setProgress((int) Math.ceil(100 * res.getError()));
+        } else {
+            leftBar.setProgress((int) Math.ceil(100 * Math.abs(res.getError())));
+            rightBar.setProgress(0);
+        }
     }
 }

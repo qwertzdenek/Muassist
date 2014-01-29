@@ -1,8 +1,8 @@
 package kiv.janecekz.ma;
 
 public enum Tones {
-    C(0), Cs(1), D(2), Ds(3), E(4), F(5), Fs(6),
-    G(7), Gs(8), A(9), As(10), B(11);
+    C(0), Cis(1), D(2), Dis(3), E(4), F(5), Fis(6),
+    G(7), Gis(8), A(9), Ais(10), B(11);
 
     private int pos;
     

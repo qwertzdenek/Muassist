@@ -2,7 +2,8 @@ Muassist
 ===================
 
 This is my long-term Android project that I have started in the spring of the 2012.
-Thank you for your ideas to make things better.
+Thank you for your ideas to make things better. This project is part of my Bachelor
+thesis on the University of West Bohemia.
 
 Purpose
 -------
@@ -15,12 +16,11 @@ Status
 ------
 *  Metronome
 *  Sine tone generator
-*  Recording
-*  Tuner *(partially - only frequency)*
+*  Recording to WAV
+*  Tuner *(experimental)*
 
 Download
 --------
-You can download signed application packages here http://home.zcu.cz/~janecekz/Muassist/.
+You can download signed application package here http://home.zcu.cz/~janecekz/Muassist/.
 
 Licence is GNU GPLv3.
-

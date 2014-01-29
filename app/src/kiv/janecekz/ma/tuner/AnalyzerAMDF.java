@@ -169,7 +169,7 @@ public class AnalyzerAMDF extends Analyzer {
                 freq = 0.0;
             else
                 freq = (double) most.size() * sampleFreq / bucketSum;
-
+            
             // // find median
             // Arrays.sort(dists);
             // double freq;
