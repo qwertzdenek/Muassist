@@ -1,18 +1,22 @@
-function retval = amdfanl(wave, rate)
+function retval = amdfanl(wave)
+graphics_toolkit('gnuplot')
 pkg load signal
 
 mini=16;
 maxi=400;
 
-resAMDF = zeros(length(wave),1);
+N = length(wave) / 2;
 
-for m = 1:length(wave)
-  n = 1:(length(wave) - m + 1);
-  s = sum(abs(wave(n + m - 1) - wave(n)));
-  resAMDF(m) = s / (length(wave) - m + 1);
+resAMDF = zeros(N, 1);
+for m = 1 : N
+  n = 2 * N : N + 1;
+  s = sum(abs(wave(n - m + 1) - wave(n)));
+  resAMDF(m) = s / (N - 1);
 endfor
 
-level=0.43 * (max(resAMDF(1:750,1)) + min(resAMDF(1:750,1)));
+plot(resAMDF)
+
+level=0.4 * (max(resAMDF) + min(resAMDF));
 
 resClip=zeros(maxi-mini,1);
 for i = mini:maxi
@@ -23,11 +27,12 @@ for i = mini:maxi
   endif
 endfor
 
-a = xcorr(resClip);
-n = length(a)
+y = xcorr(resClip, 'unbiased');
+x = -(length(resClip) - 1):(length(resClip) - 1);
 
-peaks = find([a(2:n,1) - a(1:n-1,1) < 0; 1] & [1; a(1:n-1,1) - a(2:n,1) < 0])
+%[pks, loc] = findpeaks (abs(y));
+
 % distances
-% retval = (averange distance) * rate
+% retval = rate / (averange distance)
 
 endfunction

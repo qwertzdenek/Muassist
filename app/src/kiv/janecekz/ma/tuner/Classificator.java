@@ -13,11 +13,13 @@ public class Classificator {
     public class Result {
         private Tones tone;
         private double error;
+        private double freq;
         
-        public Result(Tones tone, double error) {
+        public Result(Tones tone, double error, double freq) {
             super();
             this.tone = tone;
             this.error = error;
+            this.freq = freq;
         }
 
         public Tones getTone() {
@@ -26,6 +28,10 @@ public class Classificator {
 
         public double getError() {
             return error;
+        }
+
+        public double getFreq() {
+            return freq;
         }
     }
     
@@ -55,7 +61,7 @@ public class Classificator {
         //Log.d(MainActivity.TAG,
         //String.format("freq=%f, n=%f, tone=%s, min=%f", freq, n, tone, min));
         
-        return new Result(tone, min / freqRange);
+        return new Result(tone, min / freqRange, freq);
     }
     
     private Double logb(double x) {

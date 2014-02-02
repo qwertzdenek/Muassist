@@ -207,14 +207,13 @@ public class RecorderFragment extends Fragment implements IControlable,
             extension = ".amr";
         else
             extension = ".wav";
-        File f = new File(Environment.getExternalStorageDirectory().getPath()
-                + "/rec1" + extension);
+        File f;
         int i = 1;
         while (true) {
-            if (f.exists()) {
-                f = new File(Environment.getExternalStorageDirectory()
-                        .getPath() + "/rec" + (++i) + extension);
-            } else
+            f = new File(Environment.getExternalStorageDirectory()
+                    .getPath() + "/rec" + (i++) + extension);
+            
+            if (!f.exists())
                 break;
         }
         return f;

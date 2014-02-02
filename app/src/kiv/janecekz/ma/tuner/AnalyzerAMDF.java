@@ -18,20 +18,26 @@ Musicians Assistant
 
 package kiv.janecekz.ma.tuner;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.LinkedList;
 
+import kiv.janecekz.ma.MainActivity;
 import kiv.janecekz.ma.TunerFragment;
+import android.os.Environment;
+import android.util.Log;
 
 public class AnalyzerAMDF extends Analyzer {
     private TunerFragment t;
     private int sampleFreq;
-    
+
     // modified by giveData
     private Short[] input;
 
     // that's for voice and 8000 sampling frequency...
     private final int ACF_START = 16;
-    private final int ACF_END = 400;
+    private final int ACF_END = 160;
 
     public AnalyzerAMDF(TunerFragment t, int sampleFreq, Short[] window) {
         this.t = t;
@@ -50,12 +56,17 @@ public class AnalyzerAMDF extends Analyzer {
     protected Void doInBackground(Void... params) {
         int sum = 0;
         Double freq = Double.valueOf(0);
-        LinkedList<Integer> tops = new LinkedList<Integer>();
+        LinkedList<Integer> dists = new LinkedList<Integer>();
         LinkedList<LinkedList<Integer>> bucket = new LinkedList<LinkedList<Integer>>();
         LinkedList<Integer> most = new LinkedList<Integer>();
         double[] resAMDF = new double[input.length];
         boolean[] resClip = new boolean[ACF_END - ACF_START];
         Double[] resACF = new Double[ACF_END - ACF_START];
+
+//        long time;
+//        long amdf;
+//        long rest;
+//        long post;
         
         while (!isCancelled()) {
             try {
@@ -65,10 +76,14 @@ public class AnalyzerAMDF extends Analyzer {
                 t.full.release();
                 t.data.release();
             }
+
+            // TODO: don't analyze silence
             
-            tops.clear();
             bucket.clear();
             most.clear();
+            dists.clear();
+
+//            time = SystemClock.elapsedRealtime();
             
             // AMDF of the input signal
             for (int m = 0; m < input.length; m++) {
@@ -79,19 +94,19 @@ public class AnalyzerAMDF extends Analyzer {
 
                 resAMDF[m] = (double) sum / (input.length - m);
             }
-            
+
             t.data.release();
             t.free.release();
 
+//            amdf = SystemClock.elapsedRealtime() - time;
+            
             // find min max in ACF range
             double max = Double.MIN_VALUE;
             double min = Double.MAX_VALUE;
-            
+
             for (int i = ACF_START; i < ACF_END; i++) {
-                if (resAMDF[i] < min)
-                    min = resAMDF[i];
-                if (resAMDF[i] > max)
-                    max = resAMDF[i];
+                min = Math.min(min, resAMDF[i]);
+                max = Math.max(min, resAMDF[i]);
             }
 
             // clip values
@@ -105,36 +120,34 @@ public class AnalyzerAMDF extends Analyzer {
             for (int k = 0; k < resClip.length; k++) {
                 sum = 0;
                 for (int n = 0; n < resClip.length - k; n++) {
-                    if (resClip[n] && resClip[n + k])
-                        sum++;
+                    sum += resClip[n] && resClip[n + k] ? 1 : 0;
                 }
                 resACF[k] = (double) sum / (resClip.length - k);
             }
-
+            
+//            rest = SystemClock.elapsedRealtime() - time - amdf;
+            
             // Find top
+            double epsilon = 1E-4;
+            int index = 0;
+            int oldIndex = 0;
             int i = 0;
             while (i < resACF.length - 1) {
-                // going top
-                while ((i < resACF.length - 1) && (resACF[i] < resACF[i + 1])) {
+                max = Double.MIN_VALUE;
+                index = 0;
+                while ((i < resACF.length) && (resACF[i] < epsilon))
                     i++;
-                    if (resACF[i] > resACF[i + 1]) {
-                        tops.add(i);
-                        break;
+                
+                while ((i < resACF.length) && (resACF[i] >= epsilon)) {
+                    if (max < resACF[i]) {
+                        index = i;
+                        max = resACF[i];
                     }
-                }
-
-                // going down
-                while ((i < resACF.length - 1) && (resACF[i] >= resACF[i + 1]))
                     i++;
-            }
-
-            int[] dists = new int[tops.size()];
-
-            i = 0;
-            int lastPeak = 0;
-            for (int peak : tops) {
-                dists[i++] = peak - lastPeak;
-                lastPeak = peak;
+                }
+                
+                dists.add(index - oldIndex);
+                oldIndex = index;
             }
 
             boolean newVal = false;
@@ -165,30 +178,43 @@ public class AnalyzerAMDF extends Analyzer {
                 bucketSum += d;
             }
 
-            if (bucketSum < 10)
-                freq = 0.0;
-            else
-                freq = (double) most.size() * sampleFreq / bucketSum;
-            
-            // // find median
-            // Arrays.sort(dists);
-            // double freq;
-            // if (dists.length == 0 || dists.length == 1)
-            // freq = 0.0;
-            // else if ((dists.length & 0x1) == 1) {
-            // freq = (double) recorder.getSampleFreq() / dists[dists.length /
-            // 2];
-            // } else {
-            // int between = (dists[dists.length / 2] + dists[dists.length / 2 -
-            // 1]) / 2;
-            // freq = (double) recorder.getSampleFreq() / between;
-            // }
+            freq = (double) most.size() * sampleFreq / bucketSum;
 
+//            post = SystemClock.elapsedRealtime() - time - amdf - rest;
+            
+//            writeToFile(resACF, freq, bucket);
+
+//            Log.d(MainActivity.TAG, String.format("amdf=%d ms, rest=%d ms, post=%d ms",
+//                    amdf, rest, post));
+            
             publishProgress(freq);
         }
 
         return null;
     }
+
+    private void writeToFile(Double[] array, double freq, LinkedList<LinkedList<Integer>> bucket) {
+        PrintWriter file = null;
+        try {
+            file = new PrintWriter(new FileOutputStream(Environment.getExternalStorageDirectory()
+                    .getPath() + "/result", true));
+        } catch (FileNotFoundException e) {
+            Log.d(MainActivity.TAG, "File result cannot be opened");
+            return;
+        }
+        
+        file.println(String.format("##\n%% frequency %f", freq));
+        for (LinkedList<Integer> linkedList : bucket) {
+            file.print("% ");
+            for (Integer integer : linkedList) {
+                file.print(String.format(" %d",integer.intValue()));
+            }
+            file.println();
+        }
+        for (int i = 0; i < array.length; i++) {
+            file.println(String.format("%f",array[i].doubleValue()));
+        }
+        file.write('\n');
+        file.close();
+    }
 }
-
-

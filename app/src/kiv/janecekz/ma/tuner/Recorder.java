@@ -47,7 +47,7 @@ public class Recorder extends Thread {
             e.printStackTrace();
         }
 
-        audioBuffer = new byte[2048];
+        audioBuffer = new byte[800];
         recordedSamples = new Short[audioBuffer.length / 2];
     }
     
@@ -78,8 +78,10 @@ public class Recorder extends Thread {
                 t.free.acquire();
                 readed += recorder.read(audioBuffer, readed, audioBuffer.length - readed);
                 
-                if (readed < audioBuffer.length)
+                if (readed < audioBuffer.length) {
+                    t.free.release();
                     continue;
+                }
                 
                 readed = 0;
                 

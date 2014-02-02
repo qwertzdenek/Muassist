@@ -26,6 +26,7 @@ import kiv.janecekz.ma.tuner.AnalyzerACF;
 import kiv.janecekz.ma.tuner.AnalyzerAMDF;
 import kiv.janecekz.ma.tuner.Classificator;
 import kiv.janecekz.ma.tuner.Classificator.Result;
+import kiv.janecekz.ma.tuner.MedianFilter;
 import kiv.janecekz.ma.tuner.Recorder;
 import android.app.Fragment;
 import android.os.Bundle;
@@ -44,6 +45,7 @@ public class TunerFragment extends Fragment implements IControlable {
     private Recorder recorder;
     private Analyzer analyzer;
     private Classificator classify;
+    private MedianFilter mf;
 
     private ImageView circle;
     private TextView tunerText;
@@ -109,6 +111,8 @@ public class TunerFragment extends Fragment implements IControlable {
         
         leftBar = (ProgressBar) getView().findViewById(R.id.progressBarLeft);
         rightBar = (ProgressBar) getView().findViewById(R.id.progressBarRight);
+        
+        mf = new MedianFilter();
     }
     
     @Override
@@ -151,16 +155,20 @@ public class TunerFragment extends Fragment implements IControlable {
     public void postAnalyzed(Double freq) {
         if (freq == 0.0f)
             return;
+
+        Result r = classify.findTone(freq);
         
-        Result res = classify.findTone(freq);
+        //Result r = mf.getMedian();
         
-        tunerText.setText(String.format("%s - %f", res.getTone(), freq));
+        tunerText.setText(String.format("%s - %f", r.getTone(), r.getFreq()));
         
-        if (res.getError() > 0) {
+        double error2 = r.getError() * r.getError();
+        
+        if (r.getError() > 0) {
             leftBar.setProgress(0);
-            rightBar.setProgress((int) Math.ceil(100 * res.getError()));
+            rightBar.setProgress((int) Math.floor(100 * error2));
         } else {
-            leftBar.setProgress((int) Math.ceil(100 * Math.abs(res.getError())));
+            leftBar.setProgress((int) Math.floor(100 * error2));
             rightBar.setProgress(0);
         }
     }
