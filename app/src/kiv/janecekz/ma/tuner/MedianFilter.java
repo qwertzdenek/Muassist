@@ -3,6 +3,8 @@ package kiv.janecekz.ma.tuner;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
+import android.util.Log;
+import kiv.janecekz.ma.MainActivity;
 import kiv.janecekz.ma.tuner.Classificator.Result;
 
 public class MedianFilter {

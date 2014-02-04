@@ -69,6 +69,15 @@ public class AnalyzerAMDF extends Analyzer {
 //        long post;
         
         while (!isCancelled()) {
+            // TODO: don't analyze silence
+            
+            bucket.clear();
+            most.clear();
+            dists.clear();
+
+            int N = input.length >> 1;
+            double den = (double) 1 / (N - 1);
+            
             try {
                 t.full.acquire();
                 t.data.acquire();
@@ -77,22 +86,16 @@ public class AnalyzerAMDF extends Analyzer {
                 t.data.release();
             }
 
-            // TODO: don't analyze silence
-            
-            bucket.clear();
-            most.clear();
-            dists.clear();
-
 //            time = SystemClock.elapsedRealtime();
             
             // AMDF of the input signal
-            for (int m = 0; m < input.length; m++) {
+            for (int m = 0; m < N; m++) {
                 sum = 0;
-                for (int n = 0; n < input.length - m; n++) {
-                    sum += Math.abs(input[n + m] - input[n]);
+                for (int n = 2 * N - 1; n >= N; n--) {
+                    sum += Math.abs(input[n - m] - input[n]);
                 }
 
-                resAMDF[m] = (double) sum / (input.length - m);
+                resAMDF[m] = sum * den;
             }
 
             t.data.release();
@@ -178,11 +181,15 @@ public class AnalyzerAMDF extends Analyzer {
                 bucketSum += d;
             }
 
-            freq = (double) most.size() * sampleFreq / bucketSum;
+            if (bucketSum < 10)
+                freq = 0.0;
+            else
+                freq = (double) most.size() * sampleFreq / bucketSum;
 
+//            Log.d(MainActivity.TAG, Double.toString(freq));
 //            post = SystemClock.elapsedRealtime() - time - amdf - rest;
             
-//            writeToFile(resACF, freq, bucket);
+//            writeToFile(resAMDF, freq, bucket);
 
 //            Log.d(MainActivity.TAG, String.format("amdf=%d ms, rest=%d ms, post=%d ms",
 //                    amdf, rest, post));
@@ -193,7 +200,7 @@ public class AnalyzerAMDF extends Analyzer {
         return null;
     }
 
-    private void writeToFile(Double[] array, double freq, LinkedList<LinkedList<Integer>> bucket) {
+    private void writeToFile(double[] array, double freq, LinkedList<LinkedList<Integer>> bucket) {
         PrintWriter file = null;
         try {
             file = new PrintWriter(new FileOutputStream(Environment.getExternalStorageDirectory()
@@ -212,7 +219,7 @@ public class AnalyzerAMDF extends Analyzer {
             file.println();
         }
         for (int i = 0; i < array.length; i++) {
-            file.println(String.format("%f",array[i].doubleValue()));
+            file.println(String.format("%f",array[i]));
         }
         file.write('\n');
         file.close();

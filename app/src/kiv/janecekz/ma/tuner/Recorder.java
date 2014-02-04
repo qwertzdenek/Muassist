@@ -18,90 +18,96 @@ Musicians Assistant
 
 package kiv.janecekz.ma.tuner;
 
+import kiv.janecekz.ma.MainActivity;
 import kiv.janecekz.ma.TunerFragment;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
+import android.util.Log;
 
-public class Recorder extends Thread {
+public class Recorder{
     private static final int AUDIO_SAMPLE_FREQ = 8000;
-    
+
     private byte[] audioBuffer;
     private Short[] recordedSamples;
     private AudioRecord recorder;
     private TunerFragment t;
-    private boolean recording = true;
 
     public Recorder(TunerFragment t) {
         this.t = t;
-        
+
         int bufferSize = AudioRecord.getMinBufferSize(AUDIO_SAMPLE_FREQ,
-                    AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-        
+                AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+
         try {
             // init recorder
             recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
                     AUDIO_SAMPLE_FREQ, AudioFormat.CHANNEL_IN_MONO,
                     AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+            
+            if (recorder.getState() != AudioRecord.STATE_INITIALIZED)
+                throw new Exception("AudioRecord initialization failed");
         } catch (IllegalArgumentException e) {
-            e.printStackTrace();
+            Log.d(MainActivity.TAG, "Recorder: invalid argument");
+        } catch (Exception e) {
+            Log.d(MainActivity.TAG, e.getMessage());
         }
 
         audioBuffer = new byte[800];
         recordedSamples = new Short[audioBuffer.length / 2];
+        
+        recorder.setRecordPositionUpdateListener(updateListener);
+        recorder.setPositionNotificationPeriod(audioBuffer.length / 2);
     }
-    
+
     public int getFrameSize() {
         return recordedSamples.length;
     }
-    
+
     public int getSampleFreq() {
         return AUDIO_SAMPLE_FREQ;
     }
-    
+
     public Short[] getBuffer() {
         return recordedSamples;
     }
-    
-    public synchronized void end() {
-        recording = false;
-    }
-    
-    @Override
-    public void run() {
-        recorder.startRecording();
-        
-        int readed = 0;
-        
-        try {
-            while (recording) {
+
+    private AudioRecord.OnRecordPositionUpdateListener updateListener = new AudioRecord.OnRecordPositionUpdateListener() {
+        @Override
+        public void onPeriodicNotification(AudioRecord recorder) {
+            try {
                 t.free.acquire();
-                readed += recorder.read(audioBuffer, readed, audioBuffer.length - readed);
-                
-                if (readed < audioBuffer.length) {
-                    t.free.release();
-                    continue;
-                }
-                
-                readed = 0;
-                
+                recorder.read(audioBuffer, 0, audioBuffer.length);
+
                 t.data.acquire();
                 prepareResults(audioBuffer, recordedSamples);
                 t.data.release();
                 t.full.release();
+            } catch (InterruptedException e) {
+                t.data.release();
+                t.full.release();
             }
-        } catch (InterruptedException e) {
-            t.data.release();
-            t.full.release();
         }
-        
+
+        @Override
+        public void onMarkerReached(AudioRecord recorder) {
+            // NOT USED
+        }
+    };
+
+    public void start() {
+        recorder.startRecording();
+        recorder.read(audioBuffer, 0, audioBuffer.length);
+    }
+    
+    public void stop() {
         recorder.stop();
         recorder.release();
     }
-    
+
     public static void prepareResults(byte[] b, Short[] recs) {
         for (int i = 0, j = 0; i < b.length; i += 2, j++) {
-            recs[j] = (short) ((b[i] << 8) | b[i+1]);
+            recs[j] = (short) (b[i] | (b[i + 1] << 8));
         }
     }
 }

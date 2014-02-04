@@ -69,13 +69,8 @@ public class TunerFragment extends Fragment implements IControlable {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
-
-    @Override
     public void onPause() {
-        recorder.end();
+        recorder.stop();
         analyzer.cancel(false);
 
         super.onPause();
@@ -157,8 +152,6 @@ public class TunerFragment extends Fragment implements IControlable {
             return;
 
         Result r = classify.findTone(freq);
-        
-        //Result r = mf.getMedian();
         
         tunerText.setText(String.format("%s - %f", r.getTone(), r.getFreq()));
         
