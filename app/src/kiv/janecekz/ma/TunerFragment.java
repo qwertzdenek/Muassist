@@ -145,12 +145,9 @@ public class TunerFragment extends Fragment implements IControlable {
 
     /**
      * Updates screen with the new analyzed frequency.
-     * @param freq new frequency
+     * @param freq new frequency to show
      */
     public void postAnalyzed(Double freq) {
-        if (freq == 0.0f)
-            return;
-
         Result r = classify.findTone(freq);
         
         tunerText.setText(String.format("%s - %f", r.getTone(), r.getFreq()));

@@ -50,7 +50,7 @@ public class Classificator {
         
         double div = 0.0;
         for (int i = 0; i < freqs.length; i++) {
-            div = fPart - freqs[i];
+            div = fPart - freqs[i]; // TODO: fix problem with A (shown as Gis)
             
             if (Math.abs(div) < Math.abs(min)) {
                 tone = Tones.values()[(i + 9) % 12];

@@ -25,7 +25,7 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.util.Log;
 
-public class Recorder{
+public class Recorder {
     private static final int AUDIO_SAMPLE_FREQ = 8000;
 
     private byte[] audioBuffer;
@@ -33,6 +33,11 @@ public class Recorder{
     private AudioRecord recorder;
     private TunerFragment t;
 
+    /**
+     * Constructs simple recording class assigned to the one Fragment.
+     * 
+     * @param t Fragment to assign. It uses his Semaphore locks.
+     */
     public Recorder(TunerFragment t) {
         this.t = t;
 
@@ -44,7 +49,7 @@ public class Recorder{
             recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
                     AUDIO_SAMPLE_FREQ, AudioFormat.CHANNEL_IN_MONO,
                     AudioFormat.ENCODING_PCM_16BIT, bufferSize);
-            
+
             if (recorder.getState() != AudioRecord.STATE_INITIALIZED)
                 throw new Exception("AudioRecord initialization failed");
         } catch (IllegalArgumentException e) {
@@ -55,19 +60,22 @@ public class Recorder{
 
         audioBuffer = new byte[800];
         recordedSamples = new Short[audioBuffer.length / 2];
-        
+
         recorder.setRecordPositionUpdateListener(updateListener);
         recorder.setPositionNotificationPeriod(audioBuffer.length / 2);
     }
 
-    public int getFrameSize() {
-        return recordedSamples.length;
-    }
-
+    /**
+     * @return sampling frequency used in this Recorder.
+     */
     public int getSampleFreq() {
         return AUDIO_SAMPLE_FREQ;
     }
 
+    /**
+     * @return Buffer where are saved recorded samples. For thread safety,
+     *         acquire TunerFragment.data lock.
+     */
     public Short[] getBuffer() {
         return recordedSamples;
     }
@@ -95,17 +103,23 @@ public class Recorder{
         }
     };
 
+    /**
+     * Starts recording to the buffer returned by getBuffer().
+     */
     public void start() {
         recorder.startRecording();
         recorder.read(audioBuffer, 0, audioBuffer.length);
     }
-    
+
+    /**
+     * Stops and release device.
+     */
     public void stop() {
         recorder.stop();
         recorder.release();
     }
 
-    public static void prepareResults(byte[] b, Short[] recs) {
+    private static void prepareResults(byte[] b, Short[] recs) {
         for (int i = 0, j = 0; i < b.length; i += 2, j++) {
             recs[j] = (short) (b[i] | (b[i + 1] << 8));
         }

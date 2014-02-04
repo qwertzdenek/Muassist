@@ -39,6 +39,12 @@ public class AnalyzerAMDF extends Analyzer {
     private final int ACF_START = 16;
     private final int ACF_END = 160;
 
+    /**
+     * Averange magnitude difference function analyzator.
+     * @param t assigned Fragment
+     * @param sampleFreq sampling frequency of the source
+     * @param window analyzed data
+     */
     public AnalyzerAMDF(TunerFragment t, int sampleFreq, Short[] window) {
         this.t = t;
         this.sampleFreq = sampleFreq;
@@ -130,7 +136,7 @@ public class AnalyzerAMDF extends Analyzer {
             
 //            rest = SystemClock.elapsedRealtime() - time - amdf;
             
-            // Find top
+            // Find tops
             double epsilon = 1E-4;
             int index = 0;
             int oldIndex = 0;
@@ -182,7 +188,7 @@ public class AnalyzerAMDF extends Analyzer {
             }
 
             if (bucketSum < 10)
-                freq = 0.0;
+                continue;
             else
                 freq = (double) most.size() * sampleFreq / bucketSum;
 
