@@ -86,10 +86,9 @@ public class AnalyzerAMDF extends Analyzer {
             
             try {
                 t.full.acquire();
-                t.data.acquire();
             } catch (InterruptedException e) {
-                t.full.release();
-                t.data.release();
+                t.free.release();
+                continue;
             }
 
 //            time = SystemClock.elapsedRealtime();
@@ -104,7 +103,6 @@ public class AnalyzerAMDF extends Analyzer {
                 resAMDF[m] = sum * den;
             }
 
-            t.data.release();
             t.free.release();
 
 //            amdf = SystemClock.elapsedRealtime() - time;
@@ -202,7 +200,7 @@ public class AnalyzerAMDF extends Analyzer {
             
             publishProgress(freq);
         }
-
+        
         return null;
     }
 

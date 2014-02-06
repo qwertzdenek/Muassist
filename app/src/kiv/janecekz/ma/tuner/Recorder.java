@@ -36,7 +36,8 @@ public class Recorder {
     /**
      * Constructs simple recording class assigned to the one Fragment.
      * 
-     * @param t Fragment to assign. It uses his Semaphore locks.
+     * @param t
+     *            Fragment to assign. It uses his Semaphore locks.
      */
     public Recorder(TunerFragment t) {
         this.t = t;
@@ -73,8 +74,7 @@ public class Recorder {
     }
 
     /**
-     * @return Buffer where are saved recorded samples. For thread safety,
-     *         acquire TunerFragment.data lock.
+     * @return Buffer where are saved recorded samples.
      */
     public Short[] getBuffer() {
         return recordedSamples;
@@ -85,16 +85,13 @@ public class Recorder {
         public void onPeriodicNotification(AudioRecord recorder) {
             try {
                 t.free.acquire();
-                recorder.read(audioBuffer, 0, audioBuffer.length);
-
-                t.data.acquire();
-                prepareResults(audioBuffer, recordedSamples);
-                t.data.release();
-                t.full.release();
             } catch (InterruptedException e) {
-                t.data.release();
-                t.full.release();
+                // nothing to do
             }
+            recorder.read(audioBuffer, 0, audioBuffer.length);
+
+            prepareResults(audioBuffer, recordedSamples);
+            t.full.release();
         }
 
         @Override

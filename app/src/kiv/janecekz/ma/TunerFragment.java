@@ -56,7 +56,6 @@ public class TunerFragment extends Fragment implements IControlable {
     
     public Semaphore full = new Semaphore(0);
     public Semaphore free = new Semaphore(1);
-    public Semaphore data = new Semaphore(1);
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -71,7 +70,7 @@ public class TunerFragment extends Fragment implements IControlable {
     @Override
     public void onPause() {
         recorder.stop();
-        analyzer.cancel(false);
+        analyzer.cancel(true);
 
         super.onPause();
     }
@@ -102,7 +101,7 @@ public class TunerFragment extends Fragment implements IControlable {
         inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN);
         outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
         
-        classify = new Classificator(440);
+        classify = new Classificator(440); // TODO: choose it on the fly
         
         leftBar = (ProgressBar) getView().findViewById(R.id.progressBarLeft);
         rightBar = (ProgressBar) getView().findViewById(R.id.progressBarRight);
