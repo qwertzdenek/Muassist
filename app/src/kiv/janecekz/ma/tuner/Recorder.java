@@ -26,7 +26,7 @@ import android.media.MediaRecorder;
 import android.util.Log;
 
 public class Recorder {
-    private static final int AUDIO_SAMPLE_FREQ = 8000;
+    private static final int AUDIO_SAMPLE_FREQ = 44100;
 
     private byte[] audioBuffer;
     private Short[] recordedSamples;
@@ -59,7 +59,7 @@ public class Recorder {
             Log.d(MainActivity.TAG, e.getMessage());
         }
 
-        audioBuffer = new byte[800];
+        audioBuffer = new byte[1000];
         recordedSamples = new Short[audioBuffer.length / 2];
 
         recorder.setRecordPositionUpdateListener(updateListener);

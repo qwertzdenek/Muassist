@@ -21,7 +21,7 @@ package kiv.janecekz.ma.tuner;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 import kiv.janecekz.ma.MainActivity;
 import kiv.janecekz.ma.TunerFragment;
@@ -36,9 +36,19 @@ public class AnalyzerAMDF extends Analyzer {
     private Short[] input;
 
     // that's for voice and 8000 sampling frequency...
-    private final int ACF_START = 16;
-    private final int ACF_END = 160;
+    private final double EPS = 1e-6;
 
+    public class Point {
+        public double x;
+        public double y;
+        
+        public Point(double x, double y) {
+            super();
+            this.x = x;
+            this.y = y;
+        }
+    }
+    
     /**
      * Averange magnitude difference function analyzator.
      * @param t assigned Fragment
@@ -62,24 +72,20 @@ public class AnalyzerAMDF extends Analyzer {
     protected Void doInBackground(Void... params) {
         int sum = 0;
         Double freq = Double.valueOf(0);
-        LinkedList<Integer> dists = new LinkedList<Integer>();
-        LinkedList<LinkedList<Integer>> bucket = new LinkedList<LinkedList<Integer>>();
-        LinkedList<Integer> most = new LinkedList<Integer>();
+        ArrayList<Double> tops = new ArrayList<Double>(20);
         double[] resAMDF = new double[input.length];
-        boolean[] resClip = new boolean[ACF_END - ACF_START];
-        Double[] resACF = new Double[ACF_END - ACF_START];
-
-//        long time;
-//        long amdf;
-//        long rest;
-//        long post;
+        boolean[] resClip = new boolean[input.length - 10];
+        double[] resACF = new double[input.length - 10];
+        Point[] pointBuffer = new Point[20];
+        
+        int it = 0;
+        
+        for (int i = 0; i < pointBuffer.length; i++) {
+            pointBuffer[i] = new Point(0.0, 0.0);
+        }
         
         while (!isCancelled()) {
             // TODO: don't analyze silence
-            
-            bucket.clear();
-            most.clear();
-            dists.clear();
 
             int N = input.length >> 1;
             double den = (double) 1 / (N - 1);
@@ -90,8 +96,8 @@ public class AnalyzerAMDF extends Analyzer {
                 t.free.release();
                 continue;
             }
-
-//            time = SystemClock.elapsedRealtime();
+            
+            it++;
             
             // AMDF of the input signal
             for (int m = 0; m < N; m++) {
@@ -104,25 +110,23 @@ public class AnalyzerAMDF extends Analyzer {
             }
 
             t.free.release();
-
-//            amdf = SystemClock.elapsedRealtime() - time;
             
             // find min max in ACF range
             double max = Double.MIN_VALUE;
             double min = Double.MAX_VALUE;
 
-            for (int i = ACF_START; i < ACF_END; i++) {
+            for (int i = 0; i < resClip.length; i++) {
                 min = Math.min(min, resAMDF[i]);
-                max = Math.max(min, resAMDF[i]);
+                max = Math.max(max, resAMDF[i]);
             }
 
             // clip values
-            double level = 0.42 * (max + min);
+            double level = 0.4 * (max + min);
 
-            for (int i = ACF_START; i < ACF_END; i++) {
-                resClip[i - ACF_START] = resAMDF[i] < level;
+            for (int i = 0; i < resClip.length; i++) {
+                resClip[i] = resAMDF[i] < level;
             }
-
+            
             // And now the ACF
             for (int k = 0; k < resClip.length; k++) {
                 sum = 0;
@@ -132,79 +136,108 @@ public class AnalyzerAMDF extends Analyzer {
                 resACF[k] = (double) sum / (resClip.length - k);
             }
             
-//            rest = SystemClock.elapsedRealtime() - time - amdf;
+            // ---- Get frequency ----
             
-            // Find tops
-            double epsilon = 1E-4;
-            int index = 0;
-            int oldIndex = 0;
+            freq = Double.valueOf(0);
+            
+            // find starting value
             int i = 0;
-            while (i < resACF.length - 1) {
-                max = Double.MIN_VALUE;
-                index = 0;
-                while ((i < resACF.length) && (resACF[i] < epsilon))
-                    i++;
-                
-                while ((i < resACF.length) && (resACF[i] >= epsilon)) {
-                    if (max < resACF[i]) {
-                        index = i;
-                        max = resACF[i];
-                    }
-                    i++;
-                }
-                
-                dists.add(index - oldIndex);
-                oldIndex = index;
-            }
-
-            boolean newVal = false;
-            for (Integer dist : dists) {
-                newVal = true;
-                for (LinkedList<Integer> b : bucket) {
-                    if (Math.abs(b.getFirst() - dist) < 5) {
-                        b.add(dist);
-                        newVal = false;
-                        break;
-                    }
-                }
-
-                if (newVal) {
-                    LinkedList<Integer> newList = new LinkedList<Integer>();
-                    newList.add(dist);
-                    bucket.add(newList);
-                }
-            }
-
-            for (LinkedList<Integer> list : bucket) {
-                if (list.size() > most.size())
-                    most = list;
-            }
-
-            int bucketSum = 0;
-            for (int d : most) {
-                bucketSum += d;
-            }
-
-            if (bucketSum < 10)
-                continue;
-            else
-                freq = (double) most.size() * sampleFreq / bucketSum;
-
-//            Log.d(MainActivity.TAG, Double.toString(freq));
-//            post = SystemClock.elapsedRealtime() - time - amdf - rest;
+            int start = 0;
+            int end = 0;
+            int count = 0;
+            double[][] matrix;
+            double[] res;
+            double[] coef;
             
-//            writeToFile(resAMDF, freq, bucket);
-
-//            Log.d(MainActivity.TAG, String.format("amdf=%d ms, rest=%d ms, post=%d ms",
-//                    amdf, rest, post));
+            while (i < resACF.length && resACF[i] > EPS)
+                i++;
+            
+            while (i < resACF.length) {
+                // find first non zero value -> start
+                while (i < resACF.length && resACF[i] < EPS)
+                    i++;
+                start = i;
+                
+                // find first zero value -> end
+                while (i < resACF.length && resACF[i] > EPS)
+                    i++;
+                end = i;
+                
+                count = end - start;
+                switch (count) {
+                case 0:
+                    continue;
+                case 1:
+                    tops.add((double) start);
+                    break;
+                case 2:
+                    tops.add((double) (start + end - 1) / 2);
+                    break;
+                case 3:
+                    tops.add((double) (start + 1));
+                    break;
+                default:
+//                    for (int j = start; j < end; j++) {
+//                        pointBuffer[j - start].x = (double) j;
+//                        pointBuffer[j - start].y = resACF[j];
+//                    }
+//                    
+//                    matrix = LeastSquares.getMatrix(pointBuffer, count);
+//                    res = LeastSquares.getB(pointBuffer, count);
+//                    
+//                    coef = LeastSquares.solve(matrix, res);
+//                    
+//                    tops.add(-coef[1] / (2 * coef[2]));
+                    break;
+                }
+            }
+            
+            if (tops.size() == 0)
+                continue;
+            
+            double s = 0; // součet
+            double lastPeak = 0; // souřadnice posledního peeku
+            
+            for (double t : tops) {
+                // TODO: check if it's peak near
+                s += t - lastPeak;
+                lastPeak = t;
+            }
+            
+            freq = (double) tops.size() * sampleFreq / s;
+            
+            //writeToFile(resACF, freq, tops);
             
             publishProgress(freq);
         }
         
         return null;
     }
-
-    private void writeToFile(double[] array, double freq, LinkedList<LinkedList<Integer>> bucket) {
+    
+    /*
+     * Only Debug method
+     */
+    private void writeInput(Short[] array, int it) {
+        PrintWriter file = null;
+        try {
+            file = new PrintWriter(new FileOutputStream(Environment.getExternalStorageDirectory()
+                    .getPath() + "/input", true));
+        } catch (FileNotFoundException e) {
+            Log.d(MainActivity.TAG, "File result cannot be opened");
+            return;
+        }
+        file.print(String.format("i%d=[",it));
+        for (int i = 0; i < array.length; i++) {
+            file.print(String.format("%d ",array[i]));
+        }
+        file.println("]");
+        file.close();
+    }
+    
+    /*
+     * Only Debug method
+     */
+    private void writeToFile(double[] array, double freq, ArrayList<Double> tops) {
         PrintWriter file = null;
         try {
             file = new PrintWriter(new FileOutputStream(Environment.getExternalStorageDirectory()
@@ -215,13 +248,10 @@ public class AnalyzerAMDF extends Analyzer {
         }
         
         file.println(String.format("##\n%% frequency %f", freq));
-        for (LinkedList<Integer> linkedList : bucket) {
-            file.print("% ");
-            for (Integer integer : linkedList) {
-                file.print(String.format(" %d",integer.intValue()));
-            }
-            file.println();
+        for (Double d : tops) {
+            file.print(String.format(" %f",d));
         }
+        file.println();
         for (int i = 0; i < array.length; i++) {
             file.println(String.format("%f",array[i]));
         }

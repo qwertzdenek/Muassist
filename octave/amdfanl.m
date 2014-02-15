@@ -1,22 +1,19 @@
-function retval = amdfanl(wave)
+function freq = amdfanl(wave)
 graphics_toolkit('gnuplot')
 pkg load signal
-
-mini=16;
-maxi=400;
 
 N = length(wave) / 2;
 resAMDF = zeros(N, 1);
 
-for m = 1 : N
-  n = N + 1 : 2 * N - m;
-  s = sum(abs(wave(n + m) - wave(n)));
-  resAMDF(m) = s / (length(wave) - m + 1);
-endfor
+%~ for m = 1 : N
+  %~ n = N + 1 : 2 * N - m;
+  %~ s = sum(abs(wave(n + m) - wave(n)));
+  %~ resAMDF(m) = s / (length(wave) - m + 1);
+%~ endfor
+%~ 
+%~ plot(resAMDF)
 
-plot(resAMDF)
-
-pause
+%~ pause
 %moddified
 for m = 1 : N
   n = 2 * N : -1 : N + 1;
@@ -25,17 +22,16 @@ for m = 1 : N
 endfor
 
 plot(resAMDF)
-
 pause
 
 level=0.4 * (max(resAMDF) + min(resAMDF));
 
-resClip=zeros(maxi-mini,1);
-for i = mini:maxi
+resClip=zeros(N - 10, 1);
+for i = 1 : N - 10
   if (resAMDF(i) < level)
-    resClip(i - mini + 1) = 1;
+    resClip(i) = 1;
   else
-    resClip(i - mini + 1) = 0;
+    resClip(i) = 0;
   endif
 endfor
 
@@ -46,7 +42,8 @@ x = -(length(resClip) - 1):(length(resClip) - 1);
 
 plot(x, y, x(loc), y(loc), 'om')
 
-% distances
+dist=loc(2:length(loc)) - loc(1:length(loc) - 1)
+
 % retval = rate / (averange distance)
 
 endfunction
