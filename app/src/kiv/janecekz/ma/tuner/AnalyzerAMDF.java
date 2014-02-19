@@ -29,6 +29,8 @@ import android.os.Environment;
 import android.util.Log;
 
 public class AnalyzerAMDF extends Analyzer {
+	private static final int POINT_BUFFER_SIZE = 50;
+	
     private TunerFragment t;
     private int sampleFreq;
 
@@ -37,17 +39,6 @@ public class AnalyzerAMDF extends Analyzer {
 
     // that's for voice and 8000 sampling frequency...
     private final double EPS = 1e-6;
-
-    public class Point {
-        public double x;
-        public double y;
-        
-        public Point(double x, double y) {
-            super();
-            this.x = x;
-            this.y = y;
-        }
-    }
     
     /**
      * Averange magnitude difference function analyzator.
@@ -70,26 +61,18 @@ public class AnalyzerAMDF extends Analyzer {
 
     @Override
     protected Void doInBackground(Void... params) {
+    	int N = input.length >> 1;
+        double den = (double) 1 / (N - 1);
         int sum = 0;
         Double freq = Double.valueOf(0);
         ArrayList<Double> tops = new ArrayList<Double>(20);
-        double[] resAMDF = new double[input.length];
-        boolean[] resClip = new boolean[input.length - 10];
-        double[] resACF = new double[input.length - 10];
-        Point[] pointBuffer = new Point[20];
-        
-        int it = 0;
-        
-        for (int i = 0; i < pointBuffer.length; i++) {
-            pointBuffer[i] = new Point(0.0, 0.0);
-        }
-        
+        double[] resAMDF = new double[N];
+        boolean[] resClip = new boolean[N - 10];
+        double[] resACF = new double[N - 10];
+        double[] pointBuffer = new double[POINT_BUFFER_SIZE];
+
         while (!isCancelled()) {
             // TODO: don't analyze silence
-
-            int N = input.length >> 1;
-            double den = (double) 1 / (N - 1);
-            
             try {
                 t.full.acquire();
             } catch (InterruptedException e) {
@@ -97,7 +80,7 @@ public class AnalyzerAMDF extends Analyzer {
                 continue;
             }
             
-            it++;
+            Log.d(MainActivity.TAG, "Analyzing data");
             
             // AMDF of the input signal
             for (int m = 0; m < N; m++) {
@@ -149,6 +132,8 @@ public class AnalyzerAMDF extends Analyzer {
             double[] res;
             double[] coef;
             
+            tops.clear();
+            
             while (i < resACF.length && resACF[i] > EPS)
                 i++;
             
@@ -164,6 +149,7 @@ public class AnalyzerAMDF extends Analyzer {
                 end = i;
                 
                 count = end - start;
+                
                 switch (count) {
                 case 0:
                     continue;
@@ -177,23 +163,27 @@ public class AnalyzerAMDF extends Analyzer {
                     tops.add((double) (start + 1));
                     break;
                 default:
-//                    for (int j = start; j < end; j++) {
-//                        pointBuffer[j - start].x = (double) j;
-//                        pointBuffer[j - start].y = resACF[j];
-//                    }
-//                    
-//                    matrix = LeastSquares.getMatrix(pointBuffer, count);
-//                    res = LeastSquares.getB(pointBuffer, count);
-//                    
-//                    coef = LeastSquares.solve(matrix, res);
-//                    
-//                    tops.add(-coef[1] / (2 * coef[2]));
+                	if (count >= POINT_BUFFER_SIZE)
+                    	continue;
+                	
+                    for (int j = 0; j < count; j++) {
+                        pointBuffer[j] = resACF[j + start];
+                    }
+                    
+                    matrix = LeastSquares.getMatrix(pointBuffer, count);
+                    res = LeastSquares.getB(pointBuffer, count);
+                    
+                    coef = LeastSquares.solve(matrix, res);
+                    
+                    tops.add(-coef[1] / (2 * coef[2]) + start);
                     break;
                 }
             }
             
-            if (tops.size() == 0)
+            if (tops.size() == 0) {
+            	Log.d(MainActivity.TAG, "-- No tops");
                 continue;
+            }
             
             double s = 0; // součet
             double lastPeak = 0; // souřadnice posledního peeku
@@ -207,6 +197,7 @@ public class AnalyzerAMDF extends Analyzer {
             freq = (double) tops.size() * sampleFreq / s;
             
             //writeToFile(resACF, freq, tops);
+            Log.d(MainActivity.TAG, "Publishing progress");
             
             publishProgress(freq);
         }

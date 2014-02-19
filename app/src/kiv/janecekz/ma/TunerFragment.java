@@ -151,13 +151,11 @@ public class TunerFragment extends Fragment implements IControlable {
         
         tunerText.setText(String.format("%s - %f", r.getTone(), r.getFreq()));
         
-        double error2 = r.getError() * r.getError();
-        
         if (r.getError() > 0) {
             leftBar.setProgress(0);
-            rightBar.setProgress((int) Math.floor(100 * error2));
+            rightBar.setProgress((int) Math.floor(100 * r.getError()));
         } else {
-            leftBar.setProgress((int) Math.floor(100 * error2));
+            leftBar.setProgress((int) Math.floor(100 * r.getError()));
             rightBar.setProgress(0);
         }
     }

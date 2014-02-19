@@ -1,9 +1,7 @@
 package kiv.janecekz.ma.tuner;
 
-import kiv.janecekz.ma.tuner.AnalyzerAMDF.Point;
-
 public class LeastSquares {
-    public static double[][] getMatrix(Point[] points, int count) {
+    public static double[][] getMatrix(double[] points, int count) {
         double[][] matrix = new double[3][3];
 
         // sum x[i]
@@ -16,15 +14,15 @@ public class LeastSquares {
         double buf3;
         
         for (int i = 0; i < count; i++) {
-            pow1 += points[i].x;
+            pow1 += i;
             
-            buf2 =  points[i].x * points[i].x;
+            buf2 =  i * i;
             pow2 += buf2;
             
-            buf3 =  buf2 * points[i].x;
+            buf3 =  buf2 * i;
             pow3 += buf3;
             
-            pow4 += buf3 * points[i].x;
+            pow4 += buf3 * i;
         }
         
         matrix[0][0] = count + 1;
@@ -40,13 +38,13 @@ public class LeastSquares {
         return matrix;
     }
     
-    public static double[] getB(Point[] points, int count) {
+    public static double[] getB(double[] points, int count) {
         double[] b = new double[3];
         
         for (int i = 0; i < count; i++) {
-            b[0] += points[i].y;
-            b[1] += points[i].y * points[i].x;
-            b[2] += points[i].y * points[i].x * points[i].x;
+            b[0] += points[i];
+            b[1] += points[i] * i;
+            b[2] += points[i] * i * i;
         }
         
         return b;
@@ -76,7 +74,7 @@ public class LeastSquares {
                 y = m[0][2] * v[1] * m[2][0] + m[1][2] * v[2] * m[0][0] + m[2][2] * v[0] * m[1][0];
                 break;
             case 2:
-                x = m[0][0] * m[1][1] * v[2] + m[1][0] * m[2][1] * v[2] + m[2][0] * m[0][1] * v[1];
+            	x = m[0][0] * m[1][1] * v[2] + m[1][0] * m[2][1] * v[0] + m[2][0] * m[0][1] * v[1];
                 y = v[0] * m[1][1] * m[2][0] + v[1] * m[2][1] * m[0][0] + v[2] * m[0][1] * m[1][0];
                 break;
             default:
