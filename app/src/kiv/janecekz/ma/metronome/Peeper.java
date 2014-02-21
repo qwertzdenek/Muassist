@@ -60,6 +60,8 @@ public class Peeper {
     }
 
     public void run() {
+    	// TODO: Do it as one neverednding producent-consument doning animation end sound stream.
+    	
         state = paternTable[time][phase];
         sounds[state].start();
         sun.post(new Runnable() {

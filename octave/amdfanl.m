@@ -21,9 +21,6 @@ for m = 1 : N
   resAMDF(m) = s / (N - 1);
 endfor
 
-plot(resAMDF)
-pause
-
 level=0.4 * (max(resAMDF) + min(resAMDF));
 
 resClip=zeros(N - 10, 1);
@@ -41,6 +38,7 @@ x = -(length(resClip) - 1):(length(resClip) - 1);
 [pks, loc] = findpeaks (abs(y));
 
 plot(x, y, x(loc), y(loc), 'om')
+x(loc)
 
 dist=loc(2:length(loc)) - loc(1:length(loc) - 1)
 

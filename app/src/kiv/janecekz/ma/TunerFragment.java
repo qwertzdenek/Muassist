@@ -147,15 +147,16 @@ public class TunerFragment extends Fragment implements IControlable {
      * @param freq new frequency to show
      */
     public void postAnalyzed(Double freq) {
-        Result r = classify.findTone(freq);
+        mf.addValue(classify.findTone(freq));
+        Result r = mf.getMedian();
         
-        tunerText.setText(String.format("%s - %f", r.getTone(), r.getFreq()));
+        tunerText.setText(String.format("%s  %f", r.getTone(), r.getFreq()));
         
-        if (r.getError() > 0) {
+        if (r.getError() >= 0) {
             leftBar.setProgress(0);
             rightBar.setProgress((int) Math.floor(100 * r.getError()));
         } else {
-            leftBar.setProgress((int) Math.floor(100 * r.getError()));
+            leftBar.setProgress((int) Math.floor(-100 * r.getError()));
             rightBar.setProgress(0);
         }
     }

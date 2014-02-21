@@ -116,6 +116,8 @@ public class RecorderFragment extends Fragment implements IControlable,
 
         boolean comp = SharedPref.getComp(getActivity());
 
+        // TODO: prepare file only when it is necessary!
+        
         if (ear == null) {
             ear = ExtAudioRecorder.getInstance(comp);
             lastRecorded = getNextFile().getAbsolutePath();

@@ -18,15 +18,9 @@ Musicians Assistant
 
 package kiv.janecekz.ma.tuner;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 
-import kiv.janecekz.ma.MainActivity;
 import kiv.janecekz.ma.TunerFragment;
-import android.os.Environment;
-import android.util.Log;
 
 public class AnalyzerAMDF extends Analyzer {
 	private static final int POINT_BUFFER_SIZE = 50;
@@ -80,8 +74,6 @@ public class AnalyzerAMDF extends Analyzer {
                 continue;
             }
             
-            Log.d(MainActivity.TAG, "Analyzing data");
-            
             // AMDF of the input signal
             for (int m = 0; m < N; m++) {
                 sum = 0;
@@ -98,7 +90,7 @@ public class AnalyzerAMDF extends Analyzer {
             double max = Double.MIN_VALUE;
             double min = Double.MAX_VALUE;
 
-            for (int i = 0; i < resClip.length; i++) {
+            for (int i = 1; i < resClip.length; i++) {
                 min = Math.min(min, resAMDF[i]);
                 max = Math.max(max, resAMDF[i]);
             }
@@ -111,7 +103,7 @@ public class AnalyzerAMDF extends Analyzer {
             }
             
             // And now the ACF
-            for (int k = 0; k < resClip.length; k++) {
+            for (int k = 0; k < resACF.length; k++) {
                 sum = 0;
                 for (int n = 0; n < resClip.length - k; n++) {
                     sum += resClip[n] && resClip[n + k] ? 1 : 0;
@@ -181,7 +173,7 @@ public class AnalyzerAMDF extends Analyzer {
             }
             
             if (tops.size() == 0) {
-            	Log.d(MainActivity.TAG, "-- No tops");
+            	//Log.d(MainActivity.TAG, "-- No tops");
                 continue;
             }
             
@@ -189,64 +181,19 @@ public class AnalyzerAMDF extends Analyzer {
             double lastPeak = 0; // souřadnice posledního peeku
             
             for (double t : tops) {
-                // TODO: check if it's peak near
+                // TODO: check if peak it's near
                 s += t - lastPeak;
                 lastPeak = t;
             }
             
             freq = (double) tops.size() * sampleFreq / s;
+//            freq = (double) sampleFreq / tops.get(0);
             
             //writeToFile(resACF, freq, tops);
-            Log.d(MainActivity.TAG, "Publishing progress");
             
             publishProgress(freq);
         }
         
         return null;
-    }
-    
-    /*
-     * Only Debug method
-     */
-    private void writeInput(Short[] array, int it) {
-        PrintWriter file = null;
-        try {
-            file = new PrintWriter(new FileOutputStream(Environment.getExternalStorageDirectory()
-                    .getPath() + "/input", true));
-        } catch (FileNotFoundException e) {
-            Log.d(MainActivity.TAG, "File result cannot be opened");
-            return;
-        }
-        file.print(String.format("i%d=[",it));
-        for (int i = 0; i < array.length; i++) {
-            file.print(String.format("%d ",array[i]));
-        }
-        file.println("]");
-        file.close();
-    }
-    
-    /*
-     * Only Debug method
-     */
-    private void writeToFile(double[] array, double freq, ArrayList<Double> tops) {
-        PrintWriter file = null;
-        try {
-            file = new PrintWriter(new FileOutputStream(Environment.getExternalStorageDirectory()
-                    .getPath() + "/result", true));
-        } catch (FileNotFoundException e) {
-            Log.d(MainActivity.TAG, "File result cannot be opened");
-            return;
-        }
-        
-        file.println(String.format("##\n%% frequency %f", freq));
-        for (Double d : tops) {
-            file.print(String.format(" %f",d));
-        }
-        file.println();
-        for (int i = 0; i < array.length; i++) {
-            file.println(String.format("%f",array[i]));
-        }
-        file.write('\n');
-        file.close();
     }
 }

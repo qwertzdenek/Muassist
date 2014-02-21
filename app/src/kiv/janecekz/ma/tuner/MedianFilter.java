@@ -18,69 +18,71 @@ Musicians Assistant
 
 package kiv.janecekz.ma.tuner;
 
-import java.util.LinkedList;
-import java.util.ListIterator;
-
-import android.util.Log;
-import kiv.janecekz.ma.MainActivity;
 import kiv.janecekz.ma.tuner.Classificator.Result;
 
 public class MedianFilter {
-    private class ResultEntry {
-        private Result res;
-        public int age;
-        
-        public ResultEntry(Result res) {
-            this.res = res;
-            this.age = 0;
-        }
-    }
-    
-    private final int SIZE = 5;
-    
-    LinkedList<ResultEntry> values = new LinkedList<ResultEntry>();
-    
-    public void addValue(Result val) {
-        if (values.isEmpty()) {
-            values.add(new ResultEntry(val));
-            return;
-        }
+	private class ResultEntry {
+		private Result res;
+		public int age;
 
-        ListIterator<ResultEntry> it = values.listIterator();
-        boolean added = false;
-        while (it.hasNext()) {
-            if (val.getFreq() > it.next().res.getFreq())
-                continue;
+		public ResultEntry(Result res) {
+			this.res = res;
+			this.age = 0;
+		}
+	}
 
-            it.previous();
-            it.add(new ResultEntry(val));
-            added = true;
-            break;
-        }
+	private final int SIZE = 7;
 
-        if (!added) {
-            values.add(new ResultEntry(val));
-        }
-        
-        for (ResultEntry re : values) {
-            re.age++;
-        }
-        
-        ResultEntry entry = null;
-        int max = Integer.MIN_VALUE;
-        if (values.size() > SIZE) {
-            for (ResultEntry re : values) {
-                entry = re.age > max ? re : entry;
-            }
-        }
-        
-        values.remove(entry);
-    }
+	ResultEntry[] values = new ResultEntry[SIZE + 1];
+	int added = 0;
 
-    public Result getMedian() {
-        if (values.isEmpty())
-            return null;
-        else
-            return values.get(values.size() / 2).res;
-    }
+	public void addValue(Result val) {
+		// make them older
+		for (int i = 0; i < added; i++) {
+			values[i].age++;
+		}
+
+		// insert to the end of array
+		values[added++] = new ResultEntry(val);
+
+		if (added == 1)
+			return;
+
+		// bubble it
+		ResultEntry swapTmp;
+		for (int i = added - 1; i > 0
+				&& values[i].res.getFreq() < values[i - 1].res.getFreq(); i--) {
+			
+			swapTmp = values[i];
+			values[i] = values[i - 1];
+			values[i - 1] = swapTmp;
+		}
+
+		// remove the oldest
+		if (added > SIZE) {
+			int index = 0;
+			int max = Integer.MIN_VALUE;
+
+			for (int i = 0; i < added; i++) {
+				if (values[i].age > max) {
+					index = i;
+					max = values[i].age;
+				}
+			}
+
+			// remove index
+			for (int i = index; i < added - 1; i++) {
+				values[i] = values[i + 1];
+			}
+
+			added = SIZE;
+		}
+	}
+
+	public Result getMedian() {
+		if (added == 0)
+			return null;
+		else
+			return values[added / 2].res;
+	}
 }
