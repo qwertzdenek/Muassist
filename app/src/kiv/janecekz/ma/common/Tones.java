@@ -1,4 +1,4 @@
-package kiv.janecekz.ma;
+package kiv.janecekz.ma.common;
 
 public enum Tones {
     C(0), Cis(1), D(2), Dis(3), E(4), F(5), Fis(6),

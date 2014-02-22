@@ -20,12 +20,16 @@ package kiv.janecekz.ma.tuner;
 
 import java.util.ArrayList;
 
-import kiv.janecekz.ma.TunerFragment;
+import android.os.AsyncTask;
+import kiv.janecekz.ma.Informable;
+import kiv.janecekz.ma.common.Recorder;
 
-public class AnalyzerAMDF extends Analyzer {
+public class AnalyzerAMDF extends AsyncTask<Void, Double, Void> {
 	private static final int POINT_BUFFER_SIZE = 50;
 	
-    private TunerFragment t;
+    private Recorder r;
+    private Informable src;
+    
     private int sampleFreq;
 
     // modified by giveData
@@ -40,17 +44,18 @@ public class AnalyzerAMDF extends Analyzer {
      * @param sampleFreq sampling frequency of the source
      * @param window analyzed data
      */
-    public AnalyzerAMDF(TunerFragment t, int sampleFreq, Short[] window) {
-        this.t = t;
-        this.sampleFreq = sampleFreq;
-        input = window;
+    public AnalyzerAMDF(Recorder r, Informable src) {
+        this.r = r;
+        this.src = src;
+        this.sampleFreq = r.getSampleFreq();
+        input = r.getBuffer();
     }
 
     @Override
     protected void onProgressUpdate(Double... values) {
         super.onProgressUpdate(values);
 
-        t.postAnalyzed(values[0]);
+        src.postInformation(values[0]);
     }
 
     @Override
@@ -68,9 +73,9 @@ public class AnalyzerAMDF extends Analyzer {
         while (!isCancelled()) {
             // TODO: don't analyze silence
             try {
-                t.full.acquire();
+                r.full.acquire();
             } catch (InterruptedException e) {
-                t.free.release();
+                r.free.release();
                 continue;
             }
             
@@ -84,7 +89,7 @@ public class AnalyzerAMDF extends Analyzer {
                 resAMDF[m] = sum * den;
             }
 
-            t.free.release();
+            r.free.release();
             
             // find min max in ACF range
             double max = Double.MIN_VALUE;
@@ -95,7 +100,7 @@ public class AnalyzerAMDF extends Analyzer {
                 max = Math.max(max, resAMDF[i]);
             }
 
-            // clip values
+            // clip value
             double level = 0.4 * (max + min);
 
             for (int i = 0; i < resClip.length; i++) {

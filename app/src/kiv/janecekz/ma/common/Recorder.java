@@ -16,10 +16,11 @@ Musicians Assistant
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package kiv.janecekz.ma.tuner;
+package kiv.janecekz.ma.common;
+
+import java.util.concurrent.Semaphore;
 
 import kiv.janecekz.ma.MainActivity;
-import kiv.janecekz.ma.TunerFragment;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -31,17 +32,16 @@ public class Recorder {
     private byte[] audioBuffer;
     private Short[] recordedSamples;
     private AudioRecord recorder;
-    private TunerFragment t;
+    
+    public Semaphore full = new Semaphore(0);
+    public Semaphore free = new Semaphore(1);
 
     /**
      * Constructs simple recording class assigned to the one Fragment.
      * 
-     * @param t
-     *            Fragment to assign. It uses his Semaphore locks.
+     * @param windowSize recordedSamples size in short 
      */
-    public Recorder(TunerFragment t) {
-        this.t = t;
-
+    public Recorder(int windowSize) {
         int bufferSize = AudioRecord.getMinBufferSize(AUDIO_SAMPLE_FREQ,
                 AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
 
@@ -59,8 +59,8 @@ public class Recorder {
             Log.d(MainActivity.TAG, e.getMessage());
         }
 
-        audioBuffer = new byte[1000];
-        recordedSamples = new Short[audioBuffer.length / 2];
+        audioBuffer = new byte[windowSize * 2];
+        recordedSamples = new Short[windowSize];
 
         recorder.setRecordPositionUpdateListener(updateListener);
         recorder.setPositionNotificationPeriod(audioBuffer.length / 2);
@@ -79,19 +79,26 @@ public class Recorder {
     public Short[] getBuffer() {
         return recordedSamples;
     }
+    
+    /**
+     * @return Buffer where are saved recorded samples.
+     */
+    public byte[] getByteBuffer() {
+        return audioBuffer;
+    }
 
     private AudioRecord.OnRecordPositionUpdateListener updateListener = new AudioRecord.OnRecordPositionUpdateListener() {
         @Override
         public void onPeriodicNotification(AudioRecord recorder) {
             try {
-                t.free.acquire();
+                free.acquire();
             } catch (InterruptedException e) {
                 // nothing to do
             }
             recorder.read(audioBuffer, 0, audioBuffer.length);
 
             prepareResults(audioBuffer, recordedSamples);
-            t.full.release();
+            full.release();
         }
 
         @Override

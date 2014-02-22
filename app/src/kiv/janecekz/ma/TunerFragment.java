@@ -18,17 +18,15 @@ Musicians Assistant
 
 package kiv.janecekz.ma;
 
-import java.util.concurrent.Semaphore;
-
+import kiv.janecekz.ma.common.Recorder;
 import kiv.janecekz.ma.prefs.SharedPref;
-import kiv.janecekz.ma.tuner.Analyzer;
 import kiv.janecekz.ma.tuner.AnalyzerACF;
 import kiv.janecekz.ma.tuner.AnalyzerAMDF;
 import kiv.janecekz.ma.tuner.Classificator;
 import kiv.janecekz.ma.tuner.Classificator.Result;
 import kiv.janecekz.ma.tuner.MedianFilter;
-import kiv.janecekz.ma.tuner.Recorder;
 import android.app.Fragment;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,12 +36,12 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class TunerFragment extends Fragment implements IControlable {
+public class TunerFragment extends Fragment implements IControlable, Informable {
 	private static final int METHOD_AMDF = 0;
 	private static final int METHOD_ACF = 1;
 
     private Recorder recorder;
-    private Analyzer analyzer;
+    private AsyncTask<Void, Double, Void> analyzer;
     private Classificator classify;
     private MedianFilter mf;
 
@@ -53,9 +51,6 @@ public class TunerFragment extends Fragment implements IControlable {
     private ProgressBar rightBar;
     private AlphaAnimation inAnim;
     private AlphaAnimation outAnim;
-    
-    public Semaphore full = new Semaphore(0);
-    public Semaphore free = new Semaphore(1);
     
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -86,15 +81,15 @@ public class TunerFragment extends Fragment implements IControlable {
         
         tunerText = (TextView) getView().findViewById(R.id.tuner_text);
 
-        recorder = new Recorder(this);
+        recorder = new Recorder(500);
         recorder.start();
 
         int method = SharedPref.getAnlMethod(getActivity().getApplicationContext());
         
         if (method == METHOD_AMDF)
-            analyzer = new AnalyzerAMDF(this, recorder.getSampleFreq(), recorder.getBuffer());
+            analyzer = new AnalyzerAMDF(recorder, this);
         else if (method == METHOD_ACF)
-            analyzer = new AnalyzerACF(this, recorder.getSampleFreq(), recorder.getBuffer());
+            analyzer = new AnalyzerACF(recorder, this);
         
         analyzer.execute();
         
@@ -142,11 +137,7 @@ public class TunerFragment extends Fragment implements IControlable {
         circle.setY(y - circle.getHeight() / 2 - 80);
     }
 
-    /**
-     * Updates screen with the new analyzed frequency.
-     * @param freq new frequency to show
-     */
-    public void postAnalyzed(Double freq) {
+    public void postInformation(Double freq) {
         mf.addValue(classify.findTone(freq));
         Result r = mf.getMedian();
         

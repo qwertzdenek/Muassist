@@ -18,6 +18,7 @@ Musicians Assistant
 
 package kiv.janecekz.ma;
 
+import kiv.janecekz.ma.common.Tones;
 import kiv.janecekz.ma.prefs.SharedPref;
 import kiv.janecekz.ma.tone.Player;
 import android.app.Fragment;

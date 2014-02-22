@@ -51,9 +51,6 @@
     <!-- Recorder -->
     <string name="recording">Recording</string>
     <string name="stopped">Stopped</string>
-    <string name="pref_comp_off">Uncompressed WAV</string>
-    <string name="pref_comp_on">Compressed AMR</string>
-    <string name="pref_comp_title">Toggle compression</string>
     
     <!-- Tuner -->
     <string name="setup_tuner_title">Choose analyze method</string>

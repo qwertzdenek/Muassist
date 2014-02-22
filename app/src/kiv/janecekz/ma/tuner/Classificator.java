@@ -1,6 +1,6 @@
 package kiv.janecekz.ma.tuner;
 
-import kiv.janecekz.ma.Tones;
+import kiv.janecekz.ma.common.Tones;
 
 public class Classificator {
 	private final double baseInvLog12 = 1 / Math.log10(Math

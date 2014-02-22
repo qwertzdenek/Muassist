@@ -51,7 +51,7 @@
     </string-array>
 	<string-array name="tuner_method">
         <item>AMDF+ACF</item>
-        <item>simple ACF</item>
+        <item>Wavelet (experimental)</item>
     </string-array>
     <string-array name="tuner_method_vals">
         <item>0</item>

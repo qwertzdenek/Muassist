@@ -1,23 +1,28 @@
 package kiv.janecekz.ma.tuner;
 
-import kiv.janecekz.ma.TunerFragment;
+import android.os.AsyncTask;
+import kiv.janecekz.ma.Informable;
+import kiv.janecekz.ma.common.Recorder;
 
-public class AnalyzerACF extends Analyzer {
-	private TunerFragment t;
+public class AnalyzerACF extends AsyncTask<Void, Double, Void> {
+	private Informable src;
+	private Recorder r;
+	
 	private int sampleFreq;
 	private Short[] input;
 
-	public AnalyzerACF(TunerFragment t, int sampleFreq, Short[] window) {
-		this.t = t;
-		this.sampleFreq = sampleFreq;
-		this.input = window;
+	public AnalyzerACF(Recorder r, Informable src) {
+		this.src = src;
+		this.r = r;
+		this.sampleFreq = r.getSampleFreq();
+		this.input = r.getBuffer();
 	}
 
     @Override
     protected void onProgressUpdate(Double... result) {
         super.onProgressUpdate(result);
         
-        t.postAnalyzed(result[0]);
+        src.postInformation(result[0]);
     }
 
 	@Override

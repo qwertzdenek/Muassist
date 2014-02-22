@@ -20,16 +20,11 @@
         android:layout_gravity="center_horizontal"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="#FF0000" />
-
+    
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-        <kiv.janecekz.ma.AmplView
-            android:id="@+id/amplView"
-            android:layout_width="50dp"
-            android:layout_height="300dp" />
-        
         <ImageView
             android:id="@+id/circle"
             android:layout_width="wrap_content"
