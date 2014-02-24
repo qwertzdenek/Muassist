@@ -25,15 +25,15 @@ import kiv.janecekz.ma.metronome.Operator;
 import kiv.janecekz.ma.metronome.Peeper;
 import kiv.janecekz.ma.metronome.TempoControl;
 import kiv.janecekz.ma.prefs.SharedPref;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.widget.ImageView;
-import android.widget.NumberPicker;
-import android.widget.NumberPicker.OnValueChangeListener;
+import net.simonvt.numberpicker.NumberPicker;
+import net.simonvt.numberpicker.NumberPicker.OnValueChangeListener;
 
 public class MetronomeFragment extends Fragment implements IControlable,
         OnValueChangeListener, Observer {
@@ -135,12 +135,12 @@ public class MetronomeFragment extends Fragment implements IControlable,
             circle.setVisibility(View.VISIBLE);
             circle.startAnimation(inAnim);
             break;
-        case TouchControl.STATE_STOP:
+        case TouchControl.STATE_TOGGLE:
             op.togglePlay();
             break;
         case TouchControl.STATE_OUT:
             if (!inAnim.hasEnded())
-                inAnim.cancel();
+                return;
             circle.startAnimation(outAnim);
             circle.setVisibility(View.INVISIBLE);
             break;
@@ -151,22 +151,23 @@ public class MetronomeFragment extends Fragment implements IControlable,
 
     @Override
     public void onPositionChange(TouchControl t, float x, float y) {
-        circle.setX(x - circle.getWidth() / 2);
-        circle.setY(y - circle.getHeight() / 2 - 80);
-    }
-
-    @Override
-    public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-        if (picker.equals(beatPicker)) {
-            peeper.setTime(newVal);
-        }
-        if (picker.equals(bpmPicker)) {
-            tc.setBPM(newVal);
-        }
+//        circle.setX(x - circle.getWidth() / 2);
+//        circle.setY(y - circle.getHeight() / 2 - 80);
     }
 
     @Override
     public void update(Observable arg0, Object arg1) {
         bpmPicker.setValue(((TempoControl) arg0).getBPM());
     }
+
+	@Override
+	public void onValueChange(net.simonvt.numberpicker.NumberPicker picker,
+			int oldVal, int newVal) {
+		if (picker.equals(beatPicker)) {
+            peeper.setTime(newVal);
+        }
+        if (picker.equals(bpmPicker)) {
+            tc.setBPM(newVal);
+        }
+	}
 }

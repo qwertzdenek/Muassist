@@ -36,7 +36,6 @@ public class Player extends Thread {
     /*
      * Count of harmonic frequencies.
      */
-    // TODO: Change by menu item
     private int harmony;
     
     private float freq;

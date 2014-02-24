@@ -18,114 +18,99 @@ Musicians Assistant
 
 package kiv.janecekz.ma.common;
 
-import java.util.concurrent.Semaphore;
-
 import kiv.janecekz.ma.MainActivity;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.util.Log;
 
-public class Recorder {
-    private static final int AUDIO_SAMPLE_FREQ = 44100;
+public class Recorder extends Thread {
+	private static final int AUDIO_SAMPLE_FREQ = 44100;
 
-    private byte[] audioBuffer;
-    private Short[] recordedSamples;
-    private AudioRecord recorder;
-    
-    public Semaphore full = new Semaphore(0);
-    public Semaphore free = new Semaphore(1);
+	private AudioRecord recorder;
+	private SharedData sd;
+	private boolean recording = true;
 
-    /**
-     * Constructs simple recording class assigned to the one Fragment.
-     * 
-     * @param windowSize recordedSamples size in short 
-     */
-    public Recorder(int windowSize) {
-        int bufferSize = AudioRecord.getMinBufferSize(AUDIO_SAMPLE_FREQ,
-                AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+	/**
+	 * Constructs simple recording class assigned to the one Fragment.
+	 * 
+	 * @param windowSize
+	 *            recordedSamples size in short
+	 */
+	public Recorder(SharedData sd) {
+		super();
+		this.sd = sd;
+	}
 
-        try {
-            // init recorder
-            recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
-                    AUDIO_SAMPLE_FREQ, AudioFormat.CHANNEL_IN_MONO,
-                    AudioFormat.ENCODING_PCM_16BIT, bufferSize);
+	@Override
+	public void run() {
+		super.run();
 
-            if (recorder.getState() != AudioRecord.STATE_INITIALIZED)
-                throw new Exception("AudioRecord initialization failed");
-        } catch (IllegalArgumentException e) {
-            Log.d(MainActivity.TAG, "Recorder: invalid argument");
-        } catch (Exception e) {
-            Log.d(MainActivity.TAG, e.getMessage());
-        }
+		int bufferSize = 3 * AudioRecord.getMinBufferSize(AUDIO_SAMPLE_FREQ,
+				AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
 
-        audioBuffer = new byte[windowSize * 2];
-        recordedSamples = new Short[windowSize];
+		try {
+			// init recorder
+			recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
+					AUDIO_SAMPLE_FREQ, AudioFormat.CHANNEL_IN_MONO,
+					AudioFormat.ENCODING_PCM_16BIT, bufferSize);
 
-        recorder.setRecordPositionUpdateListener(updateListener);
-        recorder.setPositionNotificationPeriod(audioBuffer.length / 2);
-    }
+			if (recorder.getState() != AudioRecord.STATE_INITIALIZED)
+				throw new Exception("AudioRecord initialization failed");
+		} catch (IllegalArgumentException e) {
+			Log.d(MainActivity.TAG, "Recorder: invalid argument");
+		} catch (Exception e) {
+			Log.d(MainActivity.TAG, e.getMessage());
+		}
 
-    /**
-     * @return sampling frequency used in this Recorder.
-     */
-    public int getSampleFreq() {
-        return AUDIO_SAMPLE_FREQ;
-    }
+		recorder.startRecording();
+		recorder.read(sd.byteBuffer, 0, sd.byteBuffer.length);
 
-    /**
-     * @return Buffer where are saved recorded samples.
-     */
-    public Short[] getBuffer() {
-        return recordedSamples;
-    }
-    
-    /**
-     * @return Buffer where are saved recorded samples.
-     */
-    public byte[] getByteBuffer() {
-        return audioBuffer;
-    }
+		while (isRecording()) {
+			synchronized (sd) {
+				while (sd.available)
+					try {
+						Log.d(MainActivity.TAG, "Recorder: going sleep");
+						sd.wait();
+						Log.d(MainActivity.TAG, "Recorder: waking up");
+					} catch (InterruptedException e) {
+					}
 
-    private AudioRecord.OnRecordPositionUpdateListener updateListener = new AudioRecord.OnRecordPositionUpdateListener() {
-        @Override
-        public void onPeriodicNotification(AudioRecord recorder) {
-            try {
-                free.acquire();
-            } catch (InterruptedException e) {
-                // nothing to do
-            }
-            recorder.read(audioBuffer, 0, audioBuffer.length);
+				recorder.read(sd.byteBuffer, 0, sd.byteBuffer.length);
+				prepareResults(sd.byteBuffer, sd.shortBuffer);
+				
+				sd.available = true;
+				sd.notify();
+			}
+		}
 
-            prepareResults(audioBuffer, recordedSamples);
-            full.release();
-        }
+		recorder.release();
+		recorder = null;
+	}
 
-        @Override
-        public void onMarkerReached(AudioRecord recorder) {
-            // NOT USED
-        }
-    };
+	/**
+	 * @return sampling frequency used in this Recorder.
+	 */
+	public int getSampleFreq() {
+		return AUDIO_SAMPLE_FREQ;
+	}
 
-    /**
-     * Starts recording to the buffer returned by getBuffer().
-     */
-    public void start() {
-        recorder.startRecording();
-        recorder.read(audioBuffer, 0, audioBuffer.length);
-    }
+	/**
+	 * Indicates recording state
+	 * 
+	 * @return true if is recording
+	 */
+	public boolean isRecording() {
+		return recording;
+	}
+	
+	public void stopRecording() {
+		recording = false;
+	}
 
-    /**
-     * Stops and release device.
-     */
-    public void stop() {
-        recorder.stop();
-        recorder.release();
-    }
-
-    private static void prepareResults(byte[] b, Short[] recs) {
-        for (int i = 0, j = 0; i < b.length; i += 2, j++) {
-            recs[j] = (short) (b[i] | (b[i + 1] << 8));
-        }
-    }
+	private static void prepareResults(byte[] b, short[] recs) {
+		for (int i = 0, j = 0; i < b.length; i += 2, j++) {
+			recs[j] = (short) (b[i] | (b[i + 1] << 8));
+		}
+	}
 }

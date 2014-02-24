@@ -1,13 +1,18 @@
 package kiv.janecekz.ma.rec;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import kiv.janecekz.ma.MainActivity;
 import kiv.janecekz.ma.common.Recorder;
+import kiv.janecekz.ma.common.SharedData;
+import android.util.Log;
 
 public class WavWriter extends Thread {
 	private RandomAccessFile randomAccessFile;
+	private SharedData sd;
 	private Recorder r;
 
 	/** sampling rate */
@@ -17,22 +22,18 @@ public class WavWriter extends Thread {
 	private int payloadSize;
 
 	/** maximal amplitude in the last window */
-	private Short maxAmplitude;
+	private short maxAmplitude;
 
-	/** indicates running state */
-	private boolean writting;
-
-	public WavWriter(Recorder r, String file) {
+	public WavWriter(SharedData sd, Recorder r, File file) {
 		super();
 		this.r = r;
+		this.sd = sd;
 		this.sRate = r.getSampleFreq();
 		try {
 			setUp(file);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -41,28 +42,36 @@ public class WavWriter extends Thread {
 	public void run() {
 		super.run();
 
-		while (writting) {
-			try {
-				r.full.acquire();
-				payloadSize += r.getByteBuffer().length; // Fill buffer
-				randomAccessFile.write(r.getByteBuffer()); // Write buffer to file
-			} catch (Exception e) {
-				release();
+		short[] buffer;
+		while (r.isRecording()) {
+			synchronized (sd) {
+				while (!sd.available)
+					try {
+						Log.d(MainActivity.TAG, "WavWriter: going sleep");
+						sd.wait();
+						Log.d(MainActivity.TAG, "Recorder: waking up");
+					} catch (InterruptedException e) {
+					}
+
+				payloadSize += sd.byteBuffer.length; // Fill buffer
+				try {
+					randomAccessFile.write(sd.byteBuffer); // Write buffer to
+				} catch (IOException e) {
+					break;
+				}
+
+				maxAmplitude = Short.MIN_VALUE;
+				buffer = sd.shortBuffer;
+				for (int i = 0; i < buffer.length; i++) {
+					maxAmplitude = (short) Math.max(maxAmplitude, buffer[i]);
+				}
+
+				sd.available = false;
+				sd.notify();
 			}
-			maxAmplitude = Short.MIN_VALUE;
-			for (Short sample: r.getBuffer()) {
-				maxAmplitude = (short) Math.max(maxAmplitude, sample);
-			}
-			r.free.release();
 		}
-	}
 
-	/**
-	 * Finishes file and stops thread.
-	 */
-	public void release() {
-		writting = false;
-
+		Log.d(MainActivity.TAG, "WavReader exiting");
 		try {
 			randomAccessFile.seek(4); // Write size to RIFF header
 			randomAccessFile.writeInt(Integer.reverseBytes(36 + payloadSize));
@@ -75,13 +84,14 @@ public class WavWriter extends Thread {
 		} catch (IOException e) {
 			// some log??
 		}
+
 	}
 
 	public int getMaxAmplitude() {
 		return maxAmplitude;
 	}
 
-	private void setUp(String file) throws FileNotFoundException, IOException {
+	private void setUp(File file) throws FileNotFoundException, IOException {
 		// write file header
 		randomAccessFile = new RandomAccessFile(file, "rw");
 

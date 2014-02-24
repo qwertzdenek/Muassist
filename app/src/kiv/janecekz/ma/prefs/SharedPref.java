@@ -121,19 +121,6 @@ public class SharedPref {
     }
     
     /**
-     * 
-     * 
-     * @param context
-     *            Application Context
-     * @return saved value from the Shared Preferences.
-     */
-    public static boolean getComp(Context context) {
-        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        return prefs.getBoolean(context.getString(R.string.pref_key_comp),
-                false);
-    }
-
-    /**
      * Metronome tempo. Setted by user, and freely modifiable.
      * 
      * @param context
@@ -190,56 +177,4 @@ public class SharedPref {
         return Integer.parseInt(prefs.getString(
                 context.getString(R.string.pref_key_tuner), "0"));
 	}
-
-    // /**
-    // * Tone generator frequency. Setted by user and freely modifiable.
-    // *
-    // * @param context
-    // * Application Context
-    // * @return saved value from the Shared Preferences.
-    // */
-    // public static int getFreq(Context context) {
-    // SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-    // return prefs.getInt("freq", 440);
-    // }
-    //
-    // /**
-    // * Tone generator frequency. Setted by user and freely modifiable.
-    // *
-    // * @param context
-    // * Application Context
-    // * @return saved value from the Shared Preferences.
-    // */
-    // public static void setFreq(Context context, int value) {
-    // SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-    // SharedPreferences.Editor edit = prefs.edit();
-    // edit.putInt("freq", value);
-    // edit.commit();
-    // }
-
-    // /**
-    // * Indicates running metronome. Setted by the Metronome fragment.
-    // *
-    // * @param context
-    // * Application Context
-    // * @return saved value from the Shared Preferences.
-    // */
-    // public static boolean getPlay(Context context) {
-    // SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-    // return prefs.getBoolean("play", false);
-    // }
-    //
-    // /**
-    // * Indicates running metronome. Setted by the Metronome fragment.
-    // *
-    // * @param context
-    // * Application Context
-    // * @return saved value from the Shared Preferences.
-    // */
-    // public static void setPlay(Context context, boolean value) {
-    // SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-    // SharedPreferences.Editor edit = prefs.edit();
-    // edit.putBoolean("play", value);
-    // edit.commit();
-    // }
 }

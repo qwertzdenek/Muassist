@@ -20,17 +20,17 @@ package kiv.janecekz.ma;
 
 import kiv.janecekz.ma.prefs.Setup;
 import kiv.janecekz.ma.prefs.SharedPref;
-import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -38,7 +38,7 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-public class MainActivity extends Activity implements
+public class MainActivity extends ActionBarActivity implements
         ActionBar.OnNavigationListener, OnSharedPreferenceChangeListener {
     private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
     public static final String TAG = "MA";
@@ -59,7 +59,7 @@ public class MainActivity extends Activity implements
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         // Set up the action bar.
-        final ActionBar actionBar = getActionBar();
+        final ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayShowTitleEnabled(false);
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
 
@@ -91,14 +91,14 @@ public class MainActivity extends Activity implements
     @Override
     public void onRestoreInstanceState(Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM)) {
-            getActionBar().setSelectedNavigationItem(
+            getSupportActionBar().setSelectedNavigationItem(
                     savedInstanceState.getInt(STATE_SELECTED_NAVIGATION_ITEM));
         }
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        outState.putInt(STATE_SELECTED_NAVIGATION_ITEM, getActionBar()
+        outState.putInt(STATE_SELECTED_NAVIGATION_ITEM, getSupportActionBar()
                 .getSelectedNavigationIndex());
     }
 
@@ -106,8 +106,6 @@ public class MainActivity extends Activity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.activity_main, menu);
-        menu.findItem(R.id.menu_settings).setShowAsAction(
-                MenuItem.SHOW_AS_ACTION_IF_ROOM);
 
         Intent prefsIntent = new Intent(getApplicationContext(), Setup.class);
 
@@ -156,12 +154,12 @@ public class MainActivity extends Activity implements
             break;
         }
 
-        Fragment f = this.getFragmentManager().findFragmentByTag("metronome");
+        Fragment f = this.getSupportFragmentManager().findFragmentByTag("metronome");
         if (f == null) {
-            getFragmentManager().beginTransaction()
+            getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container, fragment).commit();
         } else {
-            FragmentTransaction ft = getFragmentManager().beginTransaction();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.setCustomAnimations(android.R.anim.fade_out, android.R.anim.fade_in);
             ft.replace(R.id.container, fragment).commit();
         }
@@ -209,7 +207,8 @@ public class MainActivity extends Activity implements
             if (SharedPref.getOrient(this)) {
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             } else {
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+            	// FIXME: orientation...
+//                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
             }
         }
     }

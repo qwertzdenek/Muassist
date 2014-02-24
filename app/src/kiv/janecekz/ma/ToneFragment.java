@@ -21,8 +21,9 @@ package kiv.janecekz.ma;
 import kiv.janecekz.ma.common.Tones;
 import kiv.janecekz.ma.prefs.SharedPref;
 import kiv.janecekz.ma.tone.Player;
-import android.app.Fragment;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.text.SpannableStringBuilder;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -89,13 +90,11 @@ public class ToneFragment extends Fragment implements IControlable,
         super.onResume();
 
         if (actualFreqView != null) {
-            actualFreqView.setTextColor(actualFreqView.getResources().getColor(
-                    android.R.color.holo_blue_light));
+            actualFreqView.setTextColor(Color.BLUE);
         }
         // Defaulting to the 440 Hz.
         actualFreqView = ((TextView) getView().findViewById(R.id.toneA));
-        actualFreqView.setTextColor(actualFreqView.getResources().getColor(
-                android.R.color.holo_red_light));
+        actualFreqView.setTextColor(Color.RED);
 
         pl = new Player(getActivity().getApplicationContext());
 
@@ -120,12 +119,12 @@ public class ToneFragment extends Fragment implements IControlable,
             circle.setVisibility(View.VISIBLE);
             circle.startAnimation(inAnim);
             break;
-        case TouchControl.STATE_STOP:
+        case TouchControl.STATE_TOGGLE:
             pl.togglePlay();
             break;
         case TouchControl.STATE_OUT:
             if (!inAnim.hasEnded())
-                inAnim.cancel();
+                return;
             circle.startAnimation(outAnim);
             circle.setVisibility(View.INVISIBLE);
             break;
@@ -136,8 +135,8 @@ public class ToneFragment extends Fragment implements IControlable,
 
     @Override
     public void onPositionChange(TouchControl t, float x, float y) {
-        circle.setX(x - circle.getWidth() / 2);
-        circle.setY(y - circle.getHeight() / 2 - 80);
+//        circle.setX(x - circle.getWidth() / 2);
+//        circle.setY(y - circle.getHeight() / 2 - 80);
     }
 
     @Override
@@ -152,8 +151,7 @@ public class ToneFragment extends Fragment implements IControlable,
                 pl.togglePlay();
                 // FIXME: What if only push the enter?
                 if (actualFreqView != null) {
-                    actualFreqView.setTextColor(actualFreqView.getResources()
-                            .getColor(android.R.color.holo_blue_light));
+                    actualFreqView.setTextColor(Color.BLUE);
                     actualFreqView = null;
                 }
             }
@@ -170,20 +168,16 @@ public class ToneFragment extends Fragment implements IControlable,
             int pos = 9;
             if (actualFreqView != null && !sharp) {
                 pos = getTone(actualFreqView.getId()).getTonePos();
-                v.setTextColor(v.getResources().getColor(
-                        android.R.color.holo_blue_light));
+                v.setTextColor(Color.BLUE);
             } else if (actualFreqView != null && sharp) {
                 // FIXME: Use only one method to get pos.
                 
                 pos = (getTone(actualFreqView.getId()).getTonePos() + 1) % 12;
-                v.setTextColor(v.getResources().getColor(
-                        android.R.color.holo_red_light));
+                v.setTextColor(Color.RED);
             } else if (actualFreqView == null && sharp) {
-                v.setTextColor(v.getResources().getColor(
-                        android.R.color.holo_red_light));
+                v.setTextColor(Color.RED);
             } else if (actualFreqView == null && !sharp) {
-                v.setTextColor(v.getResources().getColor(
-                        android.R.color.holo_blue_light));
+                v.setTextColor(Color.BLUE);
             }
 
             int baseFreq = SharedPref.getBaseFreq(getActivity());
@@ -193,8 +187,7 @@ public class ToneFragment extends Fragment implements IControlable,
             pl.setFreq(freq);
         } else {
             if (actualFreqView != null) {
-                actualFreqView.setTextColor(actualFreqView.getResources()
-                        .getColor(android.R.color.holo_blue_light));
+                actualFreqView.setTextColor(Color.BLUE);
             }
 
             actualFreqView = v;
@@ -212,8 +205,7 @@ public class ToneFragment extends Fragment implements IControlable,
                 pl.togglePlay();
             }
 
-            v.setTextColor(v.getResources().getColor(
-                    android.R.color.holo_red_light));
+            v.setTextColor(Color.RED);
         }
 
         AnimationSet push = (AnimationSet) AnimationUtils.loadAnimation(

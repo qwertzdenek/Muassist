@@ -53,7 +53,7 @@ public class TouchControl implements OnTouchListener {
     /**
      * That was start/stop event.
      */
-    public static final int STATE_STOP = 1;
+    public static final int STATE_TOGGLE = 1;
 
     /**
      * End of touch event. Nothing interesting.
@@ -94,7 +94,7 @@ public class TouchControl implements OnTouchListener {
             if (stopping
                     && ((event.getEventTime() - stopTime) < DOUBLE_CLICK_DELAY)) {
 
-                target.onToggle(this, STATE_STOP);
+                target.onToggle(this, STATE_TOGGLE);
 
                 stopping = false;
             } else {

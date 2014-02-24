@@ -20,20 +20,18 @@ package kiv.janecekz.ma.tuner;
 
 import java.util.ArrayList;
 
-import android.os.AsyncTask;
 import kiv.janecekz.ma.Informable;
 import kiv.janecekz.ma.common.Recorder;
+import kiv.janecekz.ma.common.SharedData;
+import android.os.AsyncTask;
 
 public class AnalyzerAMDF extends AsyncTask<Void, Double, Void> {
 	private static final int POINT_BUFFER_SIZE = 50;
 	
-    private Recorder r;
+    private SharedData sd;
     private Informable src;
     
     private int sampleFreq;
-
-    // modified by giveData
-    private Short[] input;
 
     // that's for voice and 8000 sampling frequency...
     private final double EPS = 1e-6;
@@ -44,11 +42,10 @@ public class AnalyzerAMDF extends AsyncTask<Void, Double, Void> {
      * @param sampleFreq sampling frequency of the source
      * @param window analyzed data
      */
-    public AnalyzerAMDF(Recorder r, Informable src) {
-        this.r = r;
+    public AnalyzerAMDF(SharedData sd, Recorder r, Informable src) {
+    	this.sd = sd;
         this.src = src;
         this.sampleFreq = r.getSampleFreq();
-        input = r.getBuffer();
     }
 
     @Override
@@ -60,10 +57,11 @@ public class AnalyzerAMDF extends AsyncTask<Void, Double, Void> {
 
     @Override
     protected Void doInBackground(Void... params) {
-    	int N = input.length >> 1;
+    	int N = sd.shortBuffer.length >> 1;
         double den = (double) 1 / (N - 1);
         int sum = 0;
         Double freq = Double.valueOf(0);
+        short[] input = sd.shortBuffer;
         ArrayList<Double> tops = new ArrayList<Double>(20);
         double[] resAMDF = new double[N];
         boolean[] resClip = new boolean[N - 10];
@@ -72,24 +70,26 @@ public class AnalyzerAMDF extends AsyncTask<Void, Double, Void> {
 
         while (!isCancelled()) {
             // TODO: don't analyze silence
-            try {
-                r.full.acquire();
-            } catch (InterruptedException e) {
-                r.free.release();
-                continue;
-            }
-            
-            // AMDF of the input signal
-            for (int m = 0; m < N; m++) {
-                sum = 0;
-                for (int n = 2 * N - 1; n >= N; n--) {
-                    sum += Math.abs(input[n - m] - input[n]);
-                }
+        	synchronized (sd) {
+				while (!sd.available)
+					try {
+						sd.wait();
+					} catch (InterruptedException e) {
+					}
 
-                resAMDF[m] = sum * den;
-            }
+	            // AMDF of the input signal
+	            for (int m = 0; m < N; m++) {
+	                sum = 0;
+	                for (int n = 2 * N - 1; n >= N; n--) {
+	                    sum += Math.abs(input[n - m] - input[n]);
+	                }
 
-            r.free.release();
+	                resAMDF[m] = sum * den;
+	            }
+
+				sd.available = false;
+				sd.notify();
+			}
             
             // find min max in ACF range
             double max = Double.MIN_VALUE;
