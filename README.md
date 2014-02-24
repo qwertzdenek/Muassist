@@ -10,14 +10,14 @@ Purpose
 Musicians needs sometime metronome, tuner, tone generator or recorder when they play and practise.
 This is this an application, that will do everything at one place.
 
-Target Operating system is Android ICS (API 14) and newer.
+Target Operating system is Android API 7 (2.1) and newer.
 
 Status
 ------
 *  Metronome
 *  Sine tone generator
 *  Recording to WAV
-*  Tuner *(experimental)*
+*  Tuner
 
 Download
 --------
