@@ -26,8 +26,7 @@ import kiv.janecekz.ma.tuner.AnalyzerWave;
 import kiv.janecekz.ma.tuner.Classificator;
 import kiv.janecekz.ma.tuner.Classificator.Result;
 import kiv.janecekz.ma.tuner.MedianFilter;
-import net.simonvt.numberpicker.NumberPicker;
-import net.simonvt.numberpicker.NumberPicker.OnValueChangeListener;
+import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -36,133 +35,138 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.widget.ImageView;
+import android.widget.NumberPicker;
+import android.widget.NumberPicker.OnValueChangeListener;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class TunerFragment extends Fragment implements IControlable, Informable, OnValueChangeListener {
+@SuppressLint("NewApi")
+public class TunerFragment extends Fragment implements IControlable,
+		Informable, OnValueChangeListener {
 	private static final int METHOD_AMDF = 0;
 	private static final int METHOD_WAVE = 1;
 
-    private Recorder recorder;
-    private SharedData sd;
-    private AsyncTask<Void, Double, Void> analyzer;
-    private Classificator classify;
-    private MedianFilter mf;
+	private Recorder recorder;
+	private SharedData sd;
+	private AsyncTask<Void, Double, Void> analyzer;
+	private Classificator classify;
+	private MedianFilter mf;
 
-    private ImageView circle;
-    private TextView tunerText;
-    private ProgressBar leftBar;
-    private ProgressBar rightBar;
-    private AlphaAnimation inAnim;
-    private AlphaAnimation outAnim;
-    private NumberPicker refFreq;
-    
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+	private ImageView circle;
+	private TextView tunerText;
+	private ProgressBar leftBar;
+	private ProgressBar rightBar;
+	private AlphaAnimation inAnim;
+	private AlphaAnimation outAnim;
+	private NumberPicker refFreq;
 
-        View v = inflater.inflate(R.layout.tuner, container, false);
-        v.setOnTouchListener(TouchControl.getInstance());
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container,
+			Bundle savedInstanceState) {
 
-        return v;
-    }
+		View v = inflater.inflate(R.layout.tuner, container, false);
+		v.setOnTouchListener(TouchControl.getInstance());
 
-    @Override
-    public void onPause() {
-    	analyzer.cancel(true);
-        recorder.stopRecording();;
+		refFreq = (NumberPicker) v.findViewById(R.id.refFreq);
+		refFreq.setMinValue(435);
+		refFreq.setMaxValue(444);
+		refFreq.setOnValueChangedListener(this);
+		refFreq.setValue(SharedPref.getBaseFreq(getActivity()));
 
-        super.onPause();
-    }
+		circle = (ImageView) v.findViewById(R.id.circle);
+		tunerText = (TextView) v.findViewById(R.id.tuner_text);
 
-    @Override
-    public void onResume() {
-        super.onResume();
+		leftBar = (ProgressBar) v.findViewById(R.id.progressBarLeft);
+		rightBar = (ProgressBar) v.findViewById(R.id.progressBarRight);
 
-        getView().setBackgroundResource(
-                ((MainActivity) getActivity()).getBgRes());
+		inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN);
+		outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
 
-        circle = (ImageView) getView().findViewById(R.id.circle);
-        
-        tunerText = (TextView) getView().findViewById(R.id.tuner_text);
-        
-        refFreq = (NumberPicker) getView().findViewById(R.id.refFreq);
-        refFreq.setMinValue(438);
-        refFreq.setMaxValue(444);
-        refFreq.setOnValueChangedListener(this);
-        refFreq.setValue(SharedPref.getBaseFreq(getActivity()));
-        
-        sd = new SharedData(500);
-        recorder = new Recorder(sd);
-        recorder.start();
-        
-        int method = SharedPref.getAnlMethod(getActivity().getApplicationContext());
-        
-        if (method == METHOD_AMDF)
-            analyzer = new AnalyzerAMDF(sd, recorder, this);
-        else if (method == METHOD_WAVE)
-            analyzer = new AnalyzerWave(sd, recorder, this);
-        
-        analyzer.execute();
-        
-        inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN);
-        outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
-        
-        classify = new Classificator(SharedPref.getBaseFreq(getActivity().getApplicationContext()));
-        
-        leftBar = (ProgressBar) getView().findViewById(R.id.progressBarLeft);
-        rightBar = (ProgressBar) getView().findViewById(R.id.progressBarRight);
-        
-        mf = new MedianFilter();
-    }
-    
-    @Override
-    public void onValueChange(TouchControl t, int val) {
+		return v;
+	}
 
-    }
+	@Override
+	public void onPause() {
+		analyzer.cancel(true);
+		recorder.stopRecording();
 
-    @Override
-    public void onToggle(TouchControl t, int state) {
-        switch (state) {
-        case TouchControl.STATE_BEGIN:
-            circle.setVisibility(View.VISIBLE);
-            circle.startAnimation(inAnim);
-            break;
-        case TouchControl.STATE_TOGGLE:
-            // not used
+		super.onPause();
+	}
 
-            break;
-        case TouchControl.STATE_OUT:
-            if (!inAnim.hasEnded())
-                return;
-            circle.startAnimation(outAnim);
-            circle.setVisibility(View.INVISIBLE);
-            break;
-        default:
-            break;
-        }
-    }
-    
-    @Override
-    public void onPositionChange(TouchControl t, float x, float y) {
-//        circle.setX(x - circle.getWidth() / 2);
-//        circle.setY(y - circle.getHeight() / 2 - 80);
-    }
+	@Override
+	public void onResume() {
+		super.onResume();
 
-    public void postInformation(Double freq) {
-        mf.addValue(classify.findTone(freq));
-        Result r = mf.getMedian();
-        
-        tunerText.setText(String.format("%s  %f", r.getTone(), r.getFreq()));
-        
-        if (r.getError() >= 0) {
-            leftBar.setProgress(0);
-            rightBar.setProgress((int) Math.floor(100 * r.getError()));
-        } else {
-            leftBar.setProgress((int) Math.floor(-100 * r.getError()));
-            rightBar.setProgress(0);
-        }
-    }
+		getView().setBackgroundResource(
+				((MainActivity) getActivity()).getBgRes());
+
+		sd = new SharedData(500);
+		recorder = new Recorder(sd);
+		recorder.start();
+
+		int method = SharedPref.getAnlMethod(getActivity()
+				.getApplicationContext());
+
+		if (method == METHOD_AMDF)
+			analyzer = new AnalyzerAMDF(sd, recorder, this);
+		else if (method == METHOD_WAVE)
+			analyzer = new AnalyzerWave(sd, recorder, this);
+
+		analyzer.execute();
+
+		classify = new Classificator(SharedPref.getBaseFreq(getActivity()
+				.getApplicationContext()));
+
+		mf = new MedianFilter();
+	}
+
+	@Override
+	public void onValueChange(TouchControl t, int val) {
+
+	}
+
+	@Override
+	public void onToggle(TouchControl t, int state) {
+		switch (state) {
+		case TouchControl.STATE_BEGIN:
+			circle.setVisibility(View.VISIBLE);
+			circle.startAnimation(inAnim);
+			break;
+		case TouchControl.STATE_TOGGLE:
+			// not used
+
+			break;
+		case TouchControl.STATE_OUT:
+			if (!inAnim.hasEnded())
+				return;
+			circle.startAnimation(outAnim);
+			circle.setVisibility(View.INVISIBLE);
+			break;
+		default:
+			break;
+		}
+	}
+
+	@Override
+	public void onPositionChange(TouchControl t, float x, float y) {
+			circle.setX(x - circle.getWidth() / 2);
+			circle.setY(y - circle.getHeight() / 2 - 80);
+	}
+
+	public void postInformation(Double freq) {
+		mf.addValue(classify.findTone(freq));
+		Result r = mf.getMedian();
+
+		tunerText.setText(String.format("%s  %f", r.getTone(), r.getFreq()));
+
+		if (r.getError() >= 0) {
+			leftBar.setProgress(0);
+			rightBar.setProgress((int) Math.floor(100 * r.getError()));
+		} else {
+			leftBar.setProgress((int) Math.floor(-100 * r.getError()));
+			rightBar.setProgress(0);
+		}
+	}
 
 	@Override
 	public void onValueChange(NumberPicker picker, int oldVal, int newVal) {

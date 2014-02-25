@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="bgColors">
+        <item>Rozbřesk</item>
+        <item>Západ</item>
+        <item>Noc</item>
+    </string-array> <!-- Keep it same with bgColors -->
+
+    <string-array name="sounds">
+        <item>Dřevo</item>
+        <item>Hrubé</item>
+        <item>Měkké</item>
+    </string-array>
+
+    <string-array name="touchSp">
+        <item>Pomalé</item>
+        <item>Přiměřené</item>
+        <item>rychlé</item>
+    </string-array>
+    
+	<string-array name="tuner_method">
+        <item>AMDF+ACF</item>
+        <item>Wavelet (experimentální)</item>
+    </string-array>
+</resources>

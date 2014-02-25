@@ -6,7 +6,7 @@
         <item>Sunset</item>
         <item>Night</item>
     </string-array>
-    <string-array name="bgColors_values">
+    <string-array name="bgColors_values" translatable="false">
         <item>0</item>
         <item>1</item>
         <item>2</item>
@@ -17,7 +17,7 @@
         <item>Rush</item>
         <item>Soft</item>
     </string-array>
-    <string-array name="sounds_values">
+    <string-array name="sounds_values" translatable="false">
         <item>0</item>
         <item>1</item>
         <item>2</item>
@@ -27,12 +27,12 @@
         <item>Decent</item>
         <item>Fast</item>
     </string-array>
-    <string-array name="touchSp_values">
+    <string-array name="touchSp_values" translatable="false">
         <item>100</item>
         <item>70</item>
         <item>50</item>
     </string-array>
-    <string-array name="afreq">
+    <string-array name="afreq" translatable="false">
         <item>438</item>
         <item>439</item>
         <item>440</item>
@@ -41,7 +41,7 @@
         <item>443</item>
         <item>444</item>
     </string-array>
-    <string-array name="aharm">
+    <string-array name="aharm" translatable="false">
         <item>1</item>
         <item>3</item>
         <item>5</item>
@@ -53,7 +53,7 @@
         <item>AMDF+ACF</item>
         <item>Wavelet (experimental)</item>
     </string-array>
-    <string-array name="tuner_method_vals">
+    <string-array name="tuner_method_vals" translatable="false">
         <item>0</item>
         <item>1</item>
     </string-array>

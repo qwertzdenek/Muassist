@@ -45,7 +45,7 @@
                     android:layout_height="wrap_content"
                     android:padding="10sp"
                     android:text="@string/C"
-                    android:textColor="@android:color/holo_blue_light"
+                    android:textColor="@color/blue"
                     android:textSize="40sp" />
 
                 <TextView
@@ -54,7 +54,7 @@
                     android:layout_height="wrap_content"
                     android:padding="10sp"
                     android:text="@string/D"
-                    android:textColor="@android:color/holo_blue_light"
+                    android:textColor="@color/blue"
                     android:textSize="40sp" />
 
                 <TextView
@@ -63,7 +63,7 @@
                     android:layout_height="wrap_content"
                     android:padding="10sp"
                     android:text="@string/E"
-                    android:textColor="@android:color/holo_blue_light"
+                    android:textColor="@color/blue"
                     android:textSize="40sp" />
 
                 <TextView
@@ -72,7 +72,7 @@
                     android:layout_height="wrap_content"
                     android:padding="10sp"
                     android:text="@string/F"
-                    android:textColor="@android:color/holo_blue_light"
+                    android:textColor="@color/blue"
                     android:textSize="40sp" />
 
                 <TextView
@@ -81,7 +81,7 @@
                     android:layout_height="wrap_content"
                     android:padding="10sp"
                     android:text="@string/G"
-                    android:textColor="@android:color/holo_blue_light"
+                    android:textColor="@color/blue"
                     android:textSize="40sp" />
 
                 <TextView
@@ -90,7 +90,7 @@
                     android:layout_height="wrap_content"
                     android:padding="10sp"
                     android:text="@string/A"
-                    android:textColor="@android:color/holo_blue_light"
+                    android:textColor="@color/blue"
                     android:textSize="40sp" />
 
                 <TextView
@@ -99,7 +99,7 @@
                     android:layout_height="wrap_content"
                     android:padding="10sp"
                     android:text="@string/B"
-                    android:textColor="@android:color/holo_blue_light"
+                    android:textColor="@color/blue"
                     android:textSize="40sp" />
             </LinearLayout>
         </HorizontalScrollView>
@@ -112,7 +112,7 @@
             android:layout_centerHorizontal="true"
             android:padding="10sp"
             android:text="@string/sharp"
-            android:textColor="@android:color/holo_blue_light"
+            android:textColor="@color/blue"
             android:textSize="40sp" />
 
         <EditText

@@ -2,7 +2,7 @@
 <resources>
 
     <!-- Main strings -->
-    <string name="app_name">Muassist</string>
+    <string name="app_name" translatable="false">Muassist</string>
     <string name="title_section_metronome">Metronome</string>
     <string name="title_section_tone">Tone Generator</string>
     <string name="title_section_tuner">Tuner</string>
@@ -13,7 +13,7 @@
     <string name="image">Image</string>
     <string name="headerMet">Control by touch.</string>
     <string name="help">About</string>
-    <string name="helpText">Zdeněk Janeček 2012&#8211;2013\n<font size="12">This program comes with <i>ABSOLUTELY NO WARRANTY</i></font>\n\nmore at: <a href="https://github.com/qwertzdenek/Muassist">Homepage</a></string>
+    <string name="helpText">Zdeněk Janeček 2012&#8211;2014\n<font size="12">This program comes with <i>ABSOLUTELY NO WARRANTY</i></font>\n\nmore at: <a href="https://github.com/qwertzdenek/Muassist">Homepage</a></string>
 
     <!-- Global options -->
     <string name="setup_global">Global setup</string>
@@ -51,6 +51,7 @@
     <!-- Recorder -->
     <string name="recording">Recording</string>
     <string name="stopped">Stopped</string>
+    <string name="recorded">Recorded</string>
     
     <!-- Tuner -->
     <string name="setup_tuner_title">Choose analyze method</string>
@@ -58,13 +59,13 @@
     <string name="pref_tuner">Analyze algorithm</string>
     
     <!-- Configuration keys -->
-    <string name="pref_key_bg">background_update_flag</string>
-    <string name="pref_key_sound">sound_update_flag</string>
-    <string name="pref_key_orientation">orientation_update_flag</string>
-    <string name="pref_key_speed">speed_update_flag</string>
-    <string name="pref_key_tone">tone_update_flag</string>
-    <string name="pref_key_tuner">tuner_update_flag</string>
-    <string name="pref_key_comp">comp_update_flag</string>
-    <string name="pref_key_harm">harm_update_flag</string>
+    <string name="pref_key_bg" translatable="false">background_update_flag</string>
+    <string name="pref_key_sound" translatable="false">sound_update_flag</string>
+    <string name="pref_key_orientation" translatable="false">orientation_update_flag</string>
+    <string name="pref_key_speed" translatable="false">speed_update_flag</string>
+    <string name="pref_key_tone" translatable="false">tone_update_flag</string>
+    <string name="pref_key_tuner" translatable="false">tuner_update_flag</string>
+    <string name="pref_key_comp" translatable="false">comp_update_flag</string>
+    <string name="pref_key_harm" translatable="false">harm_update_flag</string>
     
 </resources>

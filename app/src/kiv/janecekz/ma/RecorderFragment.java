@@ -23,10 +23,10 @@ import java.io.File;
 import kiv.janecekz.ma.common.Recorder;
 import kiv.janecekz.ma.common.SharedData;
 import kiv.janecekz.ma.rec.WavWriter;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,7 +45,7 @@ public class RecorderFragment extends Fragment implements IControlable,
 	private WavWriter wav;
 	private Recorder r;
 	private SharedData sd;
-//	private TextView recTitleText;
+	// private TextView recTitleText;
 	private TextView recStatusText;
 	private File lastRecorded;
 	private Handler mHandler = new Handler();
@@ -76,7 +76,7 @@ public class RecorderFragment extends Fragment implements IControlable,
 		outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
 
 		recStatusText = (TextView) v.findViewById(R.id.rec_status);
-//		recTitleText = (TextView) v.findViewById(R.id.rec_title);
+		// recTitleText = (TextView) v.findViewById(R.id.rec_title);
 
 		return v;
 	}
@@ -109,7 +109,7 @@ public class RecorderFragment extends Fragment implements IControlable,
 
 		getView().setBackgroundResource(
 				((MainActivity) getActivity()).getBgRes());
-		
+
 		if (r != null && r.isRecording())
 			mHandler.postDelayed(mUpdateTimeTask, 1000);
 	}
@@ -146,12 +146,15 @@ public class RecorderFragment extends Fragment implements IControlable,
 				}
 				mHandler.removeCallbacks(mUpdateTimeTask);
 				recStatusText.setText("");
-				Toast.makeText(getActivity(), "recorded "+lastRecorded.getName(), Toast.LENGTH_SHORT).show();;
+				Toast.makeText(getActivity(),getResources().getString(R.string.recorded) +
+						" " + lastRecorded.getName(),
+						Toast.LENGTH_SHORT).show();
+				;
 			}
 			break;
 		case TouchControl.STATE_OUT:
 			if (!inAnim.hasEnded())
-				return;
+				inAnim.cancel();
 			circle.startAnimation(outAnim);
 			circle.setVisibility(View.INVISIBLE);
 			break;
@@ -162,8 +165,8 @@ public class RecorderFragment extends Fragment implements IControlable,
 
 	@Override
 	public void onPositionChange(TouchControl t, float x, float y) {
-//		circle.setX(x - circle.getWidth() / 2);
-//		circle.setY(y - circle.getHeight() / 2 - 80);
+		circle.setX(x - circle.getWidth() / 2);
+		circle.setY(y - circle.getHeight() / 2 - 80);
 	}
 
 	@Override
