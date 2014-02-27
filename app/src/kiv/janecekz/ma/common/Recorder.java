@@ -19,6 +19,7 @@ Musicians Assistant
 package kiv.janecekz.ma.common;
 
 import kiv.janecekz.ma.MainActivity;
+import kiv.janecekz.ma.metronome.WavReader;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
@@ -77,7 +78,7 @@ public class Recorder extends Thread {
 					}
 
 				recorder.read(sd.byteBuffer, 0, sd.byteBuffer.length);
-				prepareResults(sd.byteBuffer, sd.shortBuffer);
+				WavReader.prepareResults(sd.byteBuffer, sd.shortBuffer);
 				
 				sd.available = true;
 				sd.notify();
@@ -106,11 +107,5 @@ public class Recorder extends Thread {
 	
 	public void stopRecording() {
 		recording = false;
-	}
-
-	private static void prepareResults(byte[] b, short[] recs) {
-		for (int i = 0, j = 0; i < b.length; i += 2, j++) {
-			recs[j] = (short) (b[i] | (b[i + 1] << 8));
-		}
 	}
 }

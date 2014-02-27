@@ -55,8 +55,6 @@ public class MetronomeFragment extends Fragment implements IControlable,
 
 		tc = new TempoControl();
 		tc.addObserver(this);
-
-		peeper = new Peeper();
 	}
 
 	@Override
@@ -65,19 +63,9 @@ public class MetronomeFragment extends Fragment implements IControlable,
 		View v = inflater.inflate(R.layout.metronome, container, false);
 		v.setOnTouchListener(TouchControl.getInstance());
 
-		peeper.setSun((ImageView) v.findViewById(R.id.sun));
+		peeper = new Peeper((byte) 0, (ImageView) v.findViewById(R.id.sun));
 		peeper.setTime(SharedPref.getTime(getActivity()));
 
-		// currentapiVersion = android.os.Build.VERSION.SDK_INT;
-		// if (currentapiVersion < android.os.Build.VERSION_CODES.HONEYCOMB){
-		// beatPickerOld = (com.michaelnovakjr.numberpicker.NumberPicker)
-		// v.findViewById(R.id.beatCount);
-		// beatPickerOld.setOnChangeListener(this);
-		//
-		// bpmPickerOld = (com.michaelnovakjr.numberpicker.NumberPicker)
-		// v.findViewById(R.id.bpmCount);
-		// bpmPickerOld.setOnChangeListener(this);
-		// }
 		beatPicker = (NumberPicker) v.findViewById(R.id.beatCount);
 		beatPicker.setMinValue(1);
 		beatPicker.setMaxValue(4);
