@@ -157,13 +157,15 @@ public class TunerFragment extends Fragment implements IControlable,
 		mf.addValue(classify.findTone(freq));
 		Result r = mf.getMedian();
 
-		tunerText.setText(String.format("%s  %.2f", r.getTone(), r.getFreq()));
-
+		tunerText.setText(String.format("%s  %.1f", r.getTone(), r.getFreq()));
+		
+		double f = 1 - (-1 + Math.abs(r.getError())) * (-1 + Math.abs(r.getError()));
+		
 		if (r.getError() >= 0) {
 			leftBar.setProgress(0);
-			rightBar.setProgress((int) Math.floor(100 * r.getError()));
+			rightBar.setProgress((int) Math.floor(100 * f));
 		} else {
-			leftBar.setProgress((int) Math.floor(-100 * r.getError()));
+			leftBar.setProgress((int) Math.floor(100 * f));
 			rightBar.setProgress(0);
 		}
 	}
