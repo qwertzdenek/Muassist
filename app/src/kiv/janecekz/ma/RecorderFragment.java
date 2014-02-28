@@ -129,7 +129,7 @@ public class RecorderFragment extends Fragment implements IControlable,
 		case TouchControl.STATE_TOGGLE:
 			if (r == null || !r.isRecording()) {
 				mHandler.postDelayed(mUpdateTimeTask, 1000);
-				sd = new SharedData(8092);
+				sd = new SharedData(4092);
 				r = new Recorder(sd);
 				r.start();
 

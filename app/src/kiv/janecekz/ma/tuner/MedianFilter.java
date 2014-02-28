@@ -31,7 +31,7 @@ public class MedianFilter {
 		}
 	}
 
-	private final int SIZE = 7;
+	private final int SIZE = 15;
 
 	ResultEntry[] values = new ResultEntry[SIZE + 1];
 	int added = 0;

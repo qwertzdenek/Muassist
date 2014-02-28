@@ -68,8 +68,8 @@ public class TunerFragment extends Fragment implements IControlable,
 		v.setOnTouchListener(TouchControl.getInstance());
 
 		refFreq = (NumberPicker) v.findViewById(R.id.refFreq);
-		refFreq.setMinValue(435);
-		refFreq.setMaxValue(444);
+		refFreq.setMinValue(390);
+		refFreq.setMaxValue(460);
 		refFreq.setOnValueChangedListener(this);
 		refFreq.setValue(SharedPref.getBaseFreq(getActivity()));
 
@@ -157,7 +157,7 @@ public class TunerFragment extends Fragment implements IControlable,
 		mf.addValue(classify.findTone(freq));
 		Result r = mf.getMedian();
 
-		tunerText.setText(String.format("%s  %f", r.getTone(), r.getFreq()));
+		tunerText.setText(String.format("%s  %.2f", r.getTone(), r.getFreq()));
 
 		if (r.getError() >= 0) {
 			leftBar.setProgress(0);
