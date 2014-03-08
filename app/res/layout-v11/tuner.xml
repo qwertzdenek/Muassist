@@ -20,8 +20,9 @@
 
         <kiv.janecekz.ma.tuner.Tune
            android:id="@+id/tune"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content" />
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:visibility="visible" />
 
         <ImageView
             android:id="@+id/circle"
