@@ -104,7 +104,7 @@ public class TouchControl implements OnTouchListener {
                 startTime = event.getEventTime();
             }
         } else if (event.getActionMasked() == MotionEvent.ACTION_MOVE) {
-            target.onPositionChange(this, event.getX(), event.getY());
+            target.onPositionChange(this, (int) event.getX(), (int) event.getY());
 
             vt.addMovement(event);
             vt.computeCurrentVelocity(1000);

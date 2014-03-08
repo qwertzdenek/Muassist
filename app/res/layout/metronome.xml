@@ -38,14 +38,14 @@
             android:src="@drawable/circle"
             android:visibility="invisible" />
 
-        <NumberPicker
+        <com.michaelnovakjr.numberpicker.NumberPicker
             android:id="@+id/beatCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true" />
 
-        <NumberPicker
+        <com.michaelnovakjr.numberpicker.NumberPicker
             android:id="@+id/bpmCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

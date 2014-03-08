@@ -10,7 +10,7 @@ Purpose
 Musicians needs sometime metronome, tuner, tone generator or recorder when they play and practise.
 This is this an application, that will do everything at one place.
 
-Target Operating system is Android API 7 (2.1) and newer.
+Target Operating system is Android API 8 (2.2) and newer.
 
 Status
 ------

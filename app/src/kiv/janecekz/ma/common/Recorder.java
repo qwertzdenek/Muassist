@@ -66,18 +66,18 @@ public class Recorder extends Thread {
 
 		recorder.startRecording();
 		recorder.read(sd.byteBuffer, 0, sd.byteBuffer.length);
-
+		
 		while (isRecording()) {
 			synchronized (sd) {
 				while (sd.available)
 					try {
-						Log.d(MainActivity.TAG, "Recorder: going sleep");
 						sd.wait();
-						Log.d(MainActivity.TAG, "Recorder: waking up");
 					} catch (InterruptedException e) {
+						break;
 					}
-
+				
 				recorder.read(sd.byteBuffer, 0, sd.byteBuffer.length);
+				
 				WavReader.prepareResults(sd.byteBuffer, sd.shortBuffer);
 				
 				sd.available = true;

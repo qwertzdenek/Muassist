@@ -26,8 +26,10 @@ import kiv.janecekz.ma.tuner.AnalyzerWave;
 import kiv.janecekz.ma.tuner.Classificator;
 import kiv.janecekz.ma.tuner.Classificator.Result;
 import kiv.janecekz.ma.tuner.MedianFilter;
+import kiv.janecekz.ma.tuner.Tune;
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -37,12 +39,14 @@ import android.view.animation.AlphaAnimation;
 import android.widget.ImageView;
 import android.widget.NumberPicker;
 import android.widget.NumberPicker.OnValueChangeListener;
-import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 
+import com.michaelnovakjr.numberpicker.NumberPicker.OnChangedListener;
+
 @SuppressLint("NewApi")
-public class TunerFragment extends Fragment implements IControlable,
-		Informable, OnValueChangeListener {
+public class TunerFragment extends Fragment implements IControlable, Informable {
 	private static final int METHOD_AMDF = 0;
 	private static final int METHOD_WAVE = 1;
 
@@ -54,11 +58,11 @@ public class TunerFragment extends Fragment implements IControlable,
 
 	private ImageView circle;
 	private TextView tunerText;
-	private ProgressBar leftBar;
-	private ProgressBar rightBar;
+	private Tune bar;
 	private AlphaAnimation inAnim;
 	private AlphaAnimation outAnim;
 	private NumberPicker refFreq;
+	private com.michaelnovakjr.numberpicker.NumberPicker refFreqOld;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -67,17 +71,37 @@ public class TunerFragment extends Fragment implements IControlable,
 		View v = inflater.inflate(R.layout.tuner, container, false);
 		v.setOnTouchListener(TouchControl.getInstance());
 
-		refFreq = (NumberPicker) v.findViewById(R.id.refFreq);
-		refFreq.setMinValue(390);
-		refFreq.setMaxValue(460);
-		refFreq.setOnValueChangedListener(this);
-		refFreq.setValue(SharedPref.getBaseFreq(getActivity()));
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			refFreqOld = (com.michaelnovakjr.numberpicker.NumberPicker) v
+					.findViewById(R.id.refFreq);
+			refFreqOld.setRange(390, 460);
+			refFreqOld.setOnChangeListener(new OnChangedListener() {
+				@Override
+				public void onChanged(
+						com.michaelnovakjr.numberpicker.NumberPicker picker,
+						int oldVal, int newVal) {
+					classify.changeRef(newVal);
+				}
+			});
+			refFreqOld.setCurrent(SharedPref.getBaseFreq(getActivity()));
+		} else {
+			refFreq = (NumberPicker) v.findViewById(R.id.refFreq);
+			refFreq.setMinValue(390);
+			refFreq.setMaxValue(460);
+			refFreq.setOnValueChangedListener(new OnValueChangeListener() {
+				@Override
+				public void onValueChange(NumberPicker picker, int oldVal,
+						int newVal) {
+					classify.changeRef(newVal);
+				}
+			});
+			refFreq.setValue(SharedPref.getBaseFreq(getActivity()));
+		}
 
 		circle = (ImageView) v.findViewById(R.id.circle);
 		tunerText = (TextView) v.findViewById(R.id.tuner_text);
 
-		leftBar = (ProgressBar) v.findViewById(R.id.progressBarLeft);
-		rightBar = (ProgressBar) v.findViewById(R.id.progressBarRight);
+		bar = (Tune) v.findViewById(R.id.tune);
 
 		inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN);
 		outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
@@ -100,7 +124,7 @@ public class TunerFragment extends Fragment implements IControlable,
 		getView().setBackgroundResource(
 				((MainActivity) getActivity()).getBgRes());
 
-		sd = new SharedData(500);
+		sd = new SharedData(1000);
 		recorder = new Recorder(sd);
 		recorder.start();
 
@@ -138,7 +162,7 @@ public class TunerFragment extends Fragment implements IControlable,
 			break;
 		case TouchControl.STATE_OUT:
 			if (!inAnim.hasEnded())
-				return;
+				inAnim.cancel();
 			circle.startAnimation(outAnim);
 			circle.setVisibility(View.INVISIBLE);
 			break;
@@ -148,9 +172,11 @@ public class TunerFragment extends Fragment implements IControlable,
 	}
 
 	@Override
-	public void onPositionChange(TouchControl t, float x, float y) {
-			circle.setX(x - circle.getWidth() / 2);
-			circle.setY(y - circle.getHeight() / 2 - 80);
+	public void onPositionChange(TouchControl t, int x, int y) {
+		RelativeLayout.LayoutParams pars = (LayoutParams) circle.getLayoutParams();
+		pars.setMargins(x - circle.getWidth() / 2, y - circle.getHeight() / 2 - 80, 0, 0);
+		
+		circle.setLayoutParams(pars);
 	}
 
 	public void postInformation(Double freq) {
@@ -158,20 +184,13 @@ public class TunerFragment extends Fragment implements IControlable,
 		Result r = mf.getMedian();
 
 		tunerText.setText(String.format("%s  %.1f", r.getTone(), r.getFreq()));
-		
-		double f = 1 - (-1 + Math.abs(r.getError())) * (-1 + Math.abs(r.getError()));
-		
-		if (r.getError() >= 0) {
-			leftBar.setProgress(0);
-			rightBar.setProgress((int) Math.floor(100 * f));
-		} else {
-			leftBar.setProgress((int) Math.floor(100 * f));
-			rightBar.setProgress(0);
-		}
-	}
 
-	@Override
-	public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-		classify.changeRef(newVal);
+		float f;
+		if (r.getError() >= 0)
+			f = (float) (1 - (Math.abs(r.getError()) - 1)*(Math.abs(r.getError()) - 1));
+		else
+			f = (float) ((Math.abs(r.getError()) - 1)*(Math.abs(r.getError()) - 1) - 1);
+		
+		bar.setVal(f);
 	}
 }

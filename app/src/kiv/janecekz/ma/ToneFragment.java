@@ -36,6 +36,8 @@ import android.view.animation.AnimationUtils;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
@@ -134,9 +136,11 @@ public class ToneFragment extends Fragment implements IControlable,
 	}
 
 	@Override
-	public void onPositionChange(TouchControl t, float x, float y) {
-		circle.setX(x - circle.getWidth() / 2);
-		circle.setY(y - circle.getHeight() / 2 - 80);
+	public void onPositionChange(TouchControl t, int x, int y) {
+		RelativeLayout.LayoutParams pars = (LayoutParams) circle.getLayoutParams();
+		pars.setMargins(x - circle.getWidth() / 2, y - circle.getHeight() / 2 - 80, 0, 0);
+		
+		circle.setLayoutParams(pars);
 	}
 
 	@Override

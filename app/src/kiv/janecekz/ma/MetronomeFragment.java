@@ -1,6 +1,6 @@
 /*
 Musicians Assistant
-    Copyright (C) 2012  Zdeněk Janeček <jan.zdenek@gmail.com>
+    Copyright (C) 2012-2014  Zdeněk Janeček <jan.zdenek@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -25,6 +25,8 @@ import kiv.janecekz.ma.metronome.Operator;
 import kiv.janecekz.ma.metronome.Peeper;
 import kiv.janecekz.ma.metronome.TempoControl;
 import kiv.janecekz.ma.prefs.SharedPref;
+import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -34,12 +36,19 @@ import android.view.animation.AlphaAnimation;
 import android.widget.ImageView;
 import android.widget.NumberPicker;
 import android.widget.NumberPicker.OnValueChangeListener;
+import android.widget.RelativeLayout;
+import android.widget.RelativeLayout.LayoutParams;
 
+import com.michaelnovakjr.numberpicker.NumberPicker.OnChangedListener;
+
+@SuppressLint("NewApi")
 public class MetronomeFragment extends Fragment implements IControlable,
-		Observer, OnValueChangeListener {
+		Observer {
 
 	private android.widget.NumberPicker beatPicker;
 	private android.widget.NumberPicker bpmPicker;
+	private com.michaelnovakjr.numberpicker.NumberPicker beatPickerOld;
+	private com.michaelnovakjr.numberpicker.NumberPicker bpmPickerOld;
 
 	private TempoControl tc;
 	private Operator op;
@@ -66,17 +75,55 @@ public class MetronomeFragment extends Fragment implements IControlable,
 		peeper = new Peeper((byte) 0, (ImageView) v.findViewById(R.id.sun));
 		peeper.setTime(SharedPref.getTime(getActivity()));
 
-		beatPicker = (NumberPicker) v.findViewById(R.id.beatCount);
-		beatPicker.setMinValue(1);
-		beatPicker.setMaxValue(4);
-		beatPicker.setValue(SharedPref.getTime(getActivity()));
-		beatPicker.setOnValueChangedListener(this);
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			beatPickerOld = (com.michaelnovakjr.numberpicker.NumberPicker) v
+					.findViewById(R.id.beatCount);
+			beatPickerOld.setRange(1, 4);
+			beatPickerOld.setCurrent(SharedPref.getTime(getActivity()));
+			beatPickerOld.setOnChangeListener(new OnChangedListener() {
+				@Override
+				public void onChanged(com.michaelnovakjr.numberpicker.NumberPicker picker,
+						int oldVal, int newVal) {
+					peeper.setTime(newVal);
+				}
+			});
 
-		bpmPicker = (NumberPicker) v.findViewById(R.id.bpmCount);
-		bpmPicker.setMinValue(30);
-		bpmPicker.setMaxValue(200);
-		bpmPicker.setValue(SharedPref.getBPM(getActivity()));
-		bpmPicker.setOnValueChangedListener(this);
+			bpmPickerOld = (com.michaelnovakjr.numberpicker.NumberPicker) v
+					.findViewById(R.id.bpmCount);
+			bpmPickerOld.setRange(30, 220);
+			bpmPickerOld.setCurrent(SharedPref.getBPM(getActivity()));
+			bpmPickerOld.setOnChangeListener(new OnChangedListener() {
+				@Override
+				public void onChanged(com.michaelnovakjr.numberpicker.NumberPicker picker,
+						int oldVal, int newVal) {
+					tc.setBPM(newVal);
+				}
+			});
+		} else {
+			beatPicker = (NumberPicker) v.findViewById(R.id.beatCount);
+			beatPicker.setMinValue(1);
+			beatPicker.setMaxValue(4);
+			beatPicker.setValue(SharedPref.getTime(getActivity()));
+			beatPicker.setOnValueChangedListener(new OnValueChangeListener() {
+				@Override
+				public void onValueChange(NumberPicker picker, int oldVal,
+						int newVal) {
+					peeper.setTime(newVal);
+				}
+			});
+
+			bpmPicker = (NumberPicker) v.findViewById(R.id.bpmCount);
+			bpmPicker.setMinValue(30);
+			bpmPicker.setMaxValue(200);
+			bpmPicker.setValue(SharedPref.getBPM(getActivity()));
+			bpmPicker.setOnValueChangedListener(new OnValueChangeListener() {
+				@Override
+				public void onValueChange(NumberPicker picker, int oldVal,
+						int newVal) {
+					tc.setBPM(newVal);
+				}
+			});
+		}
 
 		circle = (ImageView) v.findViewById(R.id.circle);
 
@@ -149,23 +196,19 @@ public class MetronomeFragment extends Fragment implements IControlable,
 	}
 
 	@Override
-	public void onPositionChange(TouchControl t, float x, float y) {
-		circle.setX(x - circle.getWidth() / 2);
-		circle.setY(y - circle.getHeight() / 2 - 80);
+	public void onPositionChange(TouchControl t, int x, int y) {
+		RelativeLayout.LayoutParams pars = (LayoutParams) circle.getLayoutParams();
+		pars.setMargins(x - circle.getWidth() / 2, y - circle.getHeight() / 2 - 80, 0, 0);
+		
+		circle.setLayoutParams(pars);
 	}
 
 	@Override
 	public void update(Observable arg0, Object arg1) {
-		bpmPicker.setValue(((TempoControl) arg0).getBPM());
-	}
-
-	@Override
-	public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-		if (picker.equals(beatPicker)) {
-			peeper.setTime(newVal);
-		}
-		if (picker.equals(bpmPicker)) {
-			tc.setBPM(newVal);
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			bpmPickerOld.setCurrent(((TempoControl) arg0).getBPM());
+		} else {
+			bpmPicker.setValue(((TempoControl) arg0).getBPM());
 		}
 	}
 }

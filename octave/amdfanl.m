@@ -1,6 +1,4 @@
 function freq = amdfanl(wave)
-graphics_toolkit('gnuplot')
-pkg load signal
 
 N = length(wave) / 2;
 resAMDF = zeros(N, 1);
@@ -32,15 +30,15 @@ for i = 1 : N - 10
   endif
 endfor
 
-y = xcorr(resClip, 'unbiased');
-x = -(length(resClip) - 1):(length(resClip) - 1);
 
-[pks, loc] = findpeaks (abs(y));
 
-plot(x, y, x(loc), y(loc), 'om')
-x(loc)
-
-dist=loc(2:length(loc)) - loc(1:length(loc) - 1)
+            for (int k = 0; k < resACF.length; k++) {
+                sum = 0;
+                for (int n = 0; n < resClip.length - k; n++) {
+                    sum += resClip[n] && resClip[n + k] ? 1 : 0;
+                }
+                resACF[k] = (double) sum / (resClip.length - k);
+            }
 
 % retval = rate / (averange distance)
 

@@ -44,5 +44,5 @@ public interface IControlable {
      * @param y
      *            Y coordinate.
      */
-    public void onPositionChange(TouchControl t, float x, float y);
+    public void onPositionChange(TouchControl t, int x, int y);
 }

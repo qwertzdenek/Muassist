@@ -19,15 +19,16 @@ Musicians Assistant
 package kiv.janecekz.ma.prefs;
 
 import kiv.janecekz.ma.R;
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
+@SuppressLint("NewApi")
 public class Setup extends PreferenceActivity {
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.setup);
-    }
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		getPreferenceManager().setSharedPreferencesName(SharedPref.PREFS_NAME);
+		addPreferencesFromResource(R.xml.preferences);
+	}
 }

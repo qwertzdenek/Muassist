@@ -19,11 +19,10 @@ Musicians Assistant
 package kiv.janecekz.ma.metronome;
 
 import kiv.janecekz.ma.R;
-import android.animation.ObjectAnimator;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
-import android.view.animation.LinearInterpolator;
+import android.view.animation.AlphaAnimation;
 import android.widget.ImageView;
 
 /**
@@ -43,7 +42,7 @@ public class Peeper {
 	private int[] peepIds;
 	private int[] popIds;
 
-	private ObjectAnimator[] fadeAnim;
+	private AlphaAnimation[] fadeAnim = new AlphaAnimation[4];
 	private ImageView sun;
 	private AudioTrack[] snd = new AudioTrack[2];
 
@@ -53,26 +52,35 @@ public class Peeper {
 
 	public Peeper(byte choosen, ImageView sun) {
 		this.sun = sun;
-		
+
 		peepIds = new int[] { R.raw.peep1, R.raw.peep2, R.raw.peep3 };
 		popIds = new int[] { R.raw.pop1, R.raw.pop2, R.raw.pop3 };
-		
-		snd[PEEP] = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, 4330, AudioTrack.MODE_STATIC);
-		snd[POP] = new AudioTrack(AudioManager.STREAM_MUSIC, 44100, AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT, 4330, AudioTrack.MODE_STATIC);
-		
+
+		snd[PEEP] = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
+				AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
+				4330, AudioTrack.MODE_STATIC);
+		snd[POP] = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
+				AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
+				4330, AudioTrack.MODE_STATIC);
+
 		setSound(choosen);
 		reset();
-		
-		fadeAnim = new ObjectAnimator[2];
-		fadeAnim[PEEP] = ObjectAnimator.ofFloat(this.sun, "alpha", 0f, 1f,
-				0.3f, 0f);
-		fadeAnim[PEEP].setDuration(200);
-		fadeAnim[PEEP].setInterpolator(new LinearInterpolator());
 
-		fadeAnim[POP] = ObjectAnimator.ofFloat(this.sun, "alpha", 0f, 0.5f,
-				0.2f, 0f);
-		fadeAnim[POP].setDuration(200);
-		fadeAnim[POP].setInterpolator(new LinearInterpolator());
+		fadeAnim[2*PEEP] = new AlphaAnimation(0f, 1f);
+		fadeAnim[2*PEEP + 1] = new AlphaAnimation(1f, 0f);
+		fadeAnim[2*POP] = new AlphaAnimation(0f, 0.5f);
+		fadeAnim[2*POP + 1] = new AlphaAnimation(0.5f, 0f);
+		
+		for (int i = 0; i < 4; i++) {
+			fadeAnim[i].setDuration(100);
+		}
+		
+		fadeAnim[1].setFillAfter(true);
+		fadeAnim[1].setStartOffset(100);
+		
+		fadeAnim[3].setFillAfter(true);
+		fadeAnim[3].setStartOffset(100);
+		
 	}
 
 	public void run() {
@@ -81,10 +89,12 @@ public class Peeper {
 		sun.post(new Runnable() {
 			@Override
 			public void run() {
-		        snd[state].play();
-		        snd[state].stop();
-		        snd[state].reloadStaticData();
-				fadeAnim[state].start();
+				snd[state].play();
+				snd[state].stop();
+				snd[state].reloadStaticData();
+				
+				sun.startAnimation(fadeAnim[state*2]);
+				sun.startAnimation(fadeAnim[state*2 + 1]);
 			}
 		});
 		phase = (phase + 1) % paternTable[time].length;
@@ -93,7 +103,8 @@ public class Peeper {
 	/**
 	 * Sets time Measure.
 	 * 
-	 * @param time It means duration of one measure.
+	 * @param time
+	 *            It means duration of one measure.
 	 */
 	public void setTime(int time) {
 		this.time = time - 1;
@@ -121,7 +132,7 @@ public class Peeper {
 	public void setSound(byte intValue) {
 		short[] peep = WavReader.readFile(sun.getContext(), peepIds[intValue]);
 		short[] pop = WavReader.readFile(sun.getContext(), popIds[intValue]);
-		
+
 		snd[PEEP].flush();
 		snd[POP].flush();
 		snd[PEEP].write(peep, 0, peep.length);

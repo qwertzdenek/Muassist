@@ -5,10 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import kiv.janecekz.ma.MainActivity;
 import kiv.janecekz.ma.common.Recorder;
 import kiv.janecekz.ma.common.SharedData;
-import android.util.Log;
 
 public class WavWriter extends Thread {
 	private RandomAccessFile randomAccessFile;
@@ -47,9 +45,7 @@ public class WavWriter extends Thread {
 			synchronized (sd) {
 				while (!sd.available)
 					try {
-						Log.d(MainActivity.TAG, "WavWriter: going sleep");
 						sd.wait();
-						Log.d(MainActivity.TAG, "Recorder: waking up");
 					} catch (InterruptedException e) {
 					}
 
@@ -71,7 +67,6 @@ public class WavWriter extends Thread {
 			}
 		}
 
-		Log.d(MainActivity.TAG, "WavReader exiting");
 		try {
 			randomAccessFile.seek(4); // Write size to RIFF header
 			randomAccessFile.writeInt(Integer.reverseBytes(36 + payloadSize));
