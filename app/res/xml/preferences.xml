@@ -55,16 +55,5 @@
             android:summary="@string/pref_harm"
             android:title="@string/pref_harm_title" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/title_section_recorder" />
-    <PreferenceCategory android:title="@string/title_section_tuner">
-        <ListPreference
-            android:defaultValue="0"
-            android:dialogTitle="@string/setup_tuner_title"
-            android:entries="@array/tuner_method"
-            android:entryValues="@array/tuner_method_vals"
-            android:key="@string/pref_key_tuner"
-            android:summary="@string/pref_tuner"
-            android:title="@string/pref_tuner_title" />
-    </PreferenceCategory>
 
 </PreferenceScreen>
