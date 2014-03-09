@@ -13,7 +13,7 @@
     <string name="image">Image</string>
     <string name="headerMet">Control by touch.</string>
     <string name="help">About</string>
-    <string name="helpText">Zdeněk Janeček 2012&#8211;2014\n<font size="12">This program comes with <i>ABSOLUTELY NO WARRANTY</i></font>\n\nmore at: <a href="https://github.com/qwertzdenek/Muassist">Homepage</a></string>
+    <string name="helpText">Zdeněk Janeček 2012&#8211;2014\n<font size="12">This program comes with <i>ABSOLUTELY NO WARRANTY</i></font> under GPLv3 license\n\nmore at: <a href="https://github.com/qwertzdenek/Muassist">Homepage</a></string>
 
     <!-- Global options -->
     <string name="setup_global">Global setup</string>
