@@ -1,11 +1,9 @@
 package kiv.janecekz.ma.tuner;
 
-import kiv.janecekz.ma.MainActivity;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 public class Tune extends View {
@@ -35,9 +33,8 @@ public class Tune extends View {
 	@Override
 	protected void onDraw(Canvas canvas) {
 		super.onDraw(canvas);
-		Log.d(MainActivity.TAG, "onDraw");
 		
-		mPaint.setARGB(255, 255, (int) Math.ceil(255 - Math.abs(val)*255), (int) Math.ceil(255 - Math.abs(val)*255));
+		mPaint.setARGB(255, 160, (int) Math.ceil(255 - Math.abs(val)*255), (int) Math.ceil(255 - Math.abs(val)*255));
 		canvas.drawLine(widthHalf, 15f, widthHalf + val*(widthHalf - 10), 15f, mPaint);
 	}
 

@@ -63,8 +63,8 @@ public class ToneFragment extends Fragment implements IControlable,
 
 		circle = (ImageView) root.findViewById(R.id.circle);
 
-		inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN);
-		outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
+		inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN, 300);
+		outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT, 300);
 
 		input = (EditText) root.findViewById(R.id.tone_value_edit);
 		input.setOnEditorActionListener(this);

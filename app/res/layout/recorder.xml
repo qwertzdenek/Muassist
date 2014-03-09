@@ -34,6 +34,16 @@
             android:src="@drawable/circle"
             android:visibility="invisible" />
 
+        <ProgressBar
+            android:id="@+id/progress"
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="30dp"
+            android:indeterminateOnly="true" />
+
     </RelativeLayout>
 
 </LinearLayout>

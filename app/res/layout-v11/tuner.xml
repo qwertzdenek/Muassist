@@ -1,45 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
 
-    <TextView
+    <kiv.janecekz.ma.tuner.Tune
+        android:id="@+id/tune"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible" />
+
+    <ImageView
+        android:id="@+id/circle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dp"
+        android:alpha="1"
+        android:contentDescription="@string/image"
+        android:src="@drawable/circle"
+        android:visibility="invisible" />
+
+    <NumberPicker
+        android:id="@+id/refFreq"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/tune" />
+
+    <TextView
+        android:id="@+id/tuner_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tune"
+        android:layout_centerHorizontal="true"
         android:text="@string/title_section_tuner"
-        android:textSize="16sp"
-        android:id="@+id/tuner_text" />
-    
-   <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:layout_marginTop="10sp" >
+        android:textSize="32sp" />
 
-        <kiv.janecekz.ma.tuner.Tune
-           android:id="@+id/tune"
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content"
-           android:visibility="visible" />
-
-        <ImageView
-            android:id="@+id/circle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:alpha="1"
-            android:contentDescription="@string/image"
-            android:src="@drawable/circle"
-            android:visibility="invisible" />
-
-        <NumberPicker
-            android:id="@+id/refFreq"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/tune" />
-
-    </RelativeLayout>
-
-</LinearLayout>
+</RelativeLayout>

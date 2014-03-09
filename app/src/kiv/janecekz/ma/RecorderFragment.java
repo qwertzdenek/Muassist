@@ -32,6 +32,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.TextView;
@@ -44,11 +45,14 @@ public class RecorderFragment extends Fragment implements IControlable,
 	private ImageView circle;
 	private AlphaAnimation inAnim;
 	private AlphaAnimation outAnim;
+	private AlphaAnimation inAnimPr;
+	private AlphaAnimation outAnimPr;
 	private WavWriter wav;
 	private Recorder r;
 	private SharedData sd;
 	// private TextView recTitleText;
 	private TextView recStatusText;
+	private ProgressBar progress;
 	private File lastRecorded;
 	private Handler mHandler = new Handler();
 	private int dotCounter = 0;
@@ -74,12 +78,16 @@ public class RecorderFragment extends Fragment implements IControlable,
 
 		circle = (ImageView) v.findViewById(R.id.circle);
 
-		inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN);
-		outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
+		inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN, 300);
+		outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT, 300);
+		inAnimPr = TouchControl.getAnimation(TouchControl.ANIMATION_IN, 1000);
+		outAnimPr = TouchControl.getAnimation(TouchControl.ANIMATION_OUT, 1000);
 
 		recStatusText = (TextView) v.findViewById(R.id.rec_status);
 		// recTitleText = (TextView) v.findViewById(R.id.rec_title);
 
+		progress = (ProgressBar) v.findViewById(R.id.progress);
+		
 		return v;
 	}
 
@@ -95,6 +103,9 @@ public class RecorderFragment extends Fragment implements IControlable,
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+			Toast.makeText(getActivity(),getResources().getString(R.string.recorded) +
+					" " + lastRecorded.getName(),
+					Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -112,8 +123,13 @@ public class RecorderFragment extends Fragment implements IControlable,
 		getView().setBackgroundResource(
 				((MainActivity) getActivity()).getBgRes());
 
-		if (r != null && r.isRecording())
+		if (r != null && r.isRecording()) {
 			mHandler.postDelayed(mUpdateTimeTask, 1000);
+			progress.setVisibility(View.VISIBLE);
+			progress.startAnimation(inAnimPr);
+		} else {
+			progress.setVisibility(View.INVISIBLE);
+		}
 	}
 
 	@Override
@@ -130,6 +146,8 @@ public class RecorderFragment extends Fragment implements IControlable,
 			break;
 		case TouchControl.STATE_TOGGLE:
 			if (r == null || !r.isRecording()) {
+				progress.setVisibility(View.VISIBLE);
+				progress.startAnimation(inAnimPr);
 				mHandler.postDelayed(mUpdateTimeTask, 1000);
 				sd = new SharedData(4092);
 				r = new Recorder(sd);
@@ -151,7 +169,8 @@ public class RecorderFragment extends Fragment implements IControlable,
 				Toast.makeText(getActivity(),getResources().getString(R.string.recorded) +
 						" " + lastRecorded.getName(),
 						Toast.LENGTH_SHORT).show();
-				;
+				progress.startAnimation(outAnimPr);
+				progress.setVisibility(View.INVISIBLE);
 			}
 			break;
 		case TouchControl.STATE_OUT:

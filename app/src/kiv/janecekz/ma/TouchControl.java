@@ -141,7 +141,7 @@ public class TouchControl implements OnTouchListener {
      *            constant.
      * @return Instance of class {@link AlphaAnimation}.
      */
-    public static AlphaAnimation getAnimation(int type) {
+    public static AlphaAnimation getAnimation(int type, int len) {
         AlphaAnimation anim;
 
         if (type == ANIMATION_IN) {
@@ -152,7 +152,7 @@ public class TouchControl implements OnTouchListener {
             return null;
         }
 
-        anim.setDuration(300);
+        anim.setDuration(len);
         anim.setFillAfter(true);
 
         return anim;

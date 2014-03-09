@@ -3,15 +3,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:layout_marginTop="10dp"
-        android:text="@string/title_section_tuner"
-        android:textSize="16sp"
-        android:id="@+id/tuner_text" />
     
     <kiv.janecekz.ma.tuner.Tune
         android:id="@+id/tune"
@@ -37,6 +28,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true" />
+
+        <TextView
+            android:id="@+id/tuner_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:text="@string/title_section_tuner"
+            android:textSize="32sp" />
 
     </RelativeLayout>
 

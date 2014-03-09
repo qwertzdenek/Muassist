@@ -72,8 +72,7 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 		v.setOnTouchListener(TouchControl.getInstance());
 
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			refFreqOld = (com.michaelnovakjr.numberpicker.NumberPicker) v
-					.findViewById(R.id.refFreq);
+			refFreqOld = (com.michaelnovakjr.numberpicker.NumberPicker) v.findViewById(R.id.refFreq);
 			refFreqOld.setRange(390, 460);
 			refFreqOld.setOnChangeListener(new OnChangedListener() {
 				@Override
@@ -103,8 +102,8 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 
 		bar = (Tune) v.findViewById(R.id.tune);
 
-		inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN);
-		outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
+		inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN, 300);
+		outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT, 300);
 
 		return v;
 	}
@@ -183,7 +182,7 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 		mf.addValue(classify.findTone(freq));
 		Result r = mf.getMedian();
 
-		tunerText.setText(String.format("%s  %.1f", r.getTone(), r.getFreq()));
+		tunerText.setText(String.format("%s\n%.1f Hz", r.getTone(), r.getFreq()));
 
 		float f;
 		if (r.getError() >= 0)

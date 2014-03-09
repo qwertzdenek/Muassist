@@ -80,6 +80,12 @@ public class MainActivity extends ActionBarActivity implements
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "metronome");
         */
 
+        if (SharedPref.getOrient(this)) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+        }
+        
         // Help dialog
         AlertDialog.Builder help = new AlertDialog.Builder(this);
         help.setTitle(R.string.help);
@@ -207,8 +213,7 @@ public class MainActivity extends ActionBarActivity implements
             if (SharedPref.getOrient(this)) {
                 setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             } else {
-            	// FIXME: orientation...
-//                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
             }
         }
     }

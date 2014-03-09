@@ -127,8 +127,8 @@ public class MetronomeFragment extends Fragment implements IControlable,
 
 		circle = (ImageView) v.findViewById(R.id.circle);
 
-		inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN);
-		outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT);
+		inAnim = TouchControl.getAnimation(TouchControl.ANIMATION_IN, 300);
+		outAnim = TouchControl.getAnimation(TouchControl.ANIMATION_OUT, 300);
 
 		op = new Operator(peeper);
 		tc.addObserver(op);
