@@ -19,8 +19,10 @@ Status
 *  Recording to WAV
 *  Tuner
 
+see [Improvement ideas](https://github.com/qwertzdenek/Muassist/wiki/Improvement-ideas) page for further ideas
+
 Download
 --------
-You can download signed application package here http://home.zcu.cz/~janecekz/Muassist/.
+You can download from the [Google Play](https://play.google.com/store/apps/details?id=kiv.janecekz.ma) and signed application package here http://home.zcu.cz/~janecekz/Muassist/.
 
 Licence is GNU GPLv3.
