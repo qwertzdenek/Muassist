@@ -26,8 +26,7 @@ import android.media.MediaRecorder;
 import android.util.Log;
 
 public class Recorder extends Thread {
-	private static final int AUDIO_SAMPLE_FREQ = 44100;
-
+	private int sampleFreq = 44100;
 	private AudioRecord recorder;
 	private SharedData sd;
 	private boolean recording = true;
@@ -38,22 +37,23 @@ public class Recorder extends Thread {
 	 * @param windowSize
 	 *            recordedSamples size in short
 	 */
-	public Recorder(SharedData sd) {
+	public Recorder(SharedData sd, int sampleFreq) {
 		super();
 		this.sd = sd;
+		this.sampleFreq = sampleFreq;
 	}
 
 	@Override
 	public void run() {
 		super.run();
 
-		int bufferSize = 3 * AudioRecord.getMinBufferSize(AUDIO_SAMPLE_FREQ,
+		int bufferSize = 3 * AudioRecord.getMinBufferSize(sampleFreq,
 				AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
 
 		try {
 			// init recorder
 			recorder = new AudioRecord(MediaRecorder.AudioSource.MIC,
-					AUDIO_SAMPLE_FREQ, AudioFormat.CHANNEL_IN_MONO,
+					sampleFreq, AudioFormat.CHANNEL_IN_MONO,
 					AudioFormat.ENCODING_PCM_16BIT, bufferSize);
 
 			if (recorder.getState() != AudioRecord.STATE_INITIALIZED)
@@ -93,7 +93,7 @@ public class Recorder extends Thread {
 	 * @return sampling frequency used in this Recorder.
 	 */
 	public int getSampleFreq() {
-		return AUDIO_SAMPLE_FREQ;
+		return sampleFreq;
 	}
 
 	/**

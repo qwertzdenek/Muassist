@@ -150,7 +150,7 @@ public class RecorderFragment extends Fragment implements IControlable,
 				progress.startAnimation(inAnimPr);
 				mHandler.postDelayed(mUpdateTimeTask, 1000);
 				sd = new SharedData(4092);
-				r = new Recorder(sd);
+				r = new Recorder(sd, 44100);
 				r.start();
 
 				lastRecorded = getNextFile();

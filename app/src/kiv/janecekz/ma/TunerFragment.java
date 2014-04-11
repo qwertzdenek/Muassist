@@ -72,7 +72,8 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 		v.setOnTouchListener(TouchControl.getInstance());
 
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			refFreqOld = (com.michaelnovakjr.numberpicker.NumberPicker) v.findViewById(R.id.refFreq);
+			refFreqOld = (com.michaelnovakjr.numberpicker.NumberPicker) v
+					.findViewById(R.id.refFreq);
 			refFreqOld.setRange(390, 460);
 			refFreqOld.setOnChangeListener(new OnChangedListener() {
 				@Override
@@ -123,8 +124,8 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 		getView().setBackgroundResource(
 				((MainActivity) getActivity()).getBgRes());
 
-		sd = new SharedData(1000);
-		recorder = new Recorder(sd);
+		sd = new SharedData(1024);
+		recorder = new Recorder(sd, 44100);
 		recorder.start();
 
 		int method = SharedPref.getAnlMethod(getActivity()
@@ -172,9 +173,11 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 
 	@Override
 	public void onPositionChange(TouchControl t, int x, int y) {
-		RelativeLayout.LayoutParams pars = (LayoutParams) circle.getLayoutParams();
-		pars.setMargins(x - circle.getWidth() / 2, y - circle.getHeight() / 2 - 80, 0, 0);
-		
+		RelativeLayout.LayoutParams pars = (LayoutParams) circle
+				.getLayoutParams();
+		pars.setMargins(x - circle.getWidth() / 2, y - circle.getHeight() / 2
+				- 80, 0, 0);
+
 		circle.setLayoutParams(pars);
 	}
 
@@ -182,14 +185,19 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 		mf.addValue(classify.findTone(freq));
 		Result r = mf.getMedian();
 
-		tunerText.setText(String.format("%s\n%.1f Hz", r.getTone(), r.getFreq()));
+		// Result r = classify.findTone(freq);
+
+		tunerText
+				.setText(String.format("%s\n%.1f Hz", r.getTone(), r.getFreq()));
 
 		float f;
 		if (r.getError() >= 0)
-			f = (float) (1 - (Math.abs(r.getError()) - 1)*(Math.abs(r.getError()) - 1));
+			f = (float) (1 - (Math.abs(r.getError()) - 1)
+					* (Math.abs(r.getError()) - 1));
 		else
-			f = (float) ((Math.abs(r.getError()) - 1)*(Math.abs(r.getError()) - 1) - 1);
-		
+			f = (float) ((Math.abs(r.getError()) - 1)
+					* (Math.abs(r.getError()) - 1) - 1);
+
 		bar.setVal(f);
 	}
 }

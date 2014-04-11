@@ -1,6 +1,6 @@
 /*
 Musicians Assistant
-    Copyright (C) 2012  Zdeněk Janeček <jan.zdenek@gmail.com>
+    Copyright (C) 2012-2014  Zdeněk Janeček <jan.zdenek@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -27,194 +27,168 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.pm.ActivityInfo;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBarActivity;
 import android.text.method.LinkMovementMethod;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity implements
-        ActionBar.OnNavigationListener, OnSharedPreferenceChangeListener {
-    private static final String STATE_SELECTED_NAVIGATION_ITEM = "selected_navigation_item";
-    public static final String TAG = "MA";
+		OnSharedPreferenceChangeListener {
 
-    private TouchControl touchCon;
-    private AlertDialog helpDialog;
-//    private WakeLock wl;
+	private static final String STATE_SELECTED_TAB = "selected_tab";
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        getSharedPreferences(SharedPref.PREFS_NAME, MODE_PRIVATE)
-                .registerOnSharedPreferenceChangeListener(this);
+	public static final String TAG = "MA";
 
-        touchCon = TouchControl.getInstance();
+	public TouchControl touchCon;
 
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+	private AlertDialog helpDialog;
 
-        // Set up the action bar.
-        final ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayShowTitleEnabled(false);
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		// setContentView(R.layout.activity_main);
 
-        // Set up the dropdown list navigation in the action bar.
-        actionBar.setListNavigationCallbacks(
-                // Specify a SpinnerAdapter to populate the dropdown list.
-                new ArrayAdapter<String>(actionBar.getThemedContext(),
-                        android.R.layout.simple_list_item_1,
-                        android.R.id.text1, new String[] {
-                                getString(R.string.title_section_metronome),
-                                getString(R.string.title_section_tone),
-                                getString(R.string.title_section_tuner),
-                                getString(R.string.title_section_recorder) }),
-                this);
+		getSharedPreferences(SharedPref.PREFS_NAME, MODE_PRIVATE)
+				.registerOnSharedPreferenceChangeListener(this);
 
-        /*
-        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "metronome");
-        */
+		touchCon = TouchControl.getInstance();
 
-        if (SharedPref.getOrient(this)) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        } else {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-        }
-        
-        // Help dialog
-        AlertDialog.Builder help = new AlertDialog.Builder(this);
-        help.setTitle(R.string.help);
-        help.setMessage(R.string.helpText);
-        help.setIcon(android.R.drawable.ic_menu_info_details);
-        helpDialog = help.create();
-    }
+		setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-    @Override
-    public void onRestoreInstanceState(Bundle savedInstanceState) {
-        if (savedInstanceState.containsKey(STATE_SELECTED_NAVIGATION_ITEM)) {
-            getSupportActionBar().setSelectedNavigationItem(
-                    savedInstanceState.getInt(STATE_SELECTED_NAVIGATION_ITEM));
-        }
-    }
+		// Set up the action bar.
+		final ActionBar actionBar = getSupportActionBar();
+		actionBar.setDisplayShowTitleEnabled(true);
+		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        outState.putInt(STATE_SELECTED_NAVIGATION_ITEM, getSupportActionBar()
-                .getSelectedNavigationIndex());
-    }
+		Tab tab = actionBar
+				.newTab()
+				.setText(R.string.title_section_metronome)
+				.setTabListener(
+						new TabListener<MetronomeFragment>(this, "metronome",
+								MetronomeFragment.class));
+		actionBar.addTab(tab);
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.activity_main, menu);
+		tab = actionBar
+				.newTab()
+				.setText(R.string.title_section_tone)
+				.setTabListener(
+						new TabListener<ToneFragment>(this, "tone",
+								ToneFragment.class));
+		actionBar.addTab(tab);
 
-        Intent prefsIntent = new Intent(getApplicationContext(), Setup.class);
+		tab = actionBar
+				.newTab()
+				.setText(R.string.title_section_tuner)
+				.setTabListener(
+						new TabListener<TunerFragment>(this, "tuner",
+								TunerFragment.class));
+		actionBar.addTab(tab);
 
-        menu.findItem(R.id.menu_settings).setIntent(prefsIntent);
-        return true;
-    }
+		tab = actionBar
+				.newTab()
+				.setText(R.string.title_section_recorder)
+				.setTabListener(
+						new TabListener<RecorderFragment>(this, "rec",
+								RecorderFragment.class));
+		actionBar.addTab(tab);
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-        case R.id.menu_help:
-            helpDialog.show();
-            ((TextView) helpDialog.findViewById(android.R.id.message))
-                    .setMovementMethod(LinkMovementMethod.getInstance());
-            return true;
+		// set desired orientation
+		if (SharedPref.getOrient(this)) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		} else {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+		}
 
-        case R.id.menu_settings:
-            startActivity(item.getIntent());
-            return true;
+		// Help dialog
+		AlertDialog.Builder help = new AlertDialog.Builder(this);
+		help.setTitle(R.string.help);
+		help.setMessage(R.string.helpText);
+		help.setIcon(android.R.drawable.ic_menu_info_details);
+		helpDialog = help.create();
+	}
 
-        default:
-            return super.onOptionsItemSelected(item);
-        }
-    }
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState) {
+		if (savedInstanceState.containsKey(STATE_SELECTED_TAB)) {
+			getSupportActionBar().setSelectedNavigationItem(
+					savedInstanceState.getInt(STATE_SELECTED_TAB));
+		}
+	}
 
-    @Override
-    public boolean onNavigationItemSelected(int position, long id) {
-        // When the given tab is selected, show the tab contents in the
-        // container
-        Fragment fragment = null;
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		outState.putInt(STATE_SELECTED_TAB, getSupportActionBar()
+				.getSelectedNavigationIndex());
+	}
 
-        switch (position) {
-        case 0:
-            fragment = new MetronomeFragment();
-            break;
-        case 1:
-            fragment = new ToneFragment();
-            break;
-        case 2:
-            fragment = new TunerFragment();
-            break;
-        case 3:
-            fragment = new RecorderFragment();
-            break;
-        default:
-            break;
-        }
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.activity_main, menu);
 
-        Fragment f = this.getSupportFragmentManager().findFragmentByTag("metronome");
-        if (f == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, fragment).commit();
-        } else {
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.setCustomAnimations(android.R.anim.fade_out, android.R.anim.fade_in);
-            ft.replace(R.id.container, fragment).commit();
-        }
-        
-        touchCon.registerOnMyEvent((IControlable) fragment);
-        return true;
-    }
+		Intent prefsIntent = new Intent(getApplicationContext(), Setup.class);
 
-    /**
-     * Utility method to get current choosed background resource.
-     * 
-     * @return Resource ID.
-     */
-    public int getBgRes() {
-        int result;
-        int s = SharedPref.getTheme(this);
-        switch (s) {
-        case 0:
-            result = R.drawable.bg_morning;
-            break;
-        case 1:
-            result = R.drawable.bg_sunset;
-            break;
-        case 2:
-            result = R.drawable.bg_night;
-            break;
+		menu.findItem(R.id.menu_settings).setIntent(prefsIntent);
+		return true;
+	}
 
-        default:
-            result = -1;
-            break;
-        }
-        return result;
-    }
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.menu_help:
+			helpDialog.show();
+			((TextView) helpDialog.findViewById(android.R.id.message))
+					.setMovementMethod(LinkMovementMethod.getInstance());
+			return true;
 
-    /*
-    public WakeLock getWakeLock() {
-        return wl;
-    }
-    */
+		case R.id.menu_settings:
+			startActivity(item.getIntent());
+			return true;
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-            String key) {
-        if (key.equals(getResources().getString(R.string.pref_key_orientation))) {
-            if (SharedPref.getOrient(this)) {
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            } else {
-                setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-            }
-        }
-    }
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+
+	/**
+	 * Utility method to get current choosed background resource.
+	 * 
+	 * @return Resource ID.
+	 */
+	public int getBgRes() {
+		int result;
+		int s = SharedPref.getTheme(this);
+		switch (s) {
+		case 0:
+			result = R.drawable.bg_morning;
+			break;
+		case 1:
+			result = R.drawable.bg_sunset;
+			break;
+		case 2:
+			result = R.drawable.bg_night;
+			break;
+
+		default:
+			result = -1;
+			break;
+		}
+		return result;
+	}
+
+	@Override
+	public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+			String key) {
+		if (key.equals(getResources().getString(R.string.pref_key_orientation))) {
+			if (SharedPref.getOrient(this)) {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			} else {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+			}
+		}
+	}
 }
