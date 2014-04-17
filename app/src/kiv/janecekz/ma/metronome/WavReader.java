@@ -35,12 +35,10 @@ public class WavReader {
 	}
 
 	/**
-	 * Transform from the Little endian to Little Endian.
+	 * Transform endianity.
 	 * 
-	 * @param src
-	 *            input wave
-	 * @param dst
-	 *            output wave
+	 * @param src input wave
+	 * @param dst output wave
 	 */
 	public static void prepareResults(byte[] src, short[] dst) {
 		for (int i = 0, j = 0; i < src.length; i += 2, j++) {
@@ -48,6 +46,11 @@ public class WavReader {
 		}
 	}
 
+	/**
+	 * Converts unsigned byte to int
+	 * @param b byte value
+	 * @return integer value
+	 */
 	private static int u_byte(byte b) {
 		return b & 0xFF;
 	}

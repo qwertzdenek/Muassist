@@ -182,22 +182,21 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 	}
 
 	public void postInformation(Double freq) {
+		// classify frequency
 		mf.addValue(classify.findTone(freq));
+		
+		// return median from the list
 		Result r = mf.getMedian();
 
-		// Result r = classify.findTone(freq);
-
-		tunerText
-				.setText(String.format("%s\n%.1f Hz", r.getTone(), r.getFreq()));
+		// show the result
+		tunerText.setText(String.format("%s\n%.1f Hz", r.getTone(), r.getFreq()));
 
 		float f;
 		if (r.getError() >= 0)
-			f = (float) (1 - (Math.abs(r.getError()) - 1)
-					* (Math.abs(r.getError()) - 1));
+			f = (float) (1 - (r.getError() - 1) * (r.getError() - 1));
 		else
-			f = (float) ((Math.abs(r.getError()) - 1)
-					* (Math.abs(r.getError()) - 1) - 1);
-
+			f = (float) ((-r.getError() - 1) * (-r.getError() - 1) - 1);
+		
 		bar.setVal(f);
 	}
 }

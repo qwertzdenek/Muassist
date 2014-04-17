@@ -38,7 +38,6 @@ public class TouchControl implements OnTouchListener {
     private VelocityTracker vt;
     private IControlable target;
 
-    // TODO: This should be editable.
     private final int DOUBLE_CLICK_DELAY = 500;
     private int biggestSpeed;
     private long startTime;
@@ -110,8 +109,7 @@ public class TouchControl implements OnTouchListener {
             vt.computeCurrentVelocity(1000);
 
             int speed = (int) vt.getXVelocity();
-            if (biggestSpeed < speed)
-                biggestSpeed = speed;
+            biggestSpeed = Math.max(biggestSpeed, speed);
 
             if (event.getEventTime() - startTime > DOUBLE_CLICK_DELAY) {
                 if (Math.abs(speed) > 20) {

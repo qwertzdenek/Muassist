@@ -31,7 +31,6 @@ public class AnalyzerAMDF extends AsyncTask<Void, Double, Void> {
 
 	private int sampleFreq;
 
-	// that's for voice and 8000 sampling frequency...
 	private final double EPS = 1e-5;
 
 	/**
@@ -67,7 +66,6 @@ public class AnalyzerAMDF extends AsyncTask<Void, Double, Void> {
 		double[] pointBuffer = new double[POINT_BUFFER_SIZE];
 
 		while (!isCancelled()) {
-			// TODO: don't analyze silence
 			double max = Double.MIN_VALUE;
 			double min = Double.MAX_VALUE;
 

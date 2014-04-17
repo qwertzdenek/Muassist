@@ -7,9 +7,9 @@ import android.util.AttributeSet;
 import android.view.View;
 
 public class Tune extends View {
-	Paint mPaint;
-	float val;
-	float widthHalf;
+	private Paint mPaint;
+	private float val;
+	private float widthHalf;
 
 	public Tune(Context context, AttributeSet attrs) {
 		super(context, attrs);

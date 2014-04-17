@@ -21,8 +21,7 @@ package kiv.janecekz.ma.tuner;
 import kiv.janecekz.ma.common.Tones;
 
 public class Classificator {
-	private final double baseInvLog12 = 1 / Math.log10(Math
-			.pow(2.0, 1.0 / 12.0));
+	private final double invLog2 = 1 / Math.log10(2.0);
 	private final double[] freqs = { 0.0, 1.0 / 12.0, 2.0 / 12.0, 3.0 / 12.0,
 			4.0 / 12.0, 5.0 / 12.0, 6.0 / 12.0, 7.0 / 12.0, 8.0 / 12.0,
 			9.0 / 12.0, 10.0 / 12.0, 11.0 / 12.0, 1.0 };
@@ -62,18 +61,21 @@ public class Classificator {
 		double min = Double.MAX_VALUE;
 		Tones tone = Tones.A;
 
-		double n = Math.abs(logb(freq / baseFreq) / 12);
+		double n = log2(freq / baseFreq);
 
 		int iPart = (int) n; // integral part
 		double fPart = n - iPart; // fractional part
 
+		if (freq < baseFreq)
+			fPart = 1 + fPart;
+		
 		double div = 0.0;
 		int index = 0;
 		for (int i = 0; i < freqs.length; i++) {
-			div = freq >= baseFreq ? fPart - freqs[i] : -(fPart - freqs[i]);
+			div = fPart - freqs[i];
 
 			if (Math.abs(div) < Math.abs(min)) {
-				index = freq >= baseFreq ? (9 + i) % 12 : (21 - i) % 12;
+				index = (i + 9) % 12;
 				tone = Tones.values()[index];
 				min = div;
 			}
@@ -82,8 +84,8 @@ public class Classificator {
 		return new Result(tone, min * 24, freq);
 	}
 
-	private Double logb(double x) {
-		return Math.log10(x) * baseInvLog12;
+	private Double log2(double x) {
+		return Math.log10(x) * invLog2;
 	}
 
 	public void changeRef(int newVal) {
