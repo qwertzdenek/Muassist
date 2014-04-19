@@ -18,7 +18,7 @@
             android:title="@string/pref_orientation_title" />
 
         <ListPreference
-            android:defaultValue="50"
+            android:defaultValue="70"
             android:dialogTitle="@string/setup_speed_title"
             android:entries="@array/touchSp"
             android:entryValues="@array/touchSp_values"

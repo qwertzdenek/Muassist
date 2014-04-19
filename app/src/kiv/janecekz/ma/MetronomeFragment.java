@@ -70,7 +70,8 @@ public class MetronomeFragment extends Fragment implements IControlable,
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.metronome, container, false);
-		v.setOnTouchListener(TouchControl.getInstance());
+		RelativeLayout space = (RelativeLayout) v.findViewById(R.id.sunspace);
+		space.setOnTouchListener(TouchControl.getInstance());
 
 		peeper = new Peeper((byte) 0, (ImageView) v.findViewById(R.id.sun));
 		peeper.setTime(SharedPref.getTime(getActivity()));
@@ -198,7 +199,7 @@ public class MetronomeFragment extends Fragment implements IControlable,
 	@Override
 	public void onPositionChange(TouchControl t, int x, int y) {
 		RelativeLayout.LayoutParams pars = (LayoutParams) circle.getLayoutParams();
-		pars.setMargins(x - circle.getWidth() / 2, y - circle.getHeight() / 2 - 80, 0, 0);
+		pars.setMargins(x - circle.getWidth() / 2, y - circle.getHeight() / 2, 0, 0);
 		
 		circle.setLayoutParams(pars);
 	}

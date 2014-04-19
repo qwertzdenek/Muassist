@@ -69,7 +69,8 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 			Bundle savedInstanceState) {
 
 		View v = inflater.inflate(R.layout.tuner, container, false);
-		v.setOnTouchListener(TouchControl.getInstance());
+		RelativeLayout space = (RelativeLayout) v.findViewById(R.id.sunspace);
+		space.setOnTouchListener(TouchControl.getInstance());
 
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 			refFreqOld = (com.michaelnovakjr.numberpicker.NumberPicker) v
@@ -175,8 +176,7 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 	public void onPositionChange(TouchControl t, int x, int y) {
 		RelativeLayout.LayoutParams pars = (LayoutParams) circle
 				.getLayoutParams();
-		pars.setMargins(x - circle.getWidth() / 2, y - circle.getHeight() / 2
-				- 80, 0, 0);
+		pars.setMargins(x - circle.getWidth() / 2, y - circle.getHeight() / 2, 0, 0);
 
 		circle.setLayoutParams(pars);
 	}

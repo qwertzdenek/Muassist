@@ -59,7 +59,8 @@ public class ToneFragment extends Fragment implements IControlable,
 			Bundle savedInstanceState) {
 
 		View root = inflater.inflate(R.layout.tone, container, false);
-		root.setOnTouchListener(TouchControl.getInstance());
+		RelativeLayout space = (RelativeLayout) root.findViewById(R.id.sunspace);
+		space.setOnTouchListener(TouchControl.getInstance());
 
 		circle = (ImageView) root.findViewById(R.id.circle);
 
@@ -138,7 +139,7 @@ public class ToneFragment extends Fragment implements IControlable,
 	@Override
 	public void onPositionChange(TouchControl t, int x, int y) {
 		RelativeLayout.LayoutParams pars = (LayoutParams) circle.getLayoutParams();
-		pars.setMargins(x - circle.getWidth() / 2, y - circle.getHeight() / 2 - 80, 0, 0);
+		pars.setMargins(x - circle.getWidth() / 2, y - circle.getHeight() / 2, 0, 0);
 		
 		circle.setLayoutParams(pars);
 	}

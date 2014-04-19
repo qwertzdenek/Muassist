@@ -74,7 +74,8 @@ public class RecorderFragment extends Fragment implements IControlable,
 			Bundle savedInstanceState) {
 
 		View v = inflater.inflate(R.layout.recorder, container, false);
-		v.setOnTouchListener(TouchControl.getInstance());
+		RelativeLayout space = (RelativeLayout) v.findViewById(R.id.sunspace);
+		space.setOnTouchListener(TouchControl.getInstance());
 
 		circle = (ImageView) v.findViewById(R.id.circle);
 
@@ -187,7 +188,7 @@ public class RecorderFragment extends Fragment implements IControlable,
 	@Override
 	public void onPositionChange(TouchControl t, int x, int y) {
 		RelativeLayout.LayoutParams pars = (LayoutParams) circle.getLayoutParams();
-		pars.setMargins(x - circle.getWidth() / 2, y - circle.getHeight() / 2 - 80, 0, 0);
+		pars.setMargins(x - circle.getWidth() / 2, y - circle.getHeight() / 2, 0, 0);
 		
 		circle.setLayoutParams(pars);
 	}
