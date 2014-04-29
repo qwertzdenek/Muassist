@@ -25,20 +25,6 @@ import android.content.SharedPreferences;
 public class SharedPref {
     public final static String PREFS_NAME = "prefs";
 
-    // /**
-    // * If is metronome started, this variable will be true. Controlled by the
-    // * Preference Activity.
-    // *
-    // * @param context
-    // * Application Context
-    // * @return saved value from the Shared Preferences.
-    // */
-    // public static boolean getNotify(Context context) {
-    // SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-    // return prefs.getBoolean(context.getString(R.string.pref_key_notify),
-    // true);
-    // }
-
     /**
      * If is screen locked in the portrait mode, this variable will be true.
      * Controlled by the Preference Activity.
@@ -95,7 +81,7 @@ public class SharedPref {
     }
 
     /**
-     * Base frequency for A tone.
+     * Base frequency for A tone. Used for tone generator
      * 
      * @param context
      *            Application Context
@@ -118,6 +104,55 @@ public class SharedPref {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
         return Integer.parseInt(prefs.getString(
                 context.getString(R.string.pref_key_harm), "7"));
+    }
+    
+    /**
+     * This variable consists the integer values that represents analyzer method.
+     * 
+     * @param context Application Context
+     * @return saved value from the Shared Preferences.
+     */
+	public static int getAnlMethod(Context context) {
+		SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        return Integer.parseInt(prefs.getString(
+                context.getString(R.string.pref_key_tuner), "0"));
+	}
+	
+	/**
+     * This variable consists the integer values that represents chosen temperament.
+     * 
+     * @param context Application Context
+     * @return saved value from the Shared Preferences.
+     */
+	public static int getTemp(Context context) {
+		SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        return Integer.parseInt(prefs.getString(
+                context.getString(R.string.pref_key_temperament), "0"));
+	}
+	
+	/**
+     * Get concert pitch for tuner.
+     * 
+     * @param context Application Context
+     * @return saved value from the Shared Preferences.
+     */
+    public static int getConcertPitch(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        return prefs.getInt("pitch", 440);
+    }
+    
+    /**
+     * Metronome tempo setter. Setted by user, and freely modifiable.
+     * 
+     * @param context
+     *            Application Context
+     * @return saved value from the Shared Preferences.
+     */
+    public static void setConcertPitch(Context context, int value) {
+        SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor edit = prefs.edit();
+        edit.putInt("pitch", value);
+        edit.commit();
     }
     
     /**
@@ -172,9 +207,15 @@ public class SharedPref {
         edit.commit();
     }
 
-	public static int getAnlMethod(Context context) {
+	public static boolean getFirstRun(Context context) {
 		SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-        return Integer.parseInt(prefs.getString(
-                context.getString(R.string.pref_key_tuner), "0"));
+        return prefs.getBoolean("run", true);
+	}
+
+	public static void setFirstRun(Context context, boolean val) {
+		SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor edit = prefs.edit();
+        edit.putBoolean("run", val);
+        edit.commit();
 	}
 }

@@ -26,7 +26,6 @@
             android:summary="@string/pref_speed"
             android:title="@string/pref_speed_title" />
     </PreferenceCategory>
-
     <PreferenceCategory android:title="@string/title_section_metronome" >
         <ListPreference
             android:defaultValue="0"
@@ -37,7 +36,7 @@
             android:summary="@string/pref_sound"
             android:title="@string/pref_sound_title" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/title_section_tone">
+    <PreferenceCategory android:title="@string/title_section_tone" >
         <ListPreference
             android:defaultValue="440"
             android:dialogTitle="@string/setup_tone_title"
@@ -54,6 +53,16 @@
             android:key="@string/pref_key_harm"
             android:summary="@string/pref_harm"
             android:title="@string/pref_harm_title" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/title_section_tuner">
+        <ListPreference
+            android:defaultValue="0"
+            android:dialogTitle="@string/setup_temp_title"
+            android:entries="@array/temp"
+            android:entryValues="@array/temp_vals"
+            android:key="@string/pref_key_temperament"
+            android:summary="@string/pref_temp"
+            android:title="@string/pref_temp_title" />
     </PreferenceCategory>
 
 </PreferenceScreen>

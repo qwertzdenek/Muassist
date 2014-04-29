@@ -49,11 +49,11 @@
         <item>9</item>
         <item>11</item>
     </string-array>
-	<string-array name="tuner_method">
-        <item>AMDF+ACF</item>
-        <item>Wavelet (experimental)</item>
+	<string-array name="temp">
+        <item>Equal tempered</item>
+        <item>Just intonation</item>
     </string-array>
-    <string-array name="tuner_method_vals" translatable="false">
+    <string-array name="temp_vals" translatable="false">
         <item>0</item>
         <item>1</item>
     </string-array>

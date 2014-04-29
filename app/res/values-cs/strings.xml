@@ -12,7 +12,9 @@
     <string name="headerMet">Ovládejte dotykem</string>
     <string name="help">O aplikaci</string>
     <string name="helpText">Zdeněk Janeček 2012&#8211;2014\n<font size="12">Tento program je dodáván bez <i>JAKÉKOLI ZÁRUKY</i> s licencí GPLv3.</font>\n\nvíce na <a href="https://github.com/qwertzdenek/Muassist">Domovské stránce</a></string>
-
+    <string name="first_run_text">"* Dotkněte se obrazovky a pohybem doleva/doprava zpomalte/zrychlete \n\n * Dvojitým poklepáním zastavte/spusťte"</string>
+    <string name="control">Ovládání</string>
+    
     <!-- Global options -->
     <string name="setup_global">Obecná nastavení</string>
     <string name="setup_color_title">Barevný přechod</string>
@@ -52,7 +54,7 @@
     <string name="recorded">Nahrán</string>
     
     <!-- Tuner -->
-    <string name="setup_tuner_title">Analyzační metoda</string>
-    <string name="pref_tuner_title">Metoda</string>
-    <string name="pref_tuner">algoritmus</string>
+    <string name="setup_temp_title">Ladění</string>
+    <string name="pref_temp_title">Ladění</string>
+    <string name="pref_temp">Různá ladění</string>
 </resources>

@@ -14,7 +14,9 @@
     <string name="headerMet">Control by touch.</string>
     <string name="help">About</string>
     <string name="helpText">Zdeněk Janeček 2012&#8211;2014\n<font size="12">This program comes with <i>ABSOLUTELY NO WARRANTY</i></font> under GPLv3 license\n\nmore at: <a href="https://github.com/qwertzdenek/Muassist">Homepage</a></string>
-
+	<string name="first_run_text">"* Tap and move left/right to be slower/faster \n\n * Double tap to stop/start</string>
+    <string name="control">Control</string>
+	
     <!-- Global options -->
     <string name="setup_global">Global setup</string>
     <string name="setup_color_title">Choose gradient</string>
@@ -54,9 +56,9 @@
     <string name="recorded">Recorded</string>
     
     <!-- Tuner -->
-    <string name="setup_tuner_title">Choose analyze method</string>
-    <string name="pref_tuner_title">Method</string>
-    <string name="pref_tuner">Analyze algorithm</string>
+    <string name="setup_temp_title">Choose temperament</string>
+    <string name="pref_temp_title">Temperament</string>
+    <string name="pref_temp">change scale</string>
     
     <!-- Configuration keys -->
     <string name="pref_key_bg" translatable="false">background_update_flag</string>
@@ -67,5 +69,6 @@
     <string name="pref_key_tuner" translatable="false">tuner_update_flag</string>
     <string name="pref_key_comp" translatable="false">comp_update_flag</string>
     <string name="pref_key_harm" translatable="false">harm_update_flag</string>
+    <string name="pref_key_temperament" translatable="false">temp_update_flag</string>
     
 </resources>

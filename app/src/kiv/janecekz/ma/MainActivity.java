@@ -43,21 +43,23 @@ public class MainActivity extends ActionBarActivity implements
 
 	public static final String TAG = "MA";
 
-	public TouchControl touchCon;
-
 	private AlertDialog helpDialog;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		// setContentView(R.layout.activity_main);
-
+		
 		getSharedPreferences(SharedPref.PREFS_NAME, MODE_PRIVATE)
 				.registerOnSharedPreferenceChangeListener(this);
 
-		touchCon = TouchControl.getInstance();
-
 		setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+		// set desired orientation
+		if (SharedPref.getOrient(this)) {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+		} else {
+			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
+		}
 
 		// Set up the action bar.
 		final ActionBar actionBar = getSupportActionBar();
@@ -96,19 +98,23 @@ public class MainActivity extends ActionBarActivity implements
 								RecorderFragment.class));
 		actionBar.addTab(tab);
 
-		// set desired orientation
-		if (SharedPref.getOrient(this)) {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-		} else {
-			setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED);
-		}
-
 		// Help dialog
 		AlertDialog.Builder help = new AlertDialog.Builder(this);
 		help.setTitle(R.string.help);
 		help.setMessage(R.string.helpText);
 		help.setIcon(android.R.drawable.ic_menu_info_details);
 		helpDialog = help.create();
+		
+		if (SharedPref.getFirstRun(this)) {
+			TextView msg = new TextView(this);
+			msg.setText(getResources().getString(R.string.first_run_text));
+			msg.setTextAppearance(this, android.R.style.TextAppearance_Large);
+			
+			AlertDialog.Builder builder = new AlertDialog.Builder(this);
+			builder.setView(msg).setTitle(R.string.control);
+			builder.create().show();
+			SharedPref.setFirstRun(this, false);
+		}
 	}
 
 	@Override

@@ -40,8 +40,7 @@ public class TabListener<T extends Fragment> implements
 			// If it exists, simply attach it in order to show it
 			ft.attach(mFragment);
 		}
-		((MainActivity) mActivity).touchCon
-				.registerOnMyEvent((IControlable) mFragment);
+		TouchControl.getInstance().registerOnMyEvent((IControlable) mFragment);
 	}
 
 	public void onTabUnselected(Tab tab, FragmentTransaction ft) {

@@ -63,6 +63,8 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 	private AlphaAnimation outAnim;
 	private NumberPicker refFreq;
 	private com.michaelnovakjr.numberpicker.NumberPicker refFreqOld;
+	
+	private int temp;
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -84,7 +86,7 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 					classify.changeRef(newVal);
 				}
 			});
-			refFreqOld.setCurrent(SharedPref.getBaseFreq(getActivity()));
+			refFreqOld.setCurrent(SharedPref.getConcertPitch(getActivity()));
 		} else {
 			refFreq = (NumberPicker) v.findViewById(R.id.refFreq);
 			refFreq.setMinValue(390);
@@ -96,7 +98,7 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 					classify.changeRef(newVal);
 				}
 			});
-			refFreq.setValue(SharedPref.getBaseFreq(getActivity()));
+			refFreq.setValue(SharedPref.getConcertPitch(getActivity()));
 		}
 
 		circle = (ImageView) v.findViewById(R.id.circle);
@@ -114,7 +116,11 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 	public void onPause() {
 		analyzer.cancel(true);
 		recorder.stopRecording();
-
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			SharedPref.setConcertPitch(getActivity(), refFreqOld.getCurrent());
+		} else {
+			SharedPref.setConcertPitch(getActivity(), refFreq.getValue());
+		}
 		super.onPause();
 	}
 
@@ -122,9 +128,23 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 	public void onResume() {
 		super.onResume();
 
+		// set saved values
 		getView().setBackgroundResource(
 				((MainActivity) getActivity()).getBgRes());
+		
+		temp = SharedPref.getTemp(getActivity());
 
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			refFreqOld.setCurrent(SharedPref.getConcertPitch(getActivity()));
+		} else {
+			refFreq.setValue(SharedPref.getConcertPitch(getActivity()));
+		}
+		
+		classify = new Classificator(SharedPref.getConcertPitch(getActivity()));
+
+		mf = new MedianFilter();
+		
+		// launch recording and analysis
 		sd = new SharedData(1024);
 		recorder = new Recorder(sd, 44100);
 		recorder.start();
@@ -138,11 +158,6 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 			analyzer = new AnalyzerWave(sd, recorder, this);
 
 		analyzer.execute();
-
-		classify = new Classificator(SharedPref.getBaseFreq(getActivity()
-				.getApplicationContext()));
-
-		mf = new MedianFilter();
 	}
 
 	@Override
@@ -183,7 +198,7 @@ public class TunerFragment extends Fragment implements IControlable, Informable 
 
 	public void postInformation(Double freq) {
 		// classify frequency
-		mf.addValue(classify.findTone(freq));
+		mf.addValue(classify.findTone(freq, temp));
 		
 		// return median from the list
 		Result r = mf.getMedian();

@@ -22,9 +22,10 @@ import kiv.janecekz.ma.common.Tones;
 
 public class Classificator {
 	private final double invLog2 = 1 / Math.log10(2.0);
-	private final double[] freqs = { 0.0, 1.0 / 12.0, 2.0 / 12.0, 3.0 / 12.0,
-			4.0 / 12.0, 5.0 / 12.0, 6.0 / 12.0, 7.0 / 12.0, 8.0 / 12.0,
-			9.0 / 12.0, 10.0 / 12.0, 11.0 / 12.0, 1.0 };
+	private final double[] eq = { 0.0, 100.0, 200.0, 300.0, 400.0, 500.0,
+			600.0, 700.0, 800.0, 900.0, 1000.0, 1100.0, 1200.0 };
+	private final double[] just = { 111.73, 203.91, 315.64, 386.31, 498.04,
+			582.51, 582.51, 701.96, 813.69, 884.36, 996.09, 1088.27, 1200.0 };
 
 	private int baseFreq;
 
@@ -57,9 +58,33 @@ public class Classificator {
 		this.baseFreq = baseFreq;
 	}
 
-	public Result findTone(double freq) {
+	/**
+	 * Classifies given frequency to the one tone.
+	 * 
+	 * @param freq
+	 *            frequency for analysis
+	 * @param temp
+	 *            required temperament
+	 * @return instance of the Result class. Tone, error and origin frequency.
+	 */
+	public Result findTone(double freq, int temp) {
 		double min = Double.MAX_VALUE;
 		Tones tone = Tones.A;
+		double div = 0.0;
+		int index = 0;
+
+		double[] freqs = null;
+
+		switch (temp) {
+		case 0: // Equal temperament
+			freqs = eq;
+			break;
+		case 1: // Just intonation
+			freqs = just;
+			break;
+		default:
+			break;
+		}
 
 		double n = log2(freq / baseFreq);
 
@@ -67,10 +92,10 @@ public class Classificator {
 		double fPart = n - iPart; // fractional part
 
 		if (freq < baseFreq)
-			fPart = 1 + fPart;
-		
-		double div = 0.0;
-		int index = 0;
+			fPart = fPart + 1;
+
+		fPart *= 1200;
+
 		for (int i = 0; i < freqs.length; i++) {
 			div = fPart - freqs[i];
 
@@ -81,13 +106,26 @@ public class Classificator {
 			}
 		}
 
-		return new Result(tone, min * 24, freq);
+		return new Result(tone, min / 50, freq);
 	}
 
+	/**
+	 * Returns logarithm of base 2.
+	 * 
+	 * @param x
+	 *            the value whose log has to be computed.
+	 * @return real number
+	 */
 	private Double log2(double x) {
 		return Math.log10(x) * invLog2;
 	}
 
+	/**
+	 * Changes convert pitch
+	 * 
+	 * @param newVal
+	 *            new value (390 to 460)
+	 */
 	public void changeRef(int newVal) {
 		this.baseFreq = newVal;
 	}

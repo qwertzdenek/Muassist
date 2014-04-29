@@ -18,8 +18,8 @@
         <item>rychlé</item>
     </string-array>
     
-	<string-array name="tuner_method">
-        <item>AMDF+ACF</item>
-        <item>Wavelet (experimentální)</item>
+	<string-array name="temp">
+        <item>Temperované</item>
+        <item>Čisté</item>
     </string-array>
 </resources>
