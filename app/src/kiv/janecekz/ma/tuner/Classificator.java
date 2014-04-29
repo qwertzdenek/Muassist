@@ -24,8 +24,8 @@ public class Classificator {
 	private final double invLog2 = 1 / Math.log10(2.0);
 	private final double[] eq = { 0.0, 100.0, 200.0, 300.0, 400.0, 500.0,
 			600.0, 700.0, 800.0, 900.0, 1000.0, 1100.0, 1200.0 };
-	private final double[] just = { 111.73, 203.91, 315.64, 386.31, 498.04,
-			582.51, 582.51, 701.96, 813.69, 884.36, 996.09, 1088.27, 1200.0 };
+	private final double[] just = { 0.0, 111.73, 203.91, 315.64, 386.31, 498.04,
+			582.51, 701.96, 813.69, 884.36, 996.09, 1088.27, 1200.0 };
 
 	private int baseFreq;
 
