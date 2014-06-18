@@ -1,6 +1,6 @@
 /*
 Musicians Assistant
-    Copyright (C) 2012  Zdeněk Janeček <jan.zdenek@gmail.com>
+    Copyright (C) 2012-2014  Zdeněk Janeček <jan.zdenek@gmail.com>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,73 +20,95 @@ package kiv.janecekz.ma.metronome;
 
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.Semaphore;
+
+import android.os.SystemClock;
 
 /**
- * This class controls {@code Peeper} and WakeLock.
+ * This class starts {@code Peeper} in time.
  * 
  * @author Zdeněk Janeček
  */
 public class Operator extends Thread implements Observer {
+	private Semaphore s;
     private int bpm = TempoControl.MIN_BPM;
+    private int split = 1;
     private Peeper peeper;
-    private boolean loop;
+    private boolean loop = true;
     private boolean play = false;
+    
+    private boolean newbpm = false;
+    private int beatTime;
 
     public Operator(Peeper peeper) {
         super();
 
         this.peeper = peeper;
+        this.s = new Semaphore(0); 
     }
 
     @Override
     public void run() {
+    	long waitStart;
         while (loop) {
             try {
-                pauseLoop();
-                Thread.sleep(60000 / bpm);
+            	if (!play) {
+            		s.acquire();
+            	}
+            	else {
+            		peeper.run(beatTime * split, newbpm);
+                    newbpm = false;
+            	}
+            	
+                waitStart = SystemClock.elapsedRealtime();
+                if (beatTime < 200) {
+                	while (SystemClock.elapsedRealtime() - waitStart < beatTime)
+                		;
+                } else {
+                	Thread.sleep(beatTime);
+                }
             } catch (InterruptedException e) {
                 loop = false;
                 break;
             }
-            peeper.run();
         }
     }
 
-    private synchronized void pauseLoop() throws InterruptedException {
-        if (!play) {
-            wait();
-        }
-    }
-
-    @Override
-    public void start() {
-        loop = true;
-        peeper.reset();
-        super.start();
-    }
-
-    public synchronized void finish() {
-        loop = false;
+    /**
+     * Stops the thread clearly.
+     */
+    public void finish() {
+    	loop = false;
+    	if (!play)
+    		s.release();
     }
 
     /**
      * Toggles play. User should use this method.
      */
-    public synchronized void togglePlay() {
+    public void togglePlay() {
         this.play = !play;
         
         if (play) {
-            notify();
+        	peeper.reset();
+            s.release();
         }
     }
 
     @Override
     public void update(Observable observable, Object data) {
-        TempoControl t = (TempoControl) observable;
-        bpm = t.getBPM();
+        bpm = ((TempoControl) observable).getBPM();
+        newbpm = true;
+        beatTime = 60000 / (bpm * split);
     }
 
-    public int getBpm() {
-        return bpm;
-    }
+	/**
+	 * Inserts sub-beats
+	 * 
+	 * @param split count of sub-beats
+	 */
+	public void setSplit(int split) {
+		this.split = split + 1;
+		beatTime = 60000 / (bpm * this.split);
+	}
 }

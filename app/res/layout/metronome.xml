@@ -13,22 +13,24 @@
         android:textSize="16sp" />
 
     <RelativeLayout
+        android:id="@+id/sunspace"
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        android:layout_marginTop="10dp"
-        android:id="@+id/sunspace" >
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="10dp" >
 
         <ImageView
-            android:id="@+id/sun"
-            android:layout_width="220dp"
-            android:layout_height="220dp"
+            android:id="@+id/pend"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:layout_centerInParent="true"
-            android:alpha="0"
             android:contentDescription="@string/image"
-            android:src="@drawable/sun"
-            android:visibility="visible" />
+            android:src="@drawable/metronome"
+            android:pivotX="50%"
+            android:pivotY="100%"
+            android:rotation="-45" />
 
         <ImageView
             android:id="@+id/circle"
@@ -53,5 +55,39 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true" />
     </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+        <Button
+            android:id="@+id/split1"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="1" />
+
+        <Button
+            android:id="@+id/split2"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="2" />
+
+        <Button
+            android:id="@+id/split3"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="3" />
+
+        <Button
+            android:id="@+id/split4"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp"
+            android:layout_weight="1"
+            android:text="4" />
+    </LinearLayout>
 
 </LinearLayout>

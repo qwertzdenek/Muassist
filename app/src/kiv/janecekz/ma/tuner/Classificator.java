@@ -100,12 +100,14 @@ public class Classificator {
 			div = fPart - freqs[i];
 
 			if (Math.abs(div) < Math.abs(min)) {
+				// move reference tone from A to C
 				index = (i + 9) % 12;
 				tone = Tones.values()[index];
 				min = div;
 			}
 		}
 
+		// scale to (-1; 1)
 		return new Result(tone, min / 50, freq);
 	}
 

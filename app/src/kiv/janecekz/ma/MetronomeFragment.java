@@ -31,8 +31,10 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.NumberPicker;
 import android.widget.NumberPicker.OnValueChangeListener;
@@ -43,7 +45,7 @@ import com.michaelnovakjr.numberpicker.NumberPicker.OnChangedListener;
 
 @SuppressLint("NewApi")
 public class MetronomeFragment extends Fragment implements IControlable,
-		Observer {
+		Observer, OnClickListener {
 
 	private android.widget.NumberPicker beatPicker;
 	private android.widget.NumberPicker bpmPicker;
@@ -59,22 +61,22 @@ public class MetronomeFragment extends Fragment implements IControlable,
 	private AlphaAnimation outAnim;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-
-		tc = new TempoControl();
-		tc.addObserver(this);
-	}
-
-	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.metronome, container, false);
 		RelativeLayout space = (RelativeLayout) v.findViewById(R.id.sunspace);
 		space.setOnTouchListener(TouchControl.getInstance());
 
-		peeper = new Peeper((byte) 0, (ImageView) v.findViewById(R.id.sun));
-		peeper.setTime(SharedPref.getTime(getActivity()));
+		peeper = new Peeper((byte) 0, (ImageView) v.findViewById(R.id.pend));
+		peeper.setBeats(SharedPref.getTime(getActivity()));
+
+		tc = new TempoControl();
+		tc.addObserver(this);
+		
+		v.findViewById(R.id.split1).setOnClickListener(this);
+		v.findViewById(R.id.split2).setOnClickListener(this);
+		v.findViewById(R.id.split3).setOnClickListener(this);
+		v.findViewById(R.id.split4).setOnClickListener(this);
 
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 			beatPickerOld = (com.michaelnovakjr.numberpicker.NumberPicker) v
@@ -83,9 +85,10 @@ public class MetronomeFragment extends Fragment implements IControlable,
 			beatPickerOld.setCurrent(SharedPref.getTime(getActivity()));
 			beatPickerOld.setOnChangeListener(new OnChangedListener() {
 				@Override
-				public void onChanged(com.michaelnovakjr.numberpicker.NumberPicker picker,
+				public void onChanged(
+						com.michaelnovakjr.numberpicker.NumberPicker picker,
 						int oldVal, int newVal) {
-					peeper.setTime(newVal);
+					peeper.setBeats(newVal);
 				}
 			});
 
@@ -95,7 +98,8 @@ public class MetronomeFragment extends Fragment implements IControlable,
 			bpmPickerOld.setCurrent(SharedPref.getBPM(getActivity()));
 			bpmPickerOld.setOnChangeListener(new OnChangedListener() {
 				@Override
-				public void onChanged(com.michaelnovakjr.numberpicker.NumberPicker picker,
+				public void onChanged(
+						com.michaelnovakjr.numberpicker.NumberPicker picker,
 						int oldVal, int newVal) {
 					tc.setBPM(newVal);
 				}
@@ -109,7 +113,7 @@ public class MetronomeFragment extends Fragment implements IControlable,
 				@Override
 				public void onValueChange(NumberPicker picker, int oldVal,
 						int newVal) {
-					peeper.setTime(newVal);
+					peeper.setBeats(newVal);
 				}
 			});
 
@@ -154,15 +158,15 @@ public class MetronomeFragment extends Fragment implements IControlable,
 	@Override
 	public void onPause() {
 		SharedPref.setBPM(getActivity(), tc.getBPM());
-		SharedPref.setTime(getActivity(), peeper.getTime());
+		SharedPref.setTime(getActivity(), peeper.getBeats());
 
 		super.onPause();
 	}
 
 	@Override
-	public void onDestroy() {
-		super.onDestroy();
-
+	public void onDestroyView() {
+		super.onDetach();
+		
 		op.finish();
 		tc.deleteObserver(op);
 		tc.deleteObserver(this);
@@ -198,9 +202,11 @@ public class MetronomeFragment extends Fragment implements IControlable,
 
 	@Override
 	public void onPositionChange(TouchControl t, int x, int y) {
-		RelativeLayout.LayoutParams pars = (LayoutParams) circle.getLayoutParams();
-		pars.setMargins(x - circle.getWidth() / 2, y - circle.getHeight() / 2, 0, 0);
-		
+		RelativeLayout.LayoutParams pars = (LayoutParams) circle
+				.getLayoutParams();
+		pars.setMargins(x - circle.getWidth() / 2, y - circle.getHeight() / 2,
+				0, 0);
+
 		circle.setLayoutParams(pars);
 	}
 
@@ -211,5 +217,33 @@ public class MetronomeFragment extends Fragment implements IControlable,
 		} else {
 			bpmPicker.setValue(((TempoControl) arg0).getBPM());
 		}
+	}
+
+	@Override
+	public void onClick(View arg0) {
+		if (!(arg0 instanceof Button))
+			return;
+
+		int split = 0;
+
+		switch (arg0.getId()) {
+		case R.id.split1:
+			split = 0;
+			break;
+		case R.id.split2:
+			split = 1;
+			break;
+		case R.id.split3:
+			split = 2;
+			break;
+		case R.id.split4:
+			split = 3;
+			break;
+		default:
+			break;
+		}
+
+		peeper.setSplit(split);
+		op.setSplit(split);
 	}
 }

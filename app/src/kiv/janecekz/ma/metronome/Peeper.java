@@ -22,36 +22,59 @@ import kiv.janecekz.ma.R;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
-import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 
 /**
- * This class plays peeps. Lenght of measure is hidden in the {@code time}
- * variable.
+ * Do animation and peep in the measure.
  * 
  * @author Zdeněk Janeček
- * 
  */
 public class Peeper {
-	private final int PEEP = 1;
-	private final int POP = 0;
+	private final float MAX_TIME = 60000f / 30f; // Min is 30 BPM
 
-	private final int[][] paternTable = { { PEEP }, { PEEP, POP },
-			{ PEEP, POP, POP }, { PEEP, POP, POP, POP } };
+	private final int PEEP = 0;
+	private final int POP = 1;
+	private final int POP2 = 2;
+
+	private final int[][] paternTable = {
+			{ PEEP },
+			{ PEEP, POP },
+			{ PEEP, POP, POP },
+			{ PEEP, POP, POP, POP },
+			{ PEEP, POP2 },
+			{ PEEP, POP2, POP, POP2 },
+			{ PEEP, POP2, POP, POP2, POP, POP2 },
+			{ PEEP, POP2, POP, POP2, POP, POP2, POP, POP2 },
+			{ PEEP, POP2, POP2 },
+			{ PEEP, POP2, POP2, POP, POP2, POP2 },
+			{ PEEP, POP2, POP2, POP, POP2, POP2, POP, POP2, POP2 },
+			{ PEEP, POP2, POP2, POP, POP2, POP2, POP, POP2, POP2, POP, POP2,
+					POP2 },
+			{ PEEP, POP2, POP2, POP2 },
+			{ PEEP, POP2, POP2, POP2, POP, POP2, POP2, POP2 },
+			{ PEEP, POP2, POP2, POP2, POP, POP2, POP2, POP2, POP, POP2, POP2,
+					POP2 },
+			{ PEEP, POP2, POP2, POP2, POP, POP2, POP2, POP2, POP, POP2, POP2,
+					POP2, POP, POP2, POP2, POP2 } };
 
 	private int[] peepIds;
 	private int[] popIds;
 
-	private AlphaAnimation[] fadeAnim = new AlphaAnimation[4];
-	private ImageView sun;
-	private AudioTrack[] snd = new AudioTrack[2];
+	private RotateAnimation[] tickAnim = new RotateAnimation[2];
+	private ImageView pend;
+	private AudioTrack[] snd = new AudioTrack[3];
 
-	private int time;
-	private int phase;
-	private int state;
+	private int time; // beat count in the measure
+	private int phase; // FA state in patternTable
+	private int state; // sound type to use
+	private int split; // count of sub-beats
+	private int ssplit; // actual sub-beat
+	private int move; // actual pendulum's target
 
-	public Peeper(byte choosen, ImageView sun) {
-		this.sun = sun;
+	public Peeper(byte choosen, ImageView pend) {
+		this.pend = pend;
 
 		peepIds = new int[] { R.raw.peep1, R.raw.peep2, R.raw.peep3 };
 		popIds = new int[] { R.raw.pop1, R.raw.pop2, R.raw.pop3 };
@@ -62,80 +85,111 @@ public class Peeper {
 		snd[POP] = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
 				AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
 				4330, AudioTrack.MODE_STATIC);
+		snd[POP2] = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
+				AudioFormat.CHANNEL_OUT_MONO, AudioFormat.ENCODING_PCM_16BIT,
+				4330, AudioTrack.MODE_STATIC);
 
 		setSound(choosen);
-		reset();
-
-		fadeAnim[2*PEEP] = new AlphaAnimation(0f, 1f);
-		fadeAnim[2*PEEP + 1] = new AlphaAnimation(1f, 0f);
-		fadeAnim[2*POP] = new AlphaAnimation(0f, 0.5f);
-		fadeAnim[2*POP + 1] = new AlphaAnimation(0.5f, 0f);
-		
-		for (int i = 0; i < 4; i++) {
-			fadeAnim[i].setDuration(100);
-		}
-		
-		fadeAnim[1].setFillAfter(true);
-		fadeAnim[1].setStartOffset(100);
-		
-		fadeAnim[3].setFillAfter(true);
-		fadeAnim[3].setStartOffset(100);
-		
-	}
-
-	public void run() {
-		state = paternTable[time][phase];
-
-		sun.post(new Runnable() {
-			@Override
-			public void run() {
-				snd[state].play();
-				snd[state].stop();
-				snd[state].reloadStaticData();
-				
-				sun.startAnimation(fadeAnim[state*2]);
-				sun.startAnimation(fadeAnim[state*2 + 1]);
-			}
-		});
-		phase = (phase + 1) % paternTable[time].length;
 	}
 
 	/**
-	 * Sets time Measure.
+	 * Do animation and peep.
 	 * 
-	 * @param time
-	 *            It means duration of one measure.
+	 * @param beatTime time between peeps in milliseconds
+	 * @param newbpm indicates new BPM value
 	 */
-	public void setTime(int time) {
+	public void run(int beatTime, boolean newbpm) {
+		// actual sound state
+		state = paternTable[split * 4 + time][phase];
+
+		snd[state].play();
+		snd[state].stop();
+		snd[state].reloadStaticData();
+
+		if (ssplit-- == 0) {
+			if (newbpm) {
+				float angle = 45 * (beatTime / MAX_TIME);
+				tickAnim[0] = new RotateAnimation(-angle, angle, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 1.0f);
+				tickAnim[1] = new RotateAnimation(angle, -angle, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 1.0f);
+				tickAnim[0].setFillAfter(true);
+				tickAnim[1].setFillAfter(true);
+			}
+			move = (move + 1) % 2;
+			tickAnim[move].setDuration(beatTime);
+			
+			pend.post(new Runnable() {
+				@Override
+				public void run() {
+					pend.startAnimation(tickAnim[move]);
+				}
+			});
+
+			ssplit = split;
+		}
+
+		phase = (phase + 1) % paternTable[split * 4 + time].length;
+	}
+
+	/**
+	 * Sets beats in measure.
+	 * 
+	 * @param time Count of beats (eg. 3/4 -> 3).
+	 */
+	public void setBeats(int time) {
 		this.time = time - 1;
-		phase = 0;
+		reset();
 	}
 
 	/**
 	 * Time measure getter
 	 * 
-	 * @return Count of peeps per measure.
+	 * @return Count of beats in measure.
 	 */
-	public int getTime() {
+	public int getBeats() {
 		return time + 1;
 	}
 
-	public void reset() {
-		phase = 0;
+	/**
+	 * Inserts sub-beats
+	 * 
+	 * @param split count of sub-beats
+	 */
+	public void setSplit(int split) {
+		this.split = split;
+		reset();
 	}
 
+	/**
+	 * Resets phase to the beginning.
+	 */
+	public void reset() {
+		phase = 0;
+		ssplit = 0;
+	}
+
+	/**
+	 * Clears sound buffer
+	 */
 	public void cleanup() {
 		snd[PEEP].release();
 		snd[POP].release();
+		snd[POP2].release();
 	}
 
+	/**
+	 * Change sound from the library.
+	 * 
+	 * @param intValue sound index (0..2)
+	 */
 	public void setSound(byte intValue) {
-		short[] peep = WavReader.readFile(sun.getContext(), peepIds[intValue]);
-		short[] pop = WavReader.readFile(sun.getContext(), popIds[intValue]);
+		short[] peep = WavReader.readFile(pend.getContext(), peepIds[intValue]);
+		short[] pop = WavReader.readFile(pend.getContext(), popIds[intValue]);
 
 		snd[PEEP].flush();
 		snd[POP].flush();
+		snd[POP2].flush();
 		snd[PEEP].write(peep, 0, peep.length);
 		snd[POP].write(pop, 0, pop.length);
+		snd[POP2].write(pop, 0, pop.length);
 	}
 }
