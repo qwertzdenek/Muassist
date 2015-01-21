@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory android:title="@string/setup_global">
+        <ListPreference
+            android:defaultValue="0"
+            android:dialogTitle="@string/setup_color_title"
+            android:entries="@array/bgColors"
+            android:entryValues="@array/bgColors_values"
+            android:key="@string/pref_key_bg"
+            android:summary="@string/pref_color"
+            android:title="@string/pref_color_title" />
+
+        <CheckBoxPreference
+            android:defaultValue="true"
+            android:key="@string/pref_key_orientation"
+            android:summary="@string/pref_orientation"
+            android:title="@string/pref_orientation_title" />
+
+        <ListPreference
+            android:defaultValue="100"
+            android:dialogTitle="@string/setup_speed_title"
+            android:entries="@array/touchSp"
+            android:entryValues="@array/touchSp_values"
+            android:key="@string/pref_key_speed"
+            android:summary="@string/pref_speed"
+            android:title="@string/pref_speed_title" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/title_section_metronome">
+        <ListPreference
+            android:defaultValue="0"
+            android:dialogTitle="@string/setup_sound_title"
+            android:entries="@array/sounds"
+            android:entryValues="@array/sounds_values"
+            android:key="@string/pref_key_sound"
+            android:summary="@string/pref_sound"
+            android:title="@string/pref_sound_title" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/title_section_tone">
+        <ListPreference
+            android:defaultValue="440"
+            android:dialogTitle="@string/setup_tone_title"
+            android:entries="@array/afreq"
+            android:entryValues="@array/afreq"
+            android:key="@string/pref_key_tone"
+            android:summary="@string/pref_tone"
+            android:title="@string/pref_tone_title" />
+        <ListPreference
+            android:defaultValue="9"
+            android:dialogTitle="@string/setup_harm_title"
+            android:entries="@array/aharm"
+            android:entryValues="@array/aharm"
+            android:key="@string/pref_key_harm"
+            android:summary="@string/pref_harm"
+            android:title="@string/pref_harm_title" />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/title_section_tuner">
+        <ListPreference
+            android:defaultValue="0"
+            android:dialogTitle="@string/setup_temp_title"
+            android:entries="@array/temp"
+            android:entryValues="@array/temp_vals"
+            android:key="@string/pref_key_temperament"
+            android:summary="@string/pref_temp"
+            android:title="@string/pref_temp_title" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

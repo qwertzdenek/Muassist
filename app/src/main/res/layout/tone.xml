@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="fill_parent"
+    android:id="@+id/sunspace">
+
+    <ImageView
+        android:id="@+id/circle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha="1"
+        android:contentDescription="@string/image"
+        android:src="@drawable/circle"
+        android:visibility="invisible" />
+
+    <HorizontalScrollView
+        android:id="@+id/tone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:scrollbars="none"
+        android:layout_marginTop="10dp">
+
+        <LinearLayout
+            android:id="@+id/tone_list"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/toneC"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10sp"
+                android:text="@string/C"
+                android:textColor="@color/blue"
+                android:textSize="40sp" />
+
+            <TextView
+                android:id="@+id/toneD"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10sp"
+                android:text="@string/D"
+                android:textColor="@color/blue"
+                android:textSize="40sp" />
+
+            <TextView
+                android:id="@+id/toneE"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10sp"
+                android:text="@string/E"
+                android:textColor="@color/blue"
+                android:textSize="40sp" />
+
+            <TextView
+                android:id="@+id/toneF"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10sp"
+                android:text="@string/F"
+                android:textColor="@color/blue"
+                android:textSize="40sp" />
+
+            <TextView
+                android:id="@+id/toneG"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10sp"
+                android:text="@string/G"
+                android:textColor="@color/blue"
+                android:textSize="40sp" />
+
+            <TextView
+                android:id="@+id/toneA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10sp"
+                android:text="@string/A"
+                android:textColor="@color/blue"
+                android:textSize="40sp" />
+
+            <TextView
+                android:id="@+id/toneB"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="10sp"
+                android:text="@string/B"
+                android:textColor="@color/blue"
+                android:textSize="40sp" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <TextView
+        android:id="@+id/sharp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tone"
+        android:layout_centerHorizontal="true"
+        android:padding="10sp"
+        android:text="@string/sharp"
+        android:textColor="@color/blue"
+        android:textSize="40sp" />
+
+    <EditText
+        android:id="@+id/tone_value_edit"
+        android:layout_width="100sp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/sharp"
+        android:layout_centerHorizontal="true"
+        android:ems="10"
+        android:inputType="numberDecimal" />
+
+</RelativeLayout>

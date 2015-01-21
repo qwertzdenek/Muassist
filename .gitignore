@@ -1,1 +1,6 @@
 .settings
+*.properties
+.gradle
+.idea
+build/
+
