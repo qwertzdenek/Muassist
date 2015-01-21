@@ -62,7 +62,19 @@ public class Operator extends Thread implements Observer {
                 waitStart = SystemClock.elapsedRealtime();
                 if (beatTime < 200) {
                     while (SystemClock.elapsedRealtime() - waitStart < beatTime)
-                        ;
+                    {
+                        for (int i = 0; i < 21; i++) {
+                            // do something funny, we have plenty of time :)
+                            beatTime = (beatTime + 42) << 2;
+                            beatTime = beatTime >> 2;
+                            beatTime -= 42;
+                            beatTime++;
+                            beatTime = (beatTime - 42) << 2;
+                            beatTime = beatTime >> 2;
+                            beatTime += 42;
+                            beatTime--;
+                        }
+                    }
                 } else {
                     Thread.sleep(beatTime);
                 }
