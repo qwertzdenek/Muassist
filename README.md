@@ -1,6 +1,8 @@
 Muassist
 ===================
 
+[![Join the chat at https://gitter.im/qwertzdenek/Muassist](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/qwertzdenek/Muassist?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This is my long-term Android project that I have started in the spring of the 2012 as metronome.
 Thank you for your ideas to make things better. This project was part of my Bachelor
 thesis on the University of West Bohemia.
